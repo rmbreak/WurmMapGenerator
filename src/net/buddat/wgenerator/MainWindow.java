@@ -51,9 +51,19 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.awt.event.ActionEvent;
+import java.awt.BorderLayout;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame implements FocusListener {
+
+	private static final String version = "2.0.0";
+	private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
+	private WurmAPI api;
+	private HeightMap heightMap;
+	private TileMap tileMap;
+	private ArrayList<String> genHistory;
+	private boolean apiClosed = true;
+	private MapPanel mapPanel;
 
 	private JPanel contentPane;
 	private JTextField textField_mapSeed;
@@ -99,7 +109,6 @@ public class MainWindow extends JFrame implements FocusListener {
 	private JComboBox<Tile> comboBox_biomeType;
 	private JCheckBox checkbox_moreLand;
 	private JCheckBox checkbox_mapRandomSeed;
-
 	private JButton btnGenerateHeightmap;
 	private JButton btnErodeHeightmap;
 	private JButton btnUpdateWater;
@@ -108,21 +117,21 @@ public class MainWindow extends JFrame implements FocusListener {
 	private JButton btnResetBiomes;
 	private JButton btnUndoLastBiome;
 	private JButton btnAddBiome;
-
-
-	private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
-	private WurmAPI api;
-	private HeightMap heightMap;
-	private TileMap tileMap;
-	private ArrayList<String> genHistory;
-	private boolean apiClosed = true;
-	private MapPanel mapPanel;
 	private JLabel lblWater;
 	private JCheckBox checkbox_AroundWater;
+	private JTextField textField_growthMin;
+	private JTextField textField_growthMax;
+	private JCheckBox checkbox_growthRandom;
+	private JButton btnSaveMapFiles;
+	private JButton btnSaveImageDumps;
+	private JButton btnSaveActions;
+	private JButton btnLoadActions;
+	private JButton btnViewHeight;
+	private JButton btnViewCave;
+	private JButton btnTopo;
+	private JButton btnViewMap;
 
-	//TODO error reporting
-	//TODO tooltips EVERYWHERE
-	
+
 	public static void main(String[] args) {
 		try {
 			UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
@@ -144,7 +153,7 @@ public class MainWindow extends JFrame implements FocusListener {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public MainWindow() {
-		setTitle("Wurm Map Generator");
+		setTitle("Wurm Map Generator - v"+version);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 951, 650);
 		contentPane = new JPanel();
@@ -181,9 +190,9 @@ public class MainWindow extends JFrame implements FocusListener {
 										.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
 												.addComponent(viewPanel, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 541, Short.MAX_VALUE)
 												.addComponent(mapPanel, GroupLayout.DEFAULT_SIZE, 541, Short.MAX_VALUE))
-										.addPreferredGap(ComponentPlacement.RELATED)
-										.addComponent(optionsPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-						.addContainerGap())
+												.addPreferredGap(ComponentPlacement.RELATED)
+												.addComponent(optionsPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+												.addContainerGap())
 				);
 		gl_contentPane.setVerticalGroup(
 				gl_contentPane.createParallelGroup(Alignment.LEADING)
@@ -195,40 +204,20 @@ public class MainWindow extends JFrame implements FocusListener {
 										.addComponent(mapPanel, GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
 										.addPreferredGap(ComponentPlacement.RELATED)
 										.addComponent(viewPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-								.addComponent(optionsPane, GroupLayout.DEFAULT_SIZE, 571, Short.MAX_VALUE))
-						.addContainerGap())
+										.addComponent(optionsPane, GroupLayout.DEFAULT_SIZE, 571, Short.MAX_VALUE))
+										.addContainerGap())
 				);
 
-		JButton btnViewMap = new JButton("View Map");
-		btnViewMap.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				actionViewMap();
-			}
-		});
+		btnViewMap = new JButton("View Map");
 		viewPanel.add(btnViewMap);
 
-		JButton btnTopo = new JButton("View Topo");
-		btnTopo.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				actionViewTopo();
-			}
-		});
+		btnTopo = new JButton("View Topo");
 		viewPanel.add(btnTopo);
 
-		JButton btnViewCave = new JButton("View Cave");
-		btnViewCave.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				actionViewCave();
-			}
-		});
+		btnViewCave = new JButton("View Cave");
 		viewPanel.add(btnViewCave);
 
-		JButton btnViewHeight = new JButton("View Heightmap");
-		btnViewHeight.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				actionViewHeightmap();
-			}
-		});
+		btnViewHeight = new JButton("View Heightmap");
 		viewPanel.add(btnViewHeight);
 
 		JPanel heightmapPanel = new JPanel();
@@ -314,11 +303,6 @@ public class MainWindow extends JFrame implements FocusListener {
 		JPanel panel_7 = new JPanel();
 
 		btnGenerateHeightmap = new JButton("Generate Heightmap");
-		btnGenerateHeightmap.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				actionGenerateHeightmap();
-			}
-		});
 		panel_7.add(btnGenerateHeightmap);
 		GroupLayout gl_heightmapPanel = new GroupLayout(heightmapPanel);
 		gl_heightmapPanel.setHorizontalGroup(
@@ -328,7 +312,7 @@ public class MainWindow extends JFrame implements FocusListener {
 						.addGroup(gl_heightmapPanel.createParallelGroup(Alignment.TRAILING)
 								.addComponent(panel_6, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
 								.addComponent(panel_7, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
-						.addContainerGap())
+								.addContainerGap())
 				);
 		gl_heightmapPanel.setVerticalGroup(
 				gl_heightmapPanel.createParallelGroup(Alignment.TRAILING)
@@ -383,11 +367,6 @@ public class MainWindow extends JFrame implements FocusListener {
 		JPanel panel_5 = new JPanel();
 
 		btnErodeHeightmap = new JButton("Erode Heightmap");
-		btnErodeHeightmap.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				actionErodeHeightmap();
-			}
-		});
 		panel_5.add(btnErodeHeightmap);
 		GroupLayout gl_erosionPanel = new GroupLayout(erosionPanel);
 		gl_erosionPanel.setHorizontalGroup(
@@ -397,7 +376,7 @@ public class MainWindow extends JFrame implements FocusListener {
 						.addGroup(gl_erosionPanel.createParallelGroup(Alignment.TRAILING)
 								.addComponent(panel_1, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
 								.addComponent(panel_5, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
-						.addContainerGap())
+								.addContainerGap())
 				);
 		gl_erosionPanel.setVerticalGroup(
 				gl_erosionPanel.createParallelGroup(Alignment.TRAILING)
@@ -485,11 +464,6 @@ public class MainWindow extends JFrame implements FocusListener {
 		JPanel panel_13 = new JPanel();
 
 		btnDropDirt = new JButton("Drop Dirt");
-		btnDropDirt.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				actionDropDirt();
-			}
-		});
 		panel_13.add(btnDropDirt);
 		GroupLayout gl_dropDirtPanel = new GroupLayout(dropDirtPanel);
 		gl_dropDirtPanel.setHorizontalGroup(
@@ -499,7 +473,7 @@ public class MainWindow extends JFrame implements FocusListener {
 						.addGroup(gl_dropDirtPanel.createParallelGroup(Alignment.LEADING)
 								.addComponent(panel_9, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
 								.addComponent(panel_13, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
-						.addContainerGap())
+								.addContainerGap())
 				);
 		gl_dropDirtPanel.setVerticalGroup(
 				gl_dropDirtPanel.createParallelGroup(Alignment.TRAILING)
@@ -512,11 +486,6 @@ public class MainWindow extends JFrame implements FocusListener {
 				);
 
 		btnUpdateWater = new JButton("Update Water");
-		btnUpdateWater.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				actionDropWater();
-			}
-		});
 		panel_13.add(btnUpdateWater);
 		dropDirtPanel.setLayout(gl_dropDirtPanel);
 
@@ -526,16 +495,17 @@ public class MainWindow extends JFrame implements FocusListener {
 
 		JPanel panel_14 = new JPanel();
 
+		JPanel panel_8 = new JPanel();
+		panel_14.add(panel_8);
+		panel_8.setLayout(new BorderLayout(0, 0));
+
 		JPanel panel_15 = new JPanel();
-		panel_14.add(panel_15);
+		panel_8.add(panel_15);
 		panel_15.setLayout(new GridLayout(0, 2, 0, 0));
 
 		JPanel panel_16 = new JPanel();
 		panel_15.add(panel_16);
 		panel_16.setLayout(new GridLayout(0, 1, 0, 2));
-
-		JLabel lblType = new JLabel("Type");
-		panel_16.add(lblType);
 
 		JLabel lblSeedCount = new JLabel("Seed Count");
 		panel_16.add(lblSeedCount);
@@ -551,7 +521,7 @@ public class MainWindow extends JFrame implements FocusListener {
 
 		JLabel lblMaxHeight_1 = new JLabel("Max Height");
 		panel_16.add(lblMaxHeight_1);
-		
+
 		lblWater = new JLabel("Water: "+textField_waterHeight.getText());
 		panel_16.add(lblWater);
 
@@ -570,19 +540,18 @@ public class MainWindow extends JFrame implements FocusListener {
 		JLabel lblWest = new JLabel(" - West");
 		panel_16.add(lblWest);
 
+		JLabel label_3 = new JLabel("");
+		panel_16.add(label_3);
+
+		JLabel lblRandomMin = new JLabel("Random Min");
+		panel_16.add(lblRandomMin);
+
+		JLabel lblRandomMax = new JLabel("Random Max");
+		panel_16.add(lblRandomMax);
+
 		JPanel panel_17 = new JPanel();
 		panel_15.add(panel_17);
 		panel_17.setLayout(new GridLayout(0, 1, 0, 2));
-
-		comboBox_biomeType = new JComboBox(new Tile[] { Tile.TILE_CLAY, Tile.TILE_DIRT, Tile.TILE_DIRT_PACKED, Tile.TILE_GRASS, Tile.TILE_GRAVEL, Tile.TILE_KELP,
-				Tile.TILE_LAVA, Tile.TILE_MARSH, Tile.TILE_MOSS, Tile.TILE_MYCELIUM, Tile.TILE_PEAT, Tile.TILE_REED, Tile.TILE_SAND, Tile.TILE_STEPPE, 
-				Tile.TILE_TAR, Tile.TILE_TUNDRA, Tile.TILE_TREE_APPLE, Tile.TILE_TREE_BIRCH, Tile.TILE_TREE_CEDAR, Tile.TILE_TREE_CHERRY, Tile.TILE_TREE_CHESTNUT, 
-				Tile.TILE_TREE_FIR, Tile.TILE_TREE_LEMON, Tile.TILE_TREE_LINDEN, Tile.TILE_TREE_MAPLE, Tile.TILE_TREE_OAK, Tile.TILE_TREE_OLIVE, Tile.TILE_TREE_PINE,
-				Tile.TILE_TREE_WALNUT, Tile.TILE_TREE_WILLOW, Tile.TILE_BUSH_CAMELLIA, Tile.TILE_BUSH_GRAPE, Tile.TILE_BUSH_LAVENDER, Tile.TILE_BUSH_OLEANDER,
-				Tile.TILE_BUSH_ROSE, Tile.TILE_BUSH_THORN
-		});
-		comboBox_biomeType.setSelectedIndex(12); // 12 = SAND
-		panel_17.add(comboBox_biomeType);
 
 		textField_seedCount = new JTextField("" + Constants.BIOME_SEEDS);
 		textField_seedCount.setColumns(10);
@@ -603,7 +572,7 @@ public class MainWindow extends JFrame implements FocusListener {
 		textField_biomeMaxHeight = new JTextField("" + Constants.BIOME_MAX_HEIGHT);
 		textField_biomeMaxHeight.setColumns(10);
 		panel_17.add(textField_biomeMaxHeight);
-		
+
 		checkbox_AroundWater = new JCheckBox("Around Water", true);
 		panel_17.add(checkbox_AroundWater);
 
@@ -611,37 +580,75 @@ public class MainWindow extends JFrame implements FocusListener {
 		panel_17.add(label_6);
 
 		textField_growthN = new JTextField("" + Constants.BIOME_RATE / 2);
+		textField_growthN.setEnabled(false);
 		panel_17.add(textField_growthN);
 		textField_growthN.setColumns(10);
 
 		textField_growthS = new JTextField("" + (int) (Constants.BIOME_RATE * 1.3));
+		textField_growthS.setEnabled(false);
 		panel_17.add(textField_growthS);
 		textField_growthS.setColumns(10);
 
 		textField_growthE = new JTextField("" + (int) (Constants.BIOME_RATE * 0.6));
+		textField_growthE.setEnabled(false);
 		panel_17.add(textField_growthE);
 		textField_growthE.setColumns(10);
 
 		textField_growthW = new JTextField("" + Constants.BIOME_RATE);
+		textField_growthW.setEnabled(false);
 		panel_17.add(textField_growthW);
 		textField_growthW.setColumns(10);
+
+		checkbox_growthRandom = new JCheckBox("Randomize");
+		checkbox_growthRandom.setSelected(true);
+		checkbox_growthRandom.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (checkbox_growthRandom.isSelected()) {
+					textField_growthN.setEnabled(false);
+					textField_growthS.setEnabled(false);
+					textField_growthE.setEnabled(false);
+					textField_growthW.setEnabled(false);
+					textField_growthMin.setEnabled(true);
+					textField_growthMax.setEnabled(true);
+				} else {
+					textField_growthN.setEnabled(true);
+					textField_growthS.setEnabled(true);
+					textField_growthE.setEnabled(true);
+					textField_growthW.setEnabled(true);
+					textField_growthMin.setEnabled(false);
+					textField_growthMax.setEnabled(false);
+				}
+			}
+		});
+		panel_17.add(checkbox_growthRandom);
+
+		textField_growthMin = new JTextField("" + Constants.BIOME_RANDOM_MIN);
+		panel_17.add(textField_growthMin);
+		textField_growthMin.setColumns(10);
+
+		textField_growthMax = new JTextField("" + Constants.BIOME_RANDOM_MAX);
+		panel_17.add(textField_growthMax);
+		textField_growthMax.setColumns(10);
+
+		JPanel panel_27 = new JPanel();
+		panel_8.add(panel_27, BorderLayout.NORTH);
+
+		comboBox_biomeType = new JComboBox(new Tile[] { Tile.TILE_CLAY, Tile.TILE_DIRT, Tile.TILE_DIRT_PACKED, Tile.TILE_GRASS, Tile.TILE_GRAVEL, Tile.TILE_KELP,
+				Tile.TILE_LAVA, Tile.TILE_MARSH, Tile.TILE_MOSS, Tile.TILE_MYCELIUM, Tile.TILE_PEAT, Tile.TILE_REED, Tile.TILE_SAND, Tile.TILE_STEPPE, 
+				Tile.TILE_TAR, Tile.TILE_TUNDRA, Tile.TILE_TREE_APPLE, Tile.TILE_TREE_BIRCH, Tile.TILE_TREE_CEDAR, Tile.TILE_TREE_CHERRY, Tile.TILE_TREE_CHESTNUT, 
+				Tile.TILE_TREE_FIR, Tile.TILE_TREE_LEMON, Tile.TILE_TREE_LINDEN, Tile.TILE_TREE_MAPLE, Tile.TILE_TREE_OAK, Tile.TILE_TREE_OLIVE, Tile.TILE_TREE_PINE,
+				Tile.TILE_TREE_WALNUT, Tile.TILE_TREE_WILLOW, Tile.TILE_BUSH_CAMELLIA, Tile.TILE_BUSH_GRAPE, Tile.TILE_BUSH_LAVENDER, Tile.TILE_BUSH_OLEANDER,
+				Tile.TILE_BUSH_ROSE, Tile.TILE_BUSH_THORN
+		});
+		panel_27.add(comboBox_biomeType);
+		comboBox_biomeType.setSelectedIndex(12);
 
 		JPanel panel_18 = new JPanel();
 
 		btnAddBiome = new JButton("Add Biome");
-		btnAddBiome.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				actionSeedBiome();
-			}
-		});
 		panel_18.add(btnAddBiome);
 
 		btnUndoLastBiome = new JButton("Undo Last");
-		btnUndoLastBiome.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				actionUndoBiome();
-			}
-		});
 		panel_18.add(btnUndoLastBiome);
 		GroupLayout gl_biomePanel = new GroupLayout(biomePanel);
 		gl_biomePanel.setHorizontalGroup(
@@ -651,7 +658,7 @@ public class MainWindow extends JFrame implements FocusListener {
 						.addGroup(gl_biomePanel.createParallelGroup(Alignment.LEADING)
 								.addComponent(panel_14, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
 								.addComponent(panel_18, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
-						.addContainerGap())
+								.addContainerGap())
 				);
 		gl_biomePanel.setVerticalGroup(
 				gl_biomePanel.createParallelGroup(Alignment.TRAILING)
@@ -664,11 +671,6 @@ public class MainWindow extends JFrame implements FocusListener {
 				);
 
 		btnResetBiomes = new JButton("Reset All");
-		btnResetBiomes.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				actionResetBiomes();
-			}
-		});
 		panel_18.add(btnResetBiomes);
 		biomePanel.setLayout(gl_biomePanel);
 
@@ -833,11 +835,6 @@ public class MainWindow extends JFrame implements FocusListener {
 		JPanel panel_23 = new JPanel();
 
 		btnGenerateOres = new JButton("Generate Ores");
-		btnGenerateOres.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				actionGenerateOres();
-			}
-		});
 		panel_23.add(btnGenerateOres);
 		GroupLayout gl_orePanel = new GroupLayout(orePanel);
 		gl_orePanel.setHorizontalGroup(
@@ -847,7 +844,7 @@ public class MainWindow extends JFrame implements FocusListener {
 						.addGroup(gl_orePanel.createParallelGroup(Alignment.TRAILING)
 								.addComponent(panel_19, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
 								.addComponent(panel_23, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
-						.addContainerGap())
+								.addContainerGap())
 				);
 		gl_orePanel.setVerticalGroup(
 				gl_orePanel.createParallelGroup(Alignment.TRAILING)
@@ -866,12 +863,8 @@ public class MainWindow extends JFrame implements FocusListener {
 
 		JPanel panel_24 = new JPanel();
 
-		JPanel panel_25 = new JPanel();
-		panel_24.add(panel_25);
-		panel_25.setLayout(new GridLayout(0, 1, 0, 0));
-
 		JPanel panel_26 = new JPanel();
-		panel_25.add(panel_26);
+		panel_24.add(panel_26);
 		panel_26.setLayout(new GridLayout(0, 1, 0, 2));
 
 		JLabel lblNewLabel_2 = new JLabel("Map Name");
@@ -885,41 +878,29 @@ public class MainWindow extends JFrame implements FocusListener {
 		JLabel label_1 = new JLabel("");
 		panel_26.add(label_1);
 
-		JButton btnSaveImageDumps = new JButton("Save Image Dumps");
-		btnSaveImageDumps.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				actionSaveImages();
-			}
-		});
+		btnSaveImageDumps = new JButton("Save Image Dumps");
 		panel_26.add(btnSaveImageDumps);
 
-		JButton btnSaveMapFiles = new JButton("Save Map Files");
-		btnSaveMapFiles.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				actionSaveMap();
+		btnSaveMapFiles = new JButton("Save Map Files");
+		panel_26.add(btnSaveMapFiles);
+
+		btnSaveActions = new JButton("Save Actions");
+
+		JLabel label_2 = new JLabel("");
+		panel_26.add(label_2);
+		panel_26.add(btnSaveActions);
+
+		btnLoadActions = new JButton("Load Actions");
+		btnLoadActions.setEnabled(true);
+		panel_26.add(btnLoadActions);
+
+		JButton btnClearActions = new JButton("Clear Actions");
+		btnClearActions.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				genHistory.clear();
 			}
 		});
-		panel_26.add(btnSaveMapFiles);
-		
-				JButton btnSaveActions = new JButton("Save Actions");
-				btnSaveActions.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						actionSaveActions();
-					}
-				});
-				
-				JLabel label_2 = new JLabel("");
-				panel_26.add(label_2);
-				panel_26.add(btnSaveActions);
-				
-						JButton btnLoadActions = new JButton("Load Actions");
-						btnLoadActions.setEnabled(false);
-						btnLoadActions.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
-								actionLoadActions();
-							}
-						});
-						panel_26.add(btnLoadActions);
+		panel_26.add(btnClearActions);
 		GroupLayout gl_actionPanel = new GroupLayout(actionPanel);
 		gl_actionPanel.setHorizontalGroup(
 				gl_actionPanel.createParallelGroup(Alignment.LEADING)
@@ -942,8 +923,208 @@ public class MainWindow extends JFrame implements FocusListener {
 	}
 
 	private void init() {
+		setupButtonActions();
 		setRockTotal();
 	}
+
+	private void setupButtonActions() {
+
+		btnViewMap.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionViewMap();
+					}
+				}.start();
+			}
+		});
+		btnTopo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionViewTopo();
+					}
+				}.start();
+			}
+		});
+		btnViewCave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionViewCave();
+					}
+				}.start();
+			}
+		});
+		btnViewHeight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionViewHeightmap();
+					}
+				}.start();
+			}
+		});
+		btnGenerateHeightmap.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionGenerateHeightmap();
+					}
+				}.start();
+			}
+		});
+		btnErodeHeightmap.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionErodeHeightmap();
+					}
+				}.start();
+			}
+		});
+		btnDropDirt.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionDropDirt();
+					}
+				}.start();
+			}
+		});
+		btnUpdateWater.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionUpdateWater();
+					}
+				}.start();
+			}
+		});
+		btnAddBiome.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionSeedBiome();
+					}
+				}.start();
+			}
+		});
+		btnUndoLastBiome.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionUndoBiome();
+					}
+				}.start();
+			}
+		});
+		btnResetBiomes.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionResetBiomes();
+					}
+				}.start();
+			}
+		});
+		btnGenerateOres.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionGenerateOres();
+					}
+				}.start();
+			}
+		});
+		btnSaveImageDumps.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionSaveImages();
+					}
+				}.start();
+			}
+		});
+		btnSaveMapFiles.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionSaveMap();
+					}
+				}.start();
+			}
+		});
+		btnSaveActions.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionSaveActions();
+					}
+				}.start();
+			}
+		});
+		btnLoadActions.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionLoadActions();
+					}
+				}.start();
+			}
+		});
+
+	}
+
+
 
 	private void startLoading(String task) {
 		progressBar.setValue(0);
@@ -962,38 +1143,30 @@ public class MainWindow extends JFrame implements FocusListener {
 
 	public void actionGenerateHeightmap () {
 
-		if (!actionReady())
-			return;
+		startLoading("Generating Height Map ()");
+		try {
+			api = null;
+			genHistory = new ArrayList<String>();
 
-		new Thread() {
-			@Override
-			public void run() {
-				startLoading("Generating Height Map ()");
-				try {
-					api = null;
-					genHistory = new ArrayList<String>();
-
-					if (checkbox_mapRandomSeed.isSelected()) {
-						textField_mapSeed.setText("" + System.currentTimeMillis());
-					}
-
-					mapPanel.setMapSize((int) comboBox_mapSize.getSelectedItem());
-
-					newHeightMap(textField_mapSeed.getText().hashCode(), (int) comboBox_mapSize.getSelectedItem(), 
-							Double.parseDouble(textField_mapResolution.getText()), Integer.parseInt(textField_mapIterations.getText()), 
-							Integer.parseInt(textField_mapMinEdge.getText()), Double.parseDouble(textField_mapBorderWeight.getText()), 
-							Integer.parseInt(textField_mapMaxHeight.getText()), checkbox_moreLand.isSelected());
-
-					genHistory.add("HEIGHTMAP:" + textField_mapSeed.getText() + "," + comboBox_mapSize.getSelectedIndex() + "," + textField_mapResolution.getText() + "," +
-							textField_mapIterations.getText() + "," + textField_mapMinEdge.getText() + "," + textField_mapBorderWeight.getText() + "," +
-							textField_mapMaxHeight.getText() + "," + checkbox_moreLand.isSelected());
-				} catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Generating HeightMap", JOptionPane.ERROR_MESSAGE);
-				} finally {
-					stopLoading();
-				}
+			if (checkbox_mapRandomSeed.isSelected()) {
+				textField_mapSeed.setText("" + System.currentTimeMillis());
 			}
-		}.start();
+
+			mapPanel.setMapSize((int) comboBox_mapSize.getSelectedItem());
+
+			newHeightMap(textField_mapSeed.getText().hashCode(), (int) comboBox_mapSize.getSelectedItem(), 
+					Double.parseDouble(textField_mapResolution.getText()), Integer.parseInt(textField_mapIterations.getText()), 
+					Integer.parseInt(textField_mapMinEdge.getText()), Double.parseDouble(textField_mapBorderWeight.getText()), 
+					Integer.parseInt(textField_mapMaxHeight.getText()), checkbox_moreLand.isSelected());
+
+			genHistory.add("HEIGHTMAP:" + textField_mapSeed.getText() + "," + comboBox_mapSize.getSelectedIndex() + "," + textField_mapResolution.getText() + "," +
+					textField_mapIterations.getText() + "," + textField_mapMinEdge.getText() + "," + textField_mapBorderWeight.getText() + "," +
+					textField_mapMaxHeight.getText() + "," + checkbox_moreLand.isSelected());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Generating HeightMap", JOptionPane.ERROR_MESSAGE);
+		} finally {
+			stopLoading();
+		}
 	}
 
 	public void actionErodeHeightmap () {
@@ -1002,27 +1175,19 @@ public class MainWindow extends JFrame implements FocusListener {
 			return;
 		}
 
-		if (!actionReady())
-			return;
+		startLoading("Eroding Height Map ()");
+		try {
+			heightMap.erode(Integer.parseInt(textField_erodeIterations.getText()), Integer.parseInt(textField_erodeMinSlope.getText()), 
+					Integer.parseInt(textField_erodeSediment.getText()), progressBar);
 
-		new Thread() {
-			@Override
-			public void run() {
-				startLoading("Eroding Height Map ()");
-				try {
-					heightMap.erode(Integer.parseInt(textField_erodeIterations.getText()), Integer.parseInt(textField_erodeMinSlope.getText()), 
-							Integer.parseInt(textField_erodeSediment.getText()), progressBar);
+			updateMapView(false, 0);
 
-					updateMapView(false, 0);
-
-					genHistory.add("ERODE:" + textField_erodeIterations.getText() + "," + textField_erodeMinSlope.getText() + "," + textField_erodeSediment.getText());
-				} catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Eroding HeightMap", JOptionPane.ERROR_MESSAGE);
-				} finally {
-					stopLoading();
-				}
-			}
-		}.start();
+			genHistory.add("ERODE:" + textField_erodeIterations.getText() + "," + textField_erodeMinSlope.getText() + "," + textField_erodeSediment.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Eroding HeightMap", JOptionPane.ERROR_MESSAGE);
+		} finally {
+			stopLoading();
+		}
 	}
 
 	public void actionDropDirt () {
@@ -1031,39 +1196,31 @@ public class MainWindow extends JFrame implements FocusListener {
 			return;
 		}
 
-		if (!actionReady())
-			return;
-
-		new Thread() {
-			@Override
-			public void run() {
-				startLoading("Dropping Dirt ()");
-				try {
-					if (checkbox_biomeRandomSeed.isSelected()) {
-						textField_biomeSeed.setText("" + System.currentTimeMillis());
-					}
-					lblWater.setText("Water: "+textField_waterHeight.getText());
-
-					tileMap = new TileMap(heightMap);
-					tileMap.setBiomeSeed(textField_biomeSeed.getText().hashCode());
-					tileMap.setWaterHeight(Integer.parseInt(textField_waterHeight.getText()));
-					tileMap.dropDirt(Integer.parseInt(textField_dirtPerTile.getText()), Integer.parseInt(textField_maxDirtSlope.getText()), 
-							Integer.parseInt(textField_maxDiagSlope.getText()), Integer.parseInt(textField_maxDirtHeight.getText()), progressBar);
-
-					updateMapView(true, 0);
-
-					genHistory.add("DROPDIRT:" + textField_biomeSeed.getText() + "," + textField_waterHeight.getText() + "," + textField_dirtPerTile.getText() + "," +
-							textField_maxDirtSlope.getText() + "," + textField_maxDiagSlope.getText() + "," + textField_maxDirtHeight.getText());
-				} catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Dropping Dirt", JOptionPane.ERROR_MESSAGE);
-				} finally {
-					stopLoading();
-				}
+		startLoading("Dropping Dirt ()");
+		try {
+			if (checkbox_biomeRandomSeed.isSelected()) {
+				textField_biomeSeed.setText("" + System.currentTimeMillis());
 			}
-		}.start();
+			lblWater.setText("Water: "+textField_waterHeight.getText());
+
+			tileMap = new TileMap(heightMap);
+			tileMap.setBiomeSeed(textField_biomeSeed.getText().hashCode());
+			tileMap.setWaterHeight(Integer.parseInt(textField_waterHeight.getText()));
+			tileMap.dropDirt(Integer.parseInt(textField_dirtPerTile.getText()), Integer.parseInt(textField_maxDirtSlope.getText()), 
+					Integer.parseInt(textField_maxDiagSlope.getText()), Integer.parseInt(textField_maxDirtHeight.getText()), progressBar);
+
+			updateMapView(true, 0);
+
+			genHistory.add("DROPDIRT:" + textField_biomeSeed.getText() + "," + textField_waterHeight.getText() + "," + textField_dirtPerTile.getText() + "," +
+					textField_maxDirtSlope.getText() + "," + textField_maxDiagSlope.getText() + "," + textField_maxDirtHeight.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Dropping Dirt", JOptionPane.ERROR_MESSAGE);
+		} finally {
+			stopLoading();
+		}
 	}
 
-	public void actionDropWater () {
+	public void actionUpdateWater () {
 		if (heightMap == null) {
 			JOptionPane.showMessageDialog(null, "HeightMap does not exist", "Error Updating Water", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1074,27 +1231,19 @@ public class MainWindow extends JFrame implements FocusListener {
 			return;
 		}
 
-		if (!actionReady())
-			return;
+		startLoading("Updating Water");
+		try {
+			lblWater.setText("Water: "+textField_waterHeight.getText());
+			tileMap.setWaterHeight(Integer.parseInt(textField_waterHeight.getText()));
 
-		new Thread() {
-			@Override
-			public void run() {
-				startLoading("Updating Water");
-				try {
-					lblWater.setText("Water: "+textField_waterHeight.getText());
-					tileMap.setWaterHeight(Integer.parseInt(textField_waterHeight.getText()));
+			updateMapView(true, 0);
 
-					updateMapView(true, 0);
-					
-					genHistory.add("UPDATEWATER:" + textField_waterHeight.getText());
-				} catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Updating Water", JOptionPane.ERROR_MESSAGE);
-				} finally {
-					stopLoading();
-				}
-			}
-		}.start();
+			genHistory.add("UPDATEWATER:" + textField_waterHeight.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Updating Water", JOptionPane.ERROR_MESSAGE);
+		} finally {
+			stopLoading();
+		}
 	}
 
 	public void actionSeedBiome () {
@@ -1103,44 +1252,45 @@ public class MainWindow extends JFrame implements FocusListener {
 			return;
 		}
 
-		if (!actionReady())
-			return;
+		startLoading("Seeding Biome");
+		try {
+			double[] rates = new double[4];
 
-		new Thread() {
-			@Override
-			public void run() {
-				startLoading("Seeding Biome");
-				try {
-					double[] rates = new double[4];
+			if (checkbox_growthRandom.isSelected()) {
+				int min = Integer.parseInt(textField_growthMin.getText());
+				int max = Integer.parseInt(textField_growthMax.getText());
+				rates[0] = (int)(Math.random()*(max-min)+min) / 100.0;
+				rates[1] = (int)(Math.random()*(max-min)+min) / 100.0;
+				rates[2] = (int)(Math.random()*(max-min)+min) / 100.0;
+				rates[3] = (int)(Math.random()*(max-min)+min) / 100.0;
+			} else {
+				rates[0] = Integer.parseInt(textField_growthN.getText()) / 100.0;
+				rates[1] = Integer.parseInt(textField_growthS.getText()) / 100.0; 
+				rates[2] = Integer.parseInt(textField_growthE.getText()) / 100.0; 
+				rates[3] = Integer.parseInt(textField_growthW.getText()) / 100.0; 
+			}
 
-					rates[0] = Integer.parseInt(textField_growthN.getText()) / 100.0;
-					rates[1] = Integer.parseInt(textField_growthS.getText()) / 100.0; 
-					rates[2] = Integer.parseInt(textField_growthE.getText()) / 100.0; 
-					rates[3] = Integer.parseInt(textField_growthW.getText()) / 100.0; 
-
-					int minHeight = checkbox_AroundWater.isSelected()
-							? Integer.parseInt(textField_waterHeight.getText())-Integer.parseInt(textField_biomeMinHeight.getText())
+			int minHeight = checkbox_AroundWater.isSelected()
+					? Integer.parseInt(textField_waterHeight.getText())-Integer.parseInt(textField_biomeMinHeight.getText())
 							: Integer.parseInt(textField_biomeMinHeight.getText());
 					int maxHeight = checkbox_AroundWater.isSelected()
 							? Integer.parseInt(textField_waterHeight.getText())+Integer.parseInt(textField_biomeMaxHeight.getText())
-							: Integer.parseInt(textField_biomeMaxHeight.getText());
-					
-					tileMap.plantBiome(Integer.parseInt(textField_seedCount.getText()), Integer.parseInt(textField_biomeSize.getText()), 
-							rates, Integer.parseInt(textField_biomeMaxSlope.getText()), minHeight, maxHeight, (Tile) comboBox_biomeType.getSelectedItem(), progressBar);
+									: Integer.parseInt(textField_biomeMaxHeight.getText());
 
-					updateMapView(true, 0);
+							tileMap.plantBiome(Integer.parseInt(textField_seedCount.getText()), Integer.parseInt(textField_biomeSize.getText()), rates, 
+									Integer.parseInt(textField_biomeMaxSlope.getText()), minHeight, maxHeight, (Tile) comboBox_biomeType.getSelectedItem(), progressBar);
 
-					genHistory.add("SEEDBIOME("+comboBox_biomeType.getSelectedItem()+"):" + comboBox_biomeType.getSelectedIndex() + "," + textField_seedCount.getText() + "," + textField_biomeSize.getText() + "," +
-							textField_biomeMaxSlope.getText() + "," + textField_growthN.getText() + "," + textField_growthS.getText() + "," +
-							textField_growthE.getText() + "," + textField_growthW.getText() + "," + textField_biomeMinHeight.getText() + "," +
-							textField_biomeMaxHeight.getText());
-				} catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Dropping Dirt", JOptionPane.ERROR_MESSAGE);
-				} finally {
-					stopLoading();
-				}
-			}
-		}.start();
+							updateMapView(true, 0);
+
+							genHistory.add("SEEDBIOME("+comboBox_biomeType.getSelectedItem()+"):" + comboBox_biomeType.getSelectedIndex() + "," + 
+									textField_seedCount.getText() + "," + textField_biomeSize.getText() + "," + textField_biomeMaxSlope.getText() + "," + 
+									(int)(100*rates[0]) + "," + (int)(100*rates[1]) + "," + (int)(100*rates[2]) + "," + (int)(100*rates[3]) + "," + 
+									textField_biomeMinHeight.getText() + "," + textField_biomeMaxHeight.getText() + "," + checkbox_AroundWater.isSelected());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Dropping Dirt", JOptionPane.ERROR_MESSAGE);
+		} finally {
+			stopLoading();
+		}
 	}
 
 	public void actionUndoBiome () {
@@ -1149,25 +1299,17 @@ public class MainWindow extends JFrame implements FocusListener {
 			return;
 		}
 
-		if (!actionReady())
-			return;
+		startLoading("Undoing Biome");
+		try {
 
-		new Thread() {
-			@Override
-			public void run() {
-				startLoading("Undoing Biome");
-				try {
+			tileMap.undoLastBiome();
 
-					tileMap.undoLastBiome();
+			updateMapView(true, 0);
 
-					updateMapView(true, 0);
-
-					genHistory.add("UNDOBIOME:null");
-				} finally {
-					stopLoading();
-				}
-			}
-		}.start();
+			genHistory.add("UNDOBIOME:null");
+		} finally {
+			stopLoading();
+		}
 	}
 
 	public void actionResetBiomes () {
@@ -1176,30 +1318,22 @@ public class MainWindow extends JFrame implements FocusListener {
 			return;
 		}
 
-		if (!actionReady())
-			return;
+		startLoading("Resetting Biomes");
+		try {
 
-		new Thread() {
-			@Override
-			public void run() {
-				startLoading("Resetting Biomes");
-				try {
-
-					for (int i = 0; i < heightMap.getMapSize(); i++) {
-						for (int j = 0; j < heightMap.getMapSize(); j++) {
-							progressBar.setValue((int)((float)(i*heightMap.getMapSize()+j)/(heightMap.getMapSize()*heightMap.getMapSize())*90f));
-							tileMap.addDirt(i, j, 0);
-						}
-					}
-
-					updateMapView(true, 0);
-
-					genHistory.add("RESETBIOMES:null"); 
-				} finally {
-					stopLoading();
+			for (int i = 0; i < heightMap.getMapSize(); i++) {
+				for (int j = 0; j < heightMap.getMapSize(); j++) {
+					progressBar.setValue((int)((float)(i*heightMap.getMapSize()+j)/(heightMap.getMapSize()*heightMap.getMapSize())*90f));
+					tileMap.addDirt(i, j, 0);
 				}
 			}
-		}.start();
+
+			updateMapView(true, 0);
+
+			genHistory.add("RESETBIOMES:null"); 
+		} finally {
+			stopLoading();
+		}
 	}
 
 	public void actionGenerateOres () {
@@ -1208,41 +1342,33 @@ public class MainWindow extends JFrame implements FocusListener {
 			return;
 		}
 
-		if (!actionReady())
-			return;
-
-		new Thread() {
-			@Override
-			public void run() {
-				startLoading("Generating Ores");
-				try {
-					setRockTotal();
-					if (Double.parseDouble(textField_Rock.getText()) < 0.0 || Double.parseDouble(textField_Rock.getText()) > 100.0) {
-						JOptionPane.showMessageDialog(null, "Ore values out of range", "Error Generating Ore", JOptionPane.ERROR_MESSAGE);
-						return;
-					}
-
-					double[] rates = { Double.parseDouble(textField_Rock.getText()), Double.parseDouble(textField_Iron.getText()), Double.parseDouble(textField_Gold.getText()),
-							Double.parseDouble(textField_Silver.getText()), Double.parseDouble(textField_Zinc.getText()), Double.parseDouble(textField_Copper.getText()),
-							Double.parseDouble(textField_Lead.getText()), Double.parseDouble(textField_Tin.getText()), Double.parseDouble(textField_Addy.getText()),
-							Double.parseDouble(textField_Glimmer.getText()), Double.parseDouble(textField_Marble.getText()), Double.parseDouble(textField_Slate.getText())					
-					};
-
-					tileMap.generateOres(rates, progressBar);
-
-					updateMapView(true, 2);
-
-					genHistory.add("GENORES:" + textField_Rock.getText() + "," + textField_Iron.getText() + "," + textField_Gold.getText() + "," +
-							textField_Silver.getText() + "," + textField_Zinc.getText() + "," + textField_Copper.getText() + "," +
-							textField_Lead.getText() + "," + textField_Tin.getText() + "," + textField_Addy.getText() + "," +
-							textField_Glimmer.getText() + "," + textField_Marble.getText() + "," + textField_Slate.getText());
-				} catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Generating Ores", JOptionPane.ERROR_MESSAGE);
-				} finally {
-					stopLoading();
-				}
+		startLoading("Generating Ores");
+		try {
+			setRockTotal();
+			if (Double.parseDouble(textField_Rock.getText()) < 0.0 || Double.parseDouble(textField_Rock.getText()) > 100.0) {
+				JOptionPane.showMessageDialog(null, "Ore values out of range", "Error Generating Ore", JOptionPane.ERROR_MESSAGE);
+				return;
 			}
-		}.start();
+
+			double[] rates = { Double.parseDouble(textField_Rock.getText()), Double.parseDouble(textField_Iron.getText()), Double.parseDouble(textField_Gold.getText()),
+					Double.parseDouble(textField_Silver.getText()), Double.parseDouble(textField_Zinc.getText()), Double.parseDouble(textField_Copper.getText()),
+					Double.parseDouble(textField_Lead.getText()), Double.parseDouble(textField_Tin.getText()), Double.parseDouble(textField_Addy.getText()),
+					Double.parseDouble(textField_Glimmer.getText()), Double.parseDouble(textField_Marble.getText()), Double.parseDouble(textField_Slate.getText())					
+			};
+
+			tileMap.generateOres(rates, progressBar);
+
+			updateMapView(true, 2);
+
+			genHistory.add("GENORES:" + textField_Rock.getText() + "," + textField_Iron.getText() + "," + textField_Gold.getText() + "," +
+					textField_Silver.getText() + "," + textField_Zinc.getText() + "," + textField_Copper.getText() + "," +
+					textField_Lead.getText() + "," + textField_Tin.getText() + "," + textField_Addy.getText() + "," +
+					textField_Glimmer.getText() + "," + textField_Marble.getText() + "," + textField_Slate.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Generating Ores", JOptionPane.ERROR_MESSAGE);
+		} finally {
+			stopLoading();
+		}
 	}
 
 	public void actionViewMap () {
@@ -1251,20 +1377,12 @@ public class MainWindow extends JFrame implements FocusListener {
 			return;
 		}
 
-		if (!actionReady())
-			return;
-
-		new Thread() {
-			@Override
-			public void run() {
-				startLoading("Loading");
-				try {
-					updateMapView(true, 0);
-				} finally {
-					stopLoading();
-				}
-			}
-		}.start();
+		startLoading("Loading");
+		try {
+			updateMapView(true, 0);
+		} finally {
+			stopLoading();
+		}
 	}
 
 	public void actionViewTopo () {
@@ -1273,20 +1391,12 @@ public class MainWindow extends JFrame implements FocusListener {
 			return;
 		}
 
-		if (!actionReady())
-			return;
-
-		new Thread() {
-			@Override
-			public void run() {
-				startLoading("Loading");
-				try {
-					updateMapView(true, 1);
-				} finally {
-					stopLoading();
-				}
-			}
-		}.start();
+		startLoading("Loading");
+		try {
+			updateMapView(true, 1);
+		} finally {
+			stopLoading();
+		}
 	}
 
 	public void actionViewCave () {
@@ -1300,20 +1410,12 @@ public class MainWindow extends JFrame implements FocusListener {
 			return;
 		}
 
-		if (!actionReady())
-			return;
-
-		new Thread() {
-			@Override
-			public void run() {
-				startLoading("Loading");
-				try {
-					updateMapView(true, 2);
-				} finally {
-					stopLoading();
-				}
-			}
-		}.start();
+		startLoading("Loading");
+		try {
+			updateMapView(true, 2);
+		} finally {
+			stopLoading();
+		}
 	}
 
 	public void actionViewHeightmap () {
@@ -1322,20 +1424,12 @@ public class MainWindow extends JFrame implements FocusListener {
 			return;
 		}
 
-		if (!actionReady())
-			return;
-
-		new Thread() {
-			@Override
-			public void run() {
-				startLoading("Loading");
-				try {
-					updateMapView(false, 0);
-				} finally {
-					stopLoading();
-				}
-			}
-		}.start();
+		startLoading("Loading");
+		try {
+			updateMapView(false, 0);
+		} finally {
+			stopLoading();
+		}
 	}
 
 	public void actionSaveImages () {
@@ -1344,27 +1438,19 @@ public class MainWindow extends JFrame implements FocusListener {
 			return;
 		}
 
-		if (!actionReady())
-			return;
+		startLoading("Saving Images");
+		try {
+			updateAPIMap();
+			MapData map = getAPI().getMapData();
 
-		new Thread() {
-			@Override
-			public void run() {
-				startLoading("Saving Images");
-				try {
-					updateAPIMap();
-					MapData map = getAPI().getMapData();
-
-					ImageIO.write(map.createMapDump(), "png", new File("./maps/" + textField_mapName.getText() + "/map.png"));
-					ImageIO.write(map.createTopographicDump(true, (short) 250), "png", new File("./maps/" + textField_mapName.getText() + "/topography.png"));
-					ImageIO.write(map.createCaveDump(true), "png", new File("./maps/" + textField_mapName.getText() + "/cave.png"));
-				} catch (IOException ex) {
-					logger.log(Level.SEVERE, null, ex);
-				} finally {
-					stopLoading();
-				}
-			}
-		}.start();
+			ImageIO.write(map.createMapDump(), "png", new File("./maps/" + textField_mapName.getText() + "/map.png"));
+			ImageIO.write(map.createTopographicDump(true, (short) 250), "png", new File("./maps/" + textField_mapName.getText() + "/topography.png"));
+			ImageIO.write(map.createCaveDump(true), "png", new File("./maps/" + textField_mapName.getText() + "/cave.png"));
+		} catch (IOException ex) {
+			logger.log(Level.SEVERE, null, ex);
+		} finally {
+			stopLoading();
+		}
 	}
 
 	public void actionSaveMap () {
@@ -1373,24 +1459,16 @@ public class MainWindow extends JFrame implements FocusListener {
 			return;
 		}
 
-		if (!actionReady())
-			return;
+		startLoading("Saving Map");
+		try {
+			updateAPIMap();
 
-		new Thread() {
-			@Override
-			public void run() {
-				startLoading("Saving Map");
-				try {
-					updateAPIMap();
-
-					getAPI().getMapData().saveChanges();
-					getAPI().close();
-					apiClosed = true;
-				} finally {
-					stopLoading();
-				}
-			}
-		}.start();
+			getAPI().getMapData().saveChanges();
+			getAPI().close();
+			apiClosed = true;
+		} finally {
+			stopLoading();
+		}
 	}
 
 	public void actionSaveActions () {
@@ -1399,71 +1477,62 @@ public class MainWindow extends JFrame implements FocusListener {
 			return;
 		}
 
-		if (!actionReady())
-			return;
+		startLoading("Saving Actions");
+		try {
+			JFileChooser fc = new JFileChooser();
+			fc.setCurrentDirectory(new File("./maps/" + textField_mapName.getText()));
+			fc.setSelectedFile(new File("map_actions.act"));
+			fc.setFileFilter(new TextFileView());
+			fc.setAcceptAllFileFilterUsed(false);
+			int feedback = fc.showSaveDialog(null);
+			if (feedback == -1)
+				return;
+			File actionsFile = fc.getSelectedFile();
+			actionsFile.createNewFile();
 
-		new Thread() {
-			@Override
-			public void run() {
-				startLoading("Saving Actions");
-				try {
-					File actionsFile = new File("./maps/" + textField_mapName.getText() + "/map_actions.textField_");
-					actionsFile.createNewFile();
+			BufferedWriter bw = new BufferedWriter(new FileWriter(actionsFile));
+			for (String s : genHistory)
+				bw.write(s + "\r\n");
 
-					BufferedWriter bw = new BufferedWriter(new FileWriter(actionsFile));
-					for (String s : genHistory)
-						bw.write(s + "\r\n");
-
-					bw.close();
-				} catch (IOException ex) {
-					logger.log(Level.SEVERE, null, ex);
-				} finally {
-					stopLoading();
-				}
-			}
-		}.start();
+			bw.close();
+		} catch (IOException ex) {
+			logger.log(Level.SEVERE, null, ex);
+		} finally {
+			stopLoading();
+		}
 	}
 
-	//TODO fix: threading breaks action sequence
 	public void actionLoadActions () {
 
-		if (!actionReady())
-			return;
+		startLoading("Loading Actions");
+		try {
+			File actionsFile;
 
-		new Thread() {
-			@Override
-			public void run() {
-//				startLoading("Loading Actions");
-				try {
-					File actionsFile;
+			JFileChooser fc = new JFileChooser();
+			fc.addChoosableFileFilter(new TextFileView());
+			fc.setAcceptAllFileFilterUsed(false);
+			fc.setCurrentDirectory(new File("./maps/"));
 
-					JFileChooser fc = new JFileChooser();
-					fc.addChoosableFileFilter(new TextFileView());
-					fc.setAcceptAllFileFilterUsed(false);
-					fc.setCurrentDirectory(new File("./maps/"));
+			int returnVal = fc.showDialog(null, "Load Actions");
 
-					int returnVal = fc.showDialog(null, "Load Actions");
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				actionsFile = fc.getSelectedFile();
+				textField_mapName.setText(actionsFile.getParentFile().getName());
 
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
-						actionsFile = fc.getSelectedFile();
-						textField_mapName.setText(actionsFile.getParentFile().getName());
-
-						BufferedReader br = new BufferedReader(new FileReader(actionsFile));
-						String line;
-						while ((line = br.readLine()) != null) {
-							parseAction(line);
-						}
-
-						br.close();
-					}
-				} catch (IOException ex) {
-					JOptionPane.showMessageDialog(null, "Unable to load actions file", "Error Loading Map", JOptionPane.ERROR_MESSAGE);
-					logger.log(Level.WARNING, "Error loading actions file: " + ex.getMessage());
-				} finally {
-//					stopLoading();
+				BufferedReader br = new BufferedReader(new FileReader(actionsFile));
+				String line;
+				while ((line = br.readLine()) != null) {
+					parseAction(line);
 				}
+
+				br.close();
 			}
-		}.start();
+		} catch (IOException ex) {
+			JOptionPane.showMessageDialog(null, "Unable to load actions file", "Error Loading Map", JOptionPane.ERROR_MESSAGE);
+			logger.log(Level.WARNING, "Error loading actions file: " + ex.getMessage());
+		} finally {
+			stopLoading();
+		}
 	}
 
 
@@ -1551,10 +1620,11 @@ public class MainWindow extends JFrame implements FocusListener {
 		if (parts.length < 2)
 			return;
 
-		String[] options = parts[1].split(",");		
+		String[] options = parts[1].split(",");
+		System.out.println("Action: "+parts[0]);
 		switch (parts[0]) {
 		case "HEIGHTMAP":
-			if (options.length < 8) {
+			if (options.length != 8) {
 				JOptionPane.showMessageDialog(null, "Not enough options for HEIGHTMAP", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
@@ -1570,13 +1640,13 @@ public class MainWindow extends JFrame implements FocusListener {
 				checkbox_moreLand.setSelected(Boolean.parseBoolean(options[7]));
 				checkbox_mapRandomSeed.setSelected(false);
 
-				btnGenerateHeightmap.doClick();
+				actionGenerateHeightmap();
 			} catch (Exception nfe) {
 				JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 			}
 			break;
 		case "ERODE":
-			if (options.length < 3) {
+			if (options.length != 3) {
 				JOptionPane.showMessageDialog(null, "Not enough options for ERODE", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
@@ -1585,10 +1655,10 @@ public class MainWindow extends JFrame implements FocusListener {
 			textField_erodeMinSlope.setText(options[1]);
 			textField_erodeSediment.setText(options[2]);
 
-			btnErodeHeightmap.doClick();
+			actionErodeHeightmap();
 			break;
 		case "DROPDIRT":
-			if (options.length < 6) {
+			if (options.length != 6) {
 				JOptionPane.showMessageDialog(null, "Not enough options for DROPDIRT", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
@@ -1601,26 +1671,26 @@ public class MainWindow extends JFrame implements FocusListener {
 			textField_maxDirtHeight.setText(options[5]);
 			checkbox_biomeRandomSeed.setSelected(false);
 
-			btnDropDirt.doClick();
+			actionDropDirt();
 			break;
 		case "UPDATEWATER":
-			if (options.length < 1) {
+			if (options.length != 1) {
 				JOptionPane.showMessageDialog(null, "Not enough options for DROPDIRT", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
 			textField_waterHeight.setText(options[0]);
 
-			btnUpdateWater.doClick();
+			actionUpdateWater();
 			break;
 		case "UNDOBIOME":
-			btnUndoLastBiome.doClick();
+			actionUndoBiome();
 			break;
 		case "RESETBIOMES":
-			btnResetBiomes.doClick();
+			actionResetBiomes();
 			break;
 		case "GENORES":
-			if (options.length < 12) {
+			if (options.length != 12) {
 				JOptionPane.showMessageDialog(null, "Not enough options for GENORES", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
@@ -1638,11 +1708,11 @@ public class MainWindow extends JFrame implements FocusListener {
 			textField_Marble.setText(options[10]);
 			textField_Slate.setText(options[11]);
 
-			btnGenerateOres.doClick();
+			actionGenerateOres();
 			break;
 		default:
 			if(parts[0].startsWith("SEEDBIOME")){
-				if (options.length < 10) {
+				if (options.length != 11) {
 					JOptionPane.showMessageDialog(null, "Not enough options for SEEDBIOME", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
@@ -1658,8 +1728,10 @@ public class MainWindow extends JFrame implements FocusListener {
 					textField_growthW.setText(options[7]);
 					textField_biomeMinHeight.setText(options[8]);
 					textField_biomeMaxHeight.setText(options[9]);
+					checkbox_AroundWater.setSelected(Boolean.parseBoolean(options[10]));
+					checkbox_growthRandom.setSelected(false);
 
-					btnAddBiome.doClick();
+					actionSeedBiome();
 				} catch (Exception nfe) {
 					JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 				}
@@ -1677,10 +1749,10 @@ public class MainWindow extends JFrame implements FocusListener {
 
 			String extension = getExtension(f);
 			if (extension != null)
-				if (extension.equals("textField_"))
+				if (extension.equals("act"))
 					return true;
 
-			return true;//false;
+			return false;
 		}
 
 		private String getExtension(File f) {
@@ -1696,10 +1768,9 @@ public class MainWindow extends JFrame implements FocusListener {
 
 		@Override
 		public String getDescription() {
-			return "Action Files (.textField_)";
+			return "Action Files (.act)";
 		}
 	}
-
 
 	private void setRockTotal() {
 		try {
