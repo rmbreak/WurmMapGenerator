@@ -169,8 +169,9 @@ public class TileMap {
 		
 		lastBiomeChanges.clear();
 		
-		for (int i = 0; i < seedCount; i++)
+		for (int i = 0; i < seedCount; i++) {
 			grassList.add(new Point(biomeRandom.nextInt(heightMap.getMapSize()), biomeRandom.nextInt(heightMap.getMapSize())));
+		}
 		
 		for (int i = 0; i < growthIterations; i++) {
             progress.setValue((int)((float)i/growthIterations*90f));

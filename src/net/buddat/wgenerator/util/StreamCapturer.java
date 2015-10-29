@@ -9,24 +9,27 @@ import javax.swing.JOptionPane;
 
 public class StreamCapturer extends OutputStream {
 
-    private StringBuilder buffer;
-    private PrintStream old;
+	private StringBuilder buffer;
+	private PrintStream old;
 
-    public StreamCapturer(PrintStream old) {
-        buffer = new StringBuilder(128);
-        this.old = old;
-    }
+	public StreamCapturer(PrintStream old) {
+		buffer = new StringBuilder(128);
+		this.old = old;
+	}
 
-    @Override
-    public void write(int b) throws IOException {
-        char c = (char) b;
-        String value = Character.toString(c);
-        buffer.append(value);
-        if (value.equals("\n")) {
-            JOptionPane.showMessageDialog(null, buffer.toString(), "Error", JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
-            buffer.delete(0, buffer.length());
-        }
-        old.print(c);
-    }
+	@Override
+	public void write(int b) throws IOException {
+		char c = (char) b;
+		String value = Character.toString(c);
+		buffer.append(value);
+		if (value.equals("\n")) {
+			String mes = buffer.toString();
+			if (mes.indexOf("xception") > -1) {
+				JOptionPane.showMessageDialog(null, mes, "Error", JOptionPane.ERROR_MESSAGE);
+				System.exit(1);
+			}
+			buffer.delete(0, buffer.length());
+		}
+		old.print(c);
+	}
 }    

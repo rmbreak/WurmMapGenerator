@@ -42,8 +42,8 @@ public class Constants {
 	public static final int BIOME_RANDOM_MIN = 50;
 	public static final int BIOME_RANDOM_MAX = 75;
 	
-	public static final double ORE_IRON = 2.0, ORE_GOLD = 0.1, ORE_SILVER = 0.2, ORE_ZINC = 0.3, 
-			ORE_COPPER = 0.4, ORE_LEAD = 0.4, ORE_TIN = 0.4, ORE_ADDY = 0.0, ORE_GLIMMER = 0.0, ORE_MARBLE = 0.4, ORE_SLATE = 0.4;
+	public static final double ORE_IRON = 1.0, ORE_GOLD = 0.05, ORE_SILVER = 0.1, ORE_ZINC = 0.15, 
+			ORE_COPPER = 0.2, ORE_LEAD = 0.2, ORE_TIN = 0.2, ORE_ADDY = 0.0, ORE_GLIMMER = 0.0, ORE_MARBLE = 0.2, ORE_SLATE = 0.2;
 	
 	public static final float NORMAL_LOW = 0.5f;
 	public static final float NORMAL_HIGH = 1.0f - NORMAL_LOW;
