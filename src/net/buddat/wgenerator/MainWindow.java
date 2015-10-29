@@ -1601,6 +1601,8 @@ public class MainWindow extends JFrame {
 				bw.write(s + "\r\n");
 
 			bw.close();
+			
+			actionSaveHeightmap();
 		} catch (IOException ex) {
 			System.err.println("Saving actions failed: "+ex.toString());
 		} finally {
