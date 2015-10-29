@@ -68,13 +68,20 @@ public class HeightMap {
 		long startTime = System.currentTimeMillis();
 		for (int i = 0; i < iterations; i++) {
 			logger.log(Level.FINE, "HeightMap Generation (" + mapSize + ") - Iteration(" + (i + 1) + "/" + iterations + ")");
-			progress.setValue((int)((float)i/iterations*90f));
+
+			int progressValue = (int)((float)i/iterations*100f); 
+			long predict = (int)((System.currentTimeMillis()-startTime)/1000.0*(100.0/progressValue-1));
+            progress.setValue(progressValue);
+            progress.setString(progress.getString().substring(0, progress.getString().indexOf("("))+"("+predict+" secs)");
+            
 			double iRes = resolution / Math.pow(2, i - 1);
 			double str = Math.pow(2, i - 1) * 2.0;
 			
-			for (int x = 0; x < mapSize; x++)
-				for (int y = 0; y < mapSize; y++)
+			for (int x = 0; x < mapSize; x++) {
+				for (int y = 0; y < mapSize; y++) {
 					setHeight(x, y, getHeight(x, y) + SimplexNoise.noise(x / iRes, y / iRes) / str, (i == iterations - 1));
+				}
+			}
 		}
 		
 		logger.log(Level.INFO, "HeightMap Generation (" + mapSize + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");

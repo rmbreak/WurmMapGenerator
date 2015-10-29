@@ -58,7 +58,10 @@ public class TileMap {
 		long startTime = System.currentTimeMillis();
 		for (int i = 0; i < dirtCount; i++) {
 
-            progress.setValue((int)((float)i/dirtCount*90f));
+			int progressValue = (int)((float)i/dirtCount*100f); 
+			long predict = (int)((System.currentTimeMillis()-startTime)/1000.0*(100.0/progressValue-1));
+            progress.setValue(progressValue);
+            progress.setString(progress.getString().substring(0, progress.getString().indexOf("("))+"("+predict+" secs)");
             
 			for (int x = 0; x < heightMap.getMapSize(); x++) {
 				for (int y = 0; y < heightMap.getMapSize(); y++) {
