@@ -38,8 +38,6 @@ import javax.swing.JButton;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -51,10 +49,11 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.awt.BorderLayout;
 
 @SuppressWarnings("serial")
-public class MainWindow extends JFrame implements FocusListener {
+public class MainWindow extends JFrame {
 
 	private static final String version = "2.0.0";
 	private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
@@ -64,6 +63,8 @@ public class MainWindow extends JFrame implements FocusListener {
 	private ArrayList<String> genHistory;
 	private boolean apiClosed = true;
 	private MapPanel mapPanel;
+	private String mapName;
+	private String actionsFileDirectory;
 
 	private JPanel contentPane;
 	private JTextField textField_mapSeed;
@@ -130,6 +131,12 @@ public class MainWindow extends JFrame implements FocusListener {
 	private JButton btnViewCave;
 	private JButton btnTopo;
 	private JButton btnViewMap;
+	private JTextField textField_cliffRatio;
+	private JButton btnSaveHeightmap;
+	private JButton btnLoadHeightmap;
+	private JTextField textField_erodeMaxSlope;
+	private JCheckBox checkBox_landSlide;
+	private JButton btnUpdateMapName;
 
 
 	public static void main(String[] args) {
@@ -345,6 +352,9 @@ public class MainWindow extends JFrame implements FocusListener {
 		JLabel lblMinSlope = new JLabel("Min Slope");
 		panel_3.add(lblMinSlope);
 
+		JLabel lblMaxSlope_1 = new JLabel("Max Slope");
+		panel_3.add(lblMaxSlope_1);
+
 		JLabel lblSedimentPer = new JLabel("Sediment per");
 		panel_3.add(lblSedimentPer);
 
@@ -356,11 +366,15 @@ public class MainWindow extends JFrame implements FocusListener {
 		textField_erodeIterations.setColumns(10);
 		panel_4.add(textField_erodeIterations);
 
-		textField_erodeMinSlope = new JTextField("" + Constants.MIN_SLOPE);
+		textField_erodeMinSlope = new JTextField("" + Constants.EROSION_MIN_SLOPE);
 		textField_erodeMinSlope.setColumns(10);
 		panel_4.add(textField_erodeMinSlope);
 
-		textField_erodeSediment = new JTextField("" + Constants.MAX_SEDIMENT);
+		textField_erodeMaxSlope = new JTextField("" + Constants.EROSION_MAX_SLOPE);
+		panel_4.add(textField_erodeMaxSlope);
+		textField_erodeMaxSlope.setColumns(10);
+
+		textField_erodeSediment = new JTextField("" + Constants.EROSION_MAX_SEDIMENT);
 		textField_erodeSediment.setColumns(10);
 		panel_4.add(textField_erodeSediment);
 
@@ -421,9 +435,14 @@ public class MainWindow extends JFrame implements FocusListener {
 		JLabel lblWaterHeight = new JLabel("Water Height");
 		panel_11.add(lblWaterHeight);
 
-		checkbox_biomeRandomSeed = new JCheckBox("Random Seed");
-		checkbox_biomeRandomSeed.setSelected(true);
-		panel_11.add(checkbox_biomeRandomSeed);
+		JLabel lblCliffRatio = new JLabel("Cliff Ratio");
+		panel_11.add(lblCliffRatio);
+
+		JLabel label_8 = new JLabel("");
+		panel_11.add(label_8);
+
+		JLabel label_4 = new JLabel("");
+		panel_11.add(label_4);
 
 		JPanel panel_12 = new JPanel();
 		panel_10.add(panel_12);
@@ -458,8 +477,17 @@ public class MainWindow extends JFrame implements FocusListener {
 		textField_waterHeight.setColumns(10);
 		panel_12.add(textField_waterHeight);
 
-		JLabel label_8 = new JLabel("");
-		panel_12.add(label_8);
+		textField_cliffRatio = new JTextField("" + Constants.CLIFF_RATIO);
+		panel_12.add(textField_cliffRatio);
+		textField_cliffRatio.setColumns(10);
+
+		checkBox_landSlide = new JCheckBox("Land Slide");
+		checkBox_landSlide.setSelected(true);
+		panel_12.add(checkBox_landSlide);
+
+		checkbox_biomeRandomSeed = new JCheckBox("Random Seed");
+		panel_12.add(checkbox_biomeRandomSeed);
+		checkbox_biomeRandomSeed.setSelected(true);
 
 		JPanel panel_13 = new JPanel();
 
@@ -858,7 +886,7 @@ public class MainWindow extends JFrame implements FocusListener {
 		orePanel.setLayout(gl_orePanel);
 
 		JPanel actionPanel = new JPanel();
-		optionsPane.addTab("Export", null, actionPanel, null);
+		optionsPane.addTab("Import/Export", null, actionPanel, null);
 		optionsPane.setEnabledAt(5, true);
 
 		JPanel panel_24 = new JPanel();
@@ -872,8 +900,22 @@ public class MainWindow extends JFrame implements FocusListener {
 		panel_26.add(lblNewLabel_2);
 
 		textField_mapName = new JTextField(textField_mapSeed.getText());
+		mapName = textField_mapSeed.getText();
 		panel_26.add(textField_mapName);
 		textField_mapName.setColumns(10);
+
+		btnUpdateMapName = new JButton("Update Map Name");
+		btnUpdateMapName.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				mapName = textField_mapName.getText();
+				if (!apiClosed) {
+					getAPI().close();
+				}
+				apiClosed = true;
+				updateAPIMap();
+			}
+		});
+		panel_26.add(btnUpdateMapName);
 
 		JLabel label_1 = new JLabel("");
 		panel_26.add(label_1);
@@ -901,6 +943,15 @@ public class MainWindow extends JFrame implements FocusListener {
 			}
 		});
 		panel_26.add(btnClearActions);
+
+		JLabel lblNewLabel_3 = new JLabel("");
+		panel_26.add(lblNewLabel_3);
+
+		btnSaveHeightmap = new JButton("Save Heightmap");
+		panel_26.add(btnSaveHeightmap);
+
+		btnLoadHeightmap = new JButton("Load Heightmap");
+		panel_26.add(btnLoadHeightmap);
 		GroupLayout gl_actionPanel = new GroupLayout(actionPanel);
 		gl_actionPanel.setHorizontalGroup(
 				gl_actionPanel.createParallelGroup(Alignment.LEADING)
@@ -1121,6 +1172,30 @@ public class MainWindow extends JFrame implements FocusListener {
 				}.start();
 			}
 		});
+		btnSaveHeightmap.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionSaveHeightmap();
+					}
+				}.start();
+			}
+		});
+		btnLoadHeightmap.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionLoadHeightmap();
+					}
+				}.start();
+			}
+		});
 
 	}
 
@@ -1178,7 +1253,7 @@ public class MainWindow extends JFrame implements FocusListener {
 		startLoading("Eroding Height Map ()");
 		try {
 			heightMap.erode(Integer.parseInt(textField_erodeIterations.getText()), Integer.parseInt(textField_erodeMinSlope.getText()), 
-					Integer.parseInt(textField_erodeSediment.getText()), progressBar);
+					Integer.parseInt(textField_erodeMaxSlope.getText()), Integer.parseInt(textField_erodeSediment.getText()), progressBar);
 
 			updateMapView(false, 0);
 
@@ -1207,7 +1282,8 @@ public class MainWindow extends JFrame implements FocusListener {
 			tileMap.setBiomeSeed(textField_biomeSeed.getText().hashCode());
 			tileMap.setWaterHeight(Integer.parseInt(textField_waterHeight.getText()));
 			tileMap.dropDirt(Integer.parseInt(textField_dirtPerTile.getText()), Integer.parseInt(textField_maxDirtSlope.getText()), 
-					Integer.parseInt(textField_maxDiagSlope.getText()), Integer.parseInt(textField_maxDirtHeight.getText()), progressBar);
+					Integer.parseInt(textField_maxDiagSlope.getText()), Integer.parseInt(textField_maxDirtHeight.getText()), 
+					Double.parseDouble(textField_cliffRatio.getText()), checkBox_landSlide.isSelected(), progressBar);
 
 			updateMapView(true, 0);
 
@@ -1443,9 +1519,9 @@ public class MainWindow extends JFrame implements FocusListener {
 			updateAPIMap();
 			MapData map = getAPI().getMapData();
 
-			ImageIO.write(map.createMapDump(), "png", new File("./maps/" + textField_mapName.getText() + "/map.png"));
-			ImageIO.write(map.createTopographicDump(true, (short) 250), "png", new File("./maps/" + textField_mapName.getText() + "/topography.png"));
-			ImageIO.write(map.createCaveDump(true), "png", new File("./maps/" + textField_mapName.getText() + "/cave.png"));
+			ImageIO.write(map.createMapDump(), "png", new File("./maps/" + mapName + "/map.png"));
+			ImageIO.write(map.createTopographicDump(true, (short) 250), "png", new File("./maps/" + mapName + "/topography.png"));
+			ImageIO.write(map.createCaveDump(true), "png", new File("./maps/" + mapName + "/cave.png"));
 		} catch (IOException ex) {
 			logger.log(Level.SEVERE, null, ex);
 		} finally {
@@ -1480,13 +1556,15 @@ public class MainWindow extends JFrame implements FocusListener {
 		startLoading("Saving Actions");
 		try {
 			JFileChooser fc = new JFileChooser();
-			fc.setCurrentDirectory(new File("./maps/" + textField_mapName.getText()));
+			fc.setCurrentDirectory(new File("./maps/" + mapName));
 			fc.setSelectedFile(new File("map_actions.act"));
 			fc.setFileFilter(new TextFileView());
 			fc.setAcceptAllFileFilterUsed(false);
-			int feedback = fc.showSaveDialog(null);
-			if (feedback == -1)
+			int returnVal = fc.showSaveDialog(this);
+			if (returnVal != JFileChooser.APPROVE_OPTION) {
 				return;
+			}
+
 			File actionsFile = fc.getSelectedFile();
 			actionsFile.createNewFile();
 
@@ -1518,6 +1596,7 @@ public class MainWindow extends JFrame implements FocusListener {
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				actionsFile = fc.getSelectedFile();
 				textField_mapName.setText(actionsFile.getParentFile().getName());
+				actionsFileDirectory = actionsFile.getParentFile().getAbsolutePath();
 
 				BufferedReader br = new BufferedReader(new FileReader(actionsFile));
 				String line;
@@ -1535,6 +1614,60 @@ public class MainWindow extends JFrame implements FocusListener {
 		}
 	}
 
+	public void actionLoadHeightmap () {
+
+		startLoading("Loading Heightmap");
+		try {
+			File heightImageFile;
+
+			JFileChooser fc = new JFileChooser();
+			fc.addChoosableFileFilter(new ImageFileView());
+			fc.setAcceptAllFileFilterUsed(false);
+			fc.setCurrentDirectory(new File("./maps/"));
+
+			int returnVal = fc.showDialog(this, "Load Heightmap");
+			if (returnVal != JFileChooser.APPROVE_OPTION) {
+				return;
+			}
+
+			heightImageFile = fc.getSelectedFile();
+
+			api = null;
+			genHistory = new ArrayList<String>();
+
+			newHeightMap(heightImageFile, (int)comboBox_mapSize.getSelectedItem(), Integer.parseInt(textField_mapMaxHeight.getText()));
+
+			genHistory.add("IMPORTHEIGHTMAP:" + fc.getSelectedFile().getName() + 
+					"," + comboBox_mapSize.getSelectedIndex() + "," + textField_mapMaxHeight.getText());
+
+		} catch (NumberFormatException | IOException nfe) {
+			JOptionPane.showMessageDialog(this, "Error loading file " + nfe.getMessage().toLowerCase(), "Error Loading Heightmap", JOptionPane.ERROR_MESSAGE);
+		} finally {
+			stopLoading();
+		}
+	}
+
+	public void actionSaveHeightmap () {
+		if (heightMap == null) {
+			JOptionPane.showMessageDialog(this, "Heightmap does not exist - Generate one first", "Error Saving Heightmap", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		startLoading("Loading Heightmap");
+		heightMap.exportHeightImage(mapName);
+		stopLoading();
+	}
+
+	public void newHeightMap(File heightImageFile, int mapSize, int maxHeight) throws IOException {
+
+		BufferedImage heightImage = new BufferedImage(mapSize, mapSize, BufferedImage.TYPE_USHORT_GRAY);
+		heightImage = ImageIO.read(heightImageFile);
+		mapPanel.setMapSize(mapSize);
+		heightMap = new HeightMap(heightImage, mapSize, maxHeight);
+		heightMap.importHeightImage();
+
+		updateMapView(false, 0);
+	}
 
 	private WurmAPI getAPI() {
 		if (apiClosed)
@@ -1542,7 +1675,7 @@ public class MainWindow extends JFrame implements FocusListener {
 
 		if (api == null)
 			try {
-				api = WurmAPI.create("./maps/" + textField_mapName.getText() + "/", (int) (Math.log(heightMap.getMapSize()) / Math.log(2)));
+				api = WurmAPI.create("./maps/" + mapName + "/", (int) (Math.log(heightMap.getMapSize()) / Math.log(2)));
 				apiClosed = false;
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -1621,7 +1754,6 @@ public class MainWindow extends JFrame implements FocusListener {
 			return;
 
 		String[] options = parts[1].split(",");
-		System.out.println("Action: "+parts[0]);
 		switch (parts[0]) {
 		case "HEIGHTMAP":
 			if (options.length != 8) {
@@ -1710,6 +1842,32 @@ public class MainWindow extends JFrame implements FocusListener {
 
 			actionGenerateOres();
 			break;
+		case "IMPORTHEIGHTMAP":
+			if (options.length != 3) {
+				JOptionPane.showMessageDialog(this, "Not enough options for HEIGHTMAP", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+			try{
+				logger.log(Level.INFO, "1: " + options[0] + " 2: " + Integer.parseInt(options[1]) + " 3: " + options[2]);
+
+				File heightImageFile = new File(actionsFileDirectory + "/" + options[0]);
+				comboBox_mapSize.setSelectedIndex(Integer.parseInt(options[1]));
+				textField_mapMaxHeight.setText(options[2]);
+
+				api = null;
+				genHistory = new ArrayList<String>();
+
+				newHeightMap(heightImageFile, (int)comboBox_mapSize.getSelectedItem(), Integer.parseInt(textField_mapMaxHeight.getText()));
+
+				genHistory.add("IMPORTHEIGHTMAP:" + heightImageFile.getName() + 
+						"," + comboBox_mapSize.getSelectedIndex() + "," + textField_mapMaxHeight.getText());
+
+
+			} catch (Exception nfe) {
+				JOptionPane.showMessageDialog(this, "Error: " + nfe.getMessage().toLowerCase(), "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
+			}
+			break;
 		default:
 			if(parts[0].startsWith("SEEDBIOME")){
 				if (options.length != 11) {
@@ -1772,6 +1930,38 @@ public class MainWindow extends JFrame implements FocusListener {
 		}
 	}
 
+	class ImageFileView extends FileFilter {
+
+		public boolean accept(File f) {
+			if (f.isDirectory()) {
+				return true;
+			}
+
+			String extension = getExtension(f);
+			if (extension != null)
+				if (extension.equals("png"))
+					return true;
+
+			return false;
+		}
+
+		private String getExtension(File f) {
+			String ext = null;
+			String s = f.getName();
+			int i = s.lastIndexOf('.');
+
+			if (i > 0 &&  i < s.length() - 1) {
+				ext = s.substring(i+1).toLowerCase();
+			}
+			return ext;
+		}
+
+		@Override
+		public String getDescription() {
+			return "Heightmap Image (.png)";
+		}
+	}
+
 	private void setRockTotal() {
 		try {
 			double[] rates = { Double.parseDouble(textField_Iron.getText()), Double.parseDouble(textField_Gold.getText()),
@@ -1788,25 +1978,6 @@ public class MainWindow extends JFrame implements FocusListener {
 		} catch (NumberFormatException nfe) {
 
 		}
-	}
-
-
-	@Override
-	public void focusLost(FocusEvent e) {
-		if (e.getSource() instanceof JTextField) {
-			if (e.getSource() == textField_mapName) {
-				if (!apiClosed)
-					getAPI().close();
-
-				apiClosed = true;
-				updateAPIMap();
-			}
-		}
-	}
-
-	@Override
-	public void focusGained(FocusEvent e) {
-		// Do nothing
 	}
 
 }
