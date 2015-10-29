@@ -16,6 +16,7 @@ import com.wurmonline.wurmapi.api.MapData;
 import com.wurmonline.wurmapi.api.WurmAPI;
 
 import net.buddat.wgenerator.util.Constants;
+import net.buddat.wgenerator.util.StreamCapturer;
 
 import javax.swing.JTabbedPane;
 import javax.swing.GroupLayout;
@@ -44,19 +45,18 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.awt.BorderLayout;
 
-@SuppressWarnings("serial")
 public class MainWindow extends JFrame {
 
+	private static final long serialVersionUID = -407206109473532425L;
+	
 	private static final String version = "2.0.0";
-	private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 	private WurmAPI api;
 	private HeightMap heightMap;
 	private TileMap tileMap;
@@ -119,7 +119,7 @@ public class MainWindow extends JFrame {
 	private JButton btnUndoLastBiome;
 	private JButton btnAddBiome;
 	private JLabel lblWater;
-	private JCheckBox checkbox_AroundWater;
+	private JCheckBox chckbxAroundWater;
 	private JTextField textField_growthMin;
 	private JTextField textField_growthMax;
 	private JCheckBox checkbox_growthRandom;
@@ -245,18 +245,22 @@ public class MainWindow extends JFrame {
 		labelPanel.add(lblMapSize);
 
 		JLabel lblMapSeed = new JLabel("Map Seed");
+		lblMapSeed.setToolTipText("Determines the randomness of the map");
 		labelPanel.add(lblMapSeed);
 
 		JLabel lblResolution = new JLabel("Resolution");
+		lblResolution.setToolTipText("Less = islands, More = one landmass");
 		labelPanel.add(lblResolution);
 
 		JLabel lblItrerations = new JLabel("Iterations");
 		labelPanel.add(lblItrerations);
 
 		JLabel lblMinEdge = new JLabel("Min Edge");
+		lblMinEdge.setToolTipText("Size of water border around map");
 		labelPanel.add(lblMinEdge);
 
 		JLabel lblBorderWeight = new JLabel("Border Weight");
+		lblBorderWeight.setToolTipText("How spread out mountains are. Less = more centralized mountains");
 		labelPanel.add(lblBorderWeight);
 
 		JLabel lblMaxHeight = new JLabel("Max Height");
@@ -347,15 +351,19 @@ public class MainWindow extends JFrame {
 		panel_3.setLayout(new GridLayout(0, 1, 0, 2));
 
 		JLabel lblIterations = new JLabel("Iterations");
+		lblIterations.setToolTipText("How many times to pass over the map");
 		panel_3.add(lblIterations);
 
 		JLabel lblMinSlope = new JLabel("Min Slope");
+		lblMinSlope.setToolTipText("Only erode above this slope");
 		panel_3.add(lblMinSlope);
 
 		JLabel lblMaxSlope_1 = new JLabel("Max Slope");
+		lblMaxSlope_1.setToolTipText("Only erode below this slope");
 		panel_3.add(lblMaxSlope_1);
 
 		JLabel lblSedimentPer = new JLabel("Sediment per");
+		lblSedimentPer.setToolTipText("How much dirt is dropped on each iteration");
 		panel_3.add(lblSedimentPer);
 
 		JPanel panel_4 = new JPanel();
@@ -421,6 +429,7 @@ public class MainWindow extends JFrame {
 		panel_11.add(lblBiomeSeed);
 
 		JLabel lblDirtPerTile = new JLabel("Dirt Per Tile");
+		lblDirtPerTile.setToolTipText("How much dirt to drop per tile on the map");
 		panel_11.add(lblDirtPerTile);
 
 		JLabel lblNewLabel_1 = new JLabel("Max Dirt Slope");
@@ -430,12 +439,15 @@ public class MainWindow extends JFrame {
 		panel_11.add(lblMaxDirtSlope);
 
 		JLabel lblMaxDirtHeight = new JLabel("Max Dirt Height");
+		lblMaxDirtHeight.setToolTipText("Dirt is not dropped above this height");
 		panel_11.add(lblMaxDirtHeight);
 
 		JLabel lblWaterHeight = new JLabel("Water Height");
+		lblWaterHeight.setToolTipText("Sea level");
 		panel_11.add(lblWaterHeight);
 
 		JLabel lblCliffRatio = new JLabel("Cliff Ratio");
+		lblCliffRatio.setToolTipText("How much cliffs protrude. Less = buried cliffs, More = lots of cliffs");
 		panel_11.add(lblCliffRatio);
 
 		JLabel label_8 = new JLabel("");
@@ -482,6 +494,7 @@ public class MainWindow extends JFrame {
 		textField_cliffRatio.setColumns(10);
 
 		checkBox_landSlide = new JCheckBox("Land Slide");
+		checkBox_landSlide.setToolTipText("Pushes dirt down that is above max slope");
 		checkBox_landSlide.setSelected(true);
 		panel_12.add(checkBox_landSlide);
 
@@ -536,24 +549,31 @@ public class MainWindow extends JFrame {
 		panel_16.setLayout(new GridLayout(0, 1, 0, 2));
 
 		JLabel lblSeedCount = new JLabel("Seed Count");
+		lblSeedCount.setToolTipText("Amount of biomes to add to the map");
 		panel_16.add(lblSeedCount);
 
 		JLabel lblBiomeSize = new JLabel("Biome Size");
+		lblBiomeSize.setToolTipText("How big the biome should grow");
 		panel_16.add(lblBiomeSize);
 
 		JLabel lblMaxSlope = new JLabel("Max Slope");
+		lblMaxSlope.setToolTipText("Don't grow above this slope");
 		panel_16.add(lblMaxSlope);
 
 		JLabel lblMinHeight = new JLabel("Min Height");
+		lblMinHeight.setToolTipText("Negative offset if around water is set");
 		panel_16.add(lblMinHeight);
 
 		JLabel lblMaxHeight_1 = new JLabel("Max Height");
+		lblMaxHeight_1.setToolTipText("Positive offset if around water is checked");
 		panel_16.add(lblMaxHeight_1);
 
 		lblWater = new JLabel("Water: "+textField_waterHeight.getText());
+		lblWater.setToolTipText("Current water height of the map");
 		panel_16.add(lblWater);
 
 		JLabel lblGrowth = new JLabel("Growth %");
+		lblGrowth.setToolTipText("Chance for biome to grow in a particular direction");
 		panel_16.add(lblGrowth);
 
 		JLabel lblNorth = new JLabel(" - North");
@@ -571,10 +591,12 @@ public class MainWindow extends JFrame {
 		JLabel label_3 = new JLabel("");
 		panel_16.add(label_3);
 
-		JLabel lblRandomMin = new JLabel("Random Min");
+		JLabel lblRandomMin = new JLabel("Growth Min");
+		lblRandomMin.setToolTipText("Lower limit of random growth");
 		panel_16.add(lblRandomMin);
 
-		JLabel lblRandomMax = new JLabel("Random Max");
+		JLabel lblRandomMax = new JLabel("Growth Max");
+		lblRandomMax.setToolTipText("Upper limit of random growth");
 		panel_16.add(lblRandomMax);
 
 		JPanel panel_17 = new JPanel();
@@ -601,8 +623,8 @@ public class MainWindow extends JFrame {
 		textField_biomeMaxHeight.setColumns(10);
 		panel_17.add(textField_biomeMaxHeight);
 
-		checkbox_AroundWater = new JCheckBox("Around Water", true);
-		panel_17.add(checkbox_AroundWater);
+		chckbxAroundWater = new JCheckBox("Around Water (-/+)", true);
+		panel_17.add(chckbxAroundWater);
 
 		JLabel label_6 = new JLabel("");
 		panel_17.add(label_6);
@@ -628,6 +650,7 @@ public class MainWindow extends JFrame {
 		textField_growthW.setColumns(10);
 
 		checkbox_growthRandom = new JCheckBox("Randomize");
+		checkbox_growthRandom.setToolTipText("Randomly determine growth chance for each direction");
 		checkbox_growthRandom.setSelected(true);
 		checkbox_growthRandom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -677,6 +700,7 @@ public class MainWindow extends JFrame {
 		panel_18.add(btnAddBiome);
 
 		btnUndoLastBiome = new JButton("Undo Last");
+		btnUndoLastBiome.setToolTipText("Can only go back 1 action");
 		panel_18.add(btnUndoLastBiome);
 		GroupLayout gl_biomePanel = new GroupLayout(biomePanel);
 		gl_biomePanel.setHorizontalGroup(
@@ -750,6 +774,7 @@ public class MainWindow extends JFrame {
 		panel_21.add(lblGlimmer);
 
 		JLabel lblRock = new JLabel("Rock");
+		lblRock.setToolTipText("Left over amount, adds up to 100%");
 		panel_21.add(lblRock);
 
 		JPanel panel_22 = new JPanel();
@@ -920,7 +945,7 @@ public class MainWindow extends JFrame {
 		JLabel label_1 = new JLabel("");
 		panel_26.add(label_1);
 
-		btnSaveImageDumps = new JButton("Save Image Dumps");
+		btnSaveImageDumps = new JButton("Save Images");
 		panel_26.add(btnSaveImageDumps);
 
 		btnSaveMapFiles = new JButton("Save Map Files");
@@ -937,6 +962,7 @@ public class MainWindow extends JFrame {
 		panel_26.add(btnLoadActions);
 
 		JButton btnClearActions = new JButton("Clear Actions");
+		btnClearActions.setToolTipText("Reset action history");
 		btnClearActions.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				genHistory.clear();
@@ -976,6 +1002,8 @@ public class MainWindow extends JFrame {
 	private void init() {
 		setupButtonActions();
 		setRockTotal();
+
+		System.setErr(new PrintStream(new StreamCapturer(System.err)));
 	}
 
 	private void setupButtonActions() {
@@ -1346,10 +1374,10 @@ public class MainWindow extends JFrame {
 				rates[3] = Integer.parseInt(textField_growthW.getText()) / 100.0; 
 			}
 
-			int minHeight = checkbox_AroundWater.isSelected()
+			int minHeight = chckbxAroundWater.isSelected()
 					? Integer.parseInt(textField_waterHeight.getText())-Integer.parseInt(textField_biomeMinHeight.getText())
 							: Integer.parseInt(textField_biomeMinHeight.getText());
-					int maxHeight = checkbox_AroundWater.isSelected()
+					int maxHeight = chckbxAroundWater.isSelected()
 							? Integer.parseInt(textField_waterHeight.getText())+Integer.parseInt(textField_biomeMaxHeight.getText())
 									: Integer.parseInt(textField_biomeMaxHeight.getText());
 
@@ -1361,7 +1389,7 @@ public class MainWindow extends JFrame {
 							genHistory.add("SEEDBIOME("+comboBox_biomeType.getSelectedItem()+"):" + comboBox_biomeType.getSelectedIndex() + "," + 
 									textField_seedCount.getText() + "," + textField_biomeSize.getText() + "," + textField_biomeMaxSlope.getText() + "," + 
 									(int)(100*rates[0]) + "," + (int)(100*rates[1]) + "," + (int)(100*rates[2]) + "," + (int)(100*rates[3]) + "," + 
-									textField_biomeMinHeight.getText() + "," + textField_biomeMaxHeight.getText() + "," + checkbox_AroundWater.isSelected());
+									textField_biomeMinHeight.getText() + "," + textField_biomeMaxHeight.getText() + "," + chckbxAroundWater.isSelected());
 		} catch (NumberFormatException nfe) {
 			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Dropping Dirt", JOptionPane.ERROR_MESSAGE);
 		} finally {
@@ -1523,7 +1551,7 @@ public class MainWindow extends JFrame {
 			ImageIO.write(map.createTopographicDump(true, (short) 250), "png", new File("./maps/" + mapName + "/topography.png"));
 			ImageIO.write(map.createCaveDump(true), "png", new File("./maps/" + mapName + "/cave.png"));
 		} catch (IOException ex) {
-			logger.log(Level.SEVERE, null, ex);
+			System.err.println("Saving images failed: "+ex.toString());
 		} finally {
 			stopLoading();
 		}
@@ -1574,7 +1602,7 @@ public class MainWindow extends JFrame {
 
 			bw.close();
 		} catch (IOException ex) {
-			logger.log(Level.SEVERE, null, ex);
+			System.err.println("Saving actions failed: "+ex.toString());
 		} finally {
 			stopLoading();
 		}
@@ -1607,8 +1635,7 @@ public class MainWindow extends JFrame {
 				br.close();
 			}
 		} catch (IOException ex) {
-			JOptionPane.showMessageDialog(null, "Unable to load actions file", "Error Loading Map", JOptionPane.ERROR_MESSAGE);
-			logger.log(Level.WARNING, "Error loading actions file: " + ex.getMessage());
+			System.err.println("Loading actions failed: "+ex.toString());
 		} finally {
 			stopLoading();
 		}
@@ -1849,8 +1876,6 @@ public class MainWindow extends JFrame {
 			}
 
 			try{
-				logger.log(Level.INFO, "1: " + options[0] + " 2: " + Integer.parseInt(options[1]) + " 3: " + options[2]);
-
 				File heightImageFile = new File(actionsFileDirectory + "/" + options[0]);
 				comboBox_mapSize.setSelectedIndex(Integer.parseInt(options[1]));
 				textField_mapMaxHeight.setText(options[2]);
@@ -1886,7 +1911,7 @@ public class MainWindow extends JFrame {
 					textField_growthW.setText(options[7]);
 					textField_biomeMinHeight.setText(options[8]);
 					textField_biomeMaxHeight.setText(options[9]);
-					checkbox_AroundWater.setSelected(Boolean.parseBoolean(options[10]));
+					chckbxAroundWater.setSelected(Boolean.parseBoolean(options[10]));
 					checkbox_growthRandom.setSelected(false);
 
 					actionSeedBiome();

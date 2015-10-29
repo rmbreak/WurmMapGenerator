@@ -4,8 +4,6 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JProgressBar;
 
@@ -13,24 +11,14 @@ import com.wurmonline.mesh.Tiles.Tile;
 
 public class TileMap {
 	
-	private static final Logger logger = Logger.getLogger(TileMap.class.getName());
-	
 	private Random biomeRandom;
-	
 	private HeightMap heightMap;
-	
 	private Tile[][] typeMap;
-	
 	private Tile[][] oreTypeMap;
-	
 	private short[][] oreResourceMap;
-	
 	private short[][] dirtMap;
-	
 	private double singleDirt;
-	
 	private double waterHeight;
-	
 	private boolean hasOres;
 	
 	private HashMap<Point, Tile> lastBiomeChanges;
@@ -109,7 +97,7 @@ public class TileMap {
 			}
 		}
 		
-		logger.log(Level.INFO, "Dirt Dropping (" + dirtCount + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+		log("Dirt Dropping (" + dirtCount + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 
 	private int findDropAmount(int x, int y, double maxSlope, double maxDiagSlope, int dirtCount, double cliffRatio) {
@@ -165,7 +153,7 @@ public class TileMap {
 		
 		hasOres = true;
 		
-		logger.log(Level.INFO, "Ore Generation completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+		log("Ore Generation completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 	
 	public void undoLastBiome() {
@@ -190,7 +178,7 @@ public class TileMap {
 			grassList = growBiome(nextList, type, growthRate, maxBiomeSlope, minHeight, maxHeight);
 		}
 		
-		logger.log(Level.INFO, "Biome Seeding (" + type.tilename + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+		log("Biome Seeding (" + type.tilename + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 	
 	private ArrayList<Point> growBiome(ArrayList<Point> fromList, Tile type, double[] growthRate, int maxBiomeSlope, int minHeight, int maxHeight) {
@@ -384,5 +372,9 @@ public class TileMap {
 		} else {
 			return new Point(x, y);
 		}
+	}
+
+	private static void log (String s) {
+		System.out.println(s);
 	}
 }

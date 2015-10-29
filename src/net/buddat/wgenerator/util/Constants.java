@@ -20,7 +20,7 @@ public class Constants {
 	public static final int HEIGHTMAP_ITERATIONS = 10;
 
 	public static final int EROSION_MIN_SLOPE = 30;
-	public static final int EROSION_MAX_SLOPE = 130;
+	public static final int EROSION_MAX_SLOPE = 300;
 	public static final int EROSION_MAX_SEDIMENT = 100;
 	
 	public static final int DIRT_DROP_COUNT = 40;

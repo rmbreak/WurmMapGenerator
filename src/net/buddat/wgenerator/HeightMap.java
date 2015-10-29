@@ -5,8 +5,6 @@ import java.awt.image.DataBufferUShort;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
@@ -21,8 +19,6 @@ import net.buddat.wgenerator.util.SimplexNoise;
  * All height values for each point will be between 0.0 and 1.0
  */
 public class HeightMap {
-	
-	private static final Logger logger = Logger.getLogger(HeightMap.class.getName());
 
 	private double[][] heightArray;
 	private long noiseSeed;
@@ -52,8 +48,6 @@ public class HeightMap {
 		this.borderNormalize = (float) (1.0f / borderCutoff);
 		
 		this.singleDirt = 1.0 / maxHeight;
-		
-		logger.setLevel(Level.INFO);
 	}
 	
 	public HeightMap(BufferedImage heightImage, int mapSize, int maxHeight) {
@@ -71,8 +65,6 @@ public class HeightMap {
 		this.borderNormalize = (float) (1.0f / borderCutoff);
 
 		this.singleDirt = 1.0 / maxHeight;
-
-		logger.setLevel(Level.INFO);
 	}
 	
 
@@ -104,7 +96,7 @@ public class HeightMap {
 				}
 			}
 
-			logger.log(Level.INFO, "HeightMap Generation (" + mapSize + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+			log("HeightMap Generation (" + mapSize + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "The map must be 16-bit grayscale.", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -162,13 +154,11 @@ public class HeightMap {
 	 *  Clamps the heightmap heights for the last iteration only.
 	 */
 	void generateHeights(JProgressBar progress) {
-		logger.log(Level.INFO, "HeightMap seed set to: " + noiseSeed);
+		log("HeightMap seed set to: " + noiseSeed);
 		SimplexNoise.genGrad(noiseSeed);
 		
 		long startTime = System.currentTimeMillis();
 		for (int i = 0; i < iterations; i++) {
-			logger.log(Level.FINE, "HeightMap Generation (" + mapSize + ") - Iteration(" + (i + 1) + "/" + iterations + ")");
-
 			int progressValue = (int)((float)i/iterations*100f); 
 			long predict = (int)((System.currentTimeMillis()-startTime)/1000.0*(100.0/progressValue-1));
             progress.setValue(progressValue);
@@ -184,7 +174,7 @@ public class HeightMap {
 			}
 		}
 		
-		logger.log(Level.INFO, "HeightMap Generation (" + mapSize + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+		log("HeightMap Generation (" + mapSize + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 		
 		normalizeHeights();
 	}
@@ -218,7 +208,7 @@ public class HeightMap {
 				}
 			}
 		
-		logger.log(Level.INFO, "HeightMap Normalization (" + mapSize + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+		log("HeightMap Normalization (" + mapSize + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 	
 	void erode(int iterations, int minSlope, int maxSlope, int sedimentMax, JProgressBar progress) {
@@ -267,7 +257,7 @@ public class HeightMap {
 			}
 		}
 		
-		logger.log(Level.INFO, "HeightMap Erosion (" + iterations + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+		log("HeightMap Erosion (" + iterations + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 
 	double getHeight(int x, int y) {
@@ -322,5 +312,9 @@ public class HeightMap {
 	
 	static int clamp(int val, int min, int max) {
 	    return Math.max(min, Math.min(max, val));
+	}
+	
+	private static void log (String s) {
+		System.out.println(s);
 	}
 }
