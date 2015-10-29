@@ -117,12 +117,12 @@ public class MainWindow extends JFrame implements FocusListener {
 	private ArrayList<String> genHistory;
 	private boolean apiClosed = true;
 	private MapPanel mapPanel;
+	private JLabel lblWater;
+	private JCheckBox checkbox_AroundWater;
 
-	//TODO if (loadingBar.getValue() != 100) prevent buttons
+	//TODO error reporting
 
-	/**
-	 * Launch the application.
-	 */
+	
 	public static void main(String[] args) {
 		try {
 			UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
@@ -141,9 +141,7 @@ public class MainWindow extends JFrame implements FocusListener {
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public MainWindow() {
 		setTitle("Wurm Map Generator");
@@ -473,6 +471,11 @@ public class MainWindow extends JFrame implements FocusListener {
 		panel_12.add(textField_maxDirtHeight);
 
 		textField_waterHeight = new JTextField("" + Constants.WATER_HEIGHT);
+		textField_waterHeight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				lblWater.setText("Water: "+textField_waterHeight.getText());
+			}
+		});
 		textField_waterHeight.setColumns(10);
 		panel_12.add(textField_waterHeight);
 
@@ -548,6 +551,9 @@ public class MainWindow extends JFrame implements FocusListener {
 
 		JLabel lblMaxHeight_1 = new JLabel("Max Height");
 		panel_16.add(lblMaxHeight_1);
+		
+		lblWater = new JLabel("Water: "+textField_waterHeight.getText());
+		panel_16.add(lblWater);
 
 		JLabel lblGrowth = new JLabel("Growth %");
 		panel_16.add(lblGrowth);
@@ -597,6 +603,9 @@ public class MainWindow extends JFrame implements FocusListener {
 		textField_biomeMaxHeight = new JTextField("" + Constants.BIOME_MAX_HEIGHT);
 		textField_biomeMaxHeight.setColumns(10);
 		panel_17.add(textField_biomeMaxHeight);
+		
+		checkbox_AroundWater = new JCheckBox("Around Water", true);
+		panel_17.add(checkbox_AroundWater);
 
 		JLabel label_6 = new JLabel("");
 		panel_17.add(label_6);
@@ -995,7 +1004,7 @@ public class MainWindow extends JFrame implements FocusListener {
 		new Thread() {
 			@Override
 			public void run() {
-				startLoading("Eroding Height Map");
+				startLoading("Eroding Height Map ()");
 				try {
 					heightMap.erode(Integer.parseInt(textField_erodeIterations.getText()), Integer.parseInt(textField_erodeMinSlope.getText()), 
 							Integer.parseInt(textField_erodeSediment.getText()), progressBar);
@@ -1029,6 +1038,7 @@ public class MainWindow extends JFrame implements FocusListener {
 					if (checkbox_biomeRandomSeed.isSelected()) {
 						textField_biomeSeed.setText("" + System.currentTimeMillis());
 					}
+					lblWater.setText("Water: "+textField_waterHeight.getText());
 
 					tileMap = new TileMap(heightMap);
 					tileMap.setBiomeSeed(textField_biomeSeed.getText().hashCode());
@@ -1049,7 +1059,6 @@ public class MainWindow extends JFrame implements FocusListener {
 		}.start();
 	}
 
-	//TODO fix
 	public void actionDropWater () {
 		if (heightMap == null) {
 			JOptionPane.showMessageDialog(null, "HeightMap does not exist", "Error Updating Water", JOptionPane.ERROR_MESSAGE);
@@ -1069,6 +1078,7 @@ public class MainWindow extends JFrame implements FocusListener {
 			public void run() {
 				startLoading("Updating Water");
 				try {
+					lblWater.setText("Water: "+textField_waterHeight.getText());
 					tileMap.setWaterHeight(Integer.parseInt(textField_waterHeight.getText()));
 
 					updateMapView(true, 0);
@@ -1103,9 +1113,15 @@ public class MainWindow extends JFrame implements FocusListener {
 					rates[2] = Integer.parseInt(textField_growthE.getText()) / 100.0; 
 					rates[3] = Integer.parseInt(textField_growthW.getText()) / 100.0; 
 
+					int minHeight = checkbox_AroundWater.isSelected()
+							? Integer.parseInt(textField_waterHeight.getText())-Integer.parseInt(textField_biomeMinHeight.getText())
+							: Integer.parseInt(textField_biomeMinHeight.getText());
+					int maxHeight = checkbox_AroundWater.isSelected()
+							? Integer.parseInt(textField_waterHeight.getText())+Integer.parseInt(textField_biomeMaxHeight.getText())
+							: Integer.parseInt(textField_biomeMaxHeight.getText());
+					
 					tileMap.plantBiome(Integer.parseInt(textField_seedCount.getText()), Integer.parseInt(textField_biomeSize.getText()), 
-							rates, Integer.parseInt(textField_biomeMaxSlope.getText()), Integer.parseInt(textField_biomeMinHeight.getText()),
-							Integer.parseInt(textField_biomeMaxHeight.getText()), (Tile) comboBox_biomeType.getSelectedItem(), progressBar);
+							rates, Integer.parseInt(textField_biomeMaxSlope.getText()), minHeight, maxHeight, (Tile) comboBox_biomeType.getSelectedItem(), progressBar);
 
 					updateMapView(true, 0);
 

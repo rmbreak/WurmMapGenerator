@@ -36,8 +36,8 @@ public class Constants {
 	public static final int BIOME_MAX_SLOPE = 20;
 	public static final int BIOME_SEEDS = 50;
 	public static final int BIOME_SIZE = 60;
-	public static final int BIOME_MIN_HEIGHT = WATER_HEIGHT;
-	public static final int BIOME_MAX_HEIGHT = ROCK_WEIGHT;
+	public static final int BIOME_MIN_HEIGHT = 50;
+	public static final int BIOME_MAX_HEIGHT = 50;
 	
 	public static final double ORE_IRON = 2.0, ORE_GOLD = 0.1, ORE_SILVER = 0.2, ORE_ZINC = 0.3, 
 			ORE_COPPER = 0.4, ORE_LEAD = 0.4, ORE_TIN = 0.4, ORE_ADDY = 0.0, ORE_GLIMMER = 0.0, ORE_MARBLE = 0.4, ORE_SLATE = 0.4;

@@ -124,8 +124,11 @@ public class HeightMap {
 		long startTime = System.currentTimeMillis();
 		
 		for (int iter = 0; iter < iterations; iter++) {
-
-            progress.setValue((int)((float)iter/iterations*90f));
+            
+			int progressValue = (int)((float)iter/iterations*100f); 
+			long predict = (int)((System.currentTimeMillis()-startTime)/1000.0*(100.0/progressValue-1));
+            progress.setValue(progressValue);
+            progress.setString(progress.getString().substring(0, progress.getString().indexOf("("))+"("+predict+" secs)");
             
 			for (int i = 0; i < mapSize; i++) {
 				for (int j = 0; j < mapSize; j++) {
