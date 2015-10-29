@@ -121,7 +121,7 @@ public class MainWindow extends JFrame implements FocusListener {
 	private JCheckBox checkbox_AroundWater;
 
 	//TODO error reporting
-
+	//TODO tooltips EVERYWHERE
 	
 	public static void main(String[] args) {
 		try {
@@ -885,22 +885,6 @@ public class MainWindow extends JFrame implements FocusListener {
 		JLabel label_1 = new JLabel("");
 		panel_26.add(label_1);
 
-		JButton btnSaveActions = new JButton("Save Actions");
-		btnSaveActions.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				actionSaveActions();
-			}
-		});
-		panel_26.add(btnSaveActions);
-
-		JButton btnLoadActions = new JButton("Load Actions");
-		btnLoadActions.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				actionLoadActions();
-			}
-		});
-		panel_26.add(btnLoadActions);
-
 		JButton btnSaveImageDumps = new JButton("Save Image Dumps");
 		btnSaveImageDumps.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -916,6 +900,26 @@ public class MainWindow extends JFrame implements FocusListener {
 			}
 		});
 		panel_26.add(btnSaveMapFiles);
+		
+				JButton btnSaveActions = new JButton("Save Actions");
+				btnSaveActions.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						actionSaveActions();
+					}
+				});
+				
+				JLabel label_2 = new JLabel("");
+				panel_26.add(label_2);
+				panel_26.add(btnSaveActions);
+				
+						JButton btnLoadActions = new JButton("Load Actions");
+						btnLoadActions.setEnabled(false);
+						btnLoadActions.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								actionLoadActions();
+							}
+						});
+						panel_26.add(btnLoadActions);
 		GroupLayout gl_actionPanel = new GroupLayout(actionPanel);
 		gl_actionPanel.setHorizontalGroup(
 				gl_actionPanel.createParallelGroup(Alignment.LEADING)
@@ -1082,7 +1086,8 @@ public class MainWindow extends JFrame implements FocusListener {
 					tileMap.setWaterHeight(Integer.parseInt(textField_waterHeight.getText()));
 
 					updateMapView(true, 0);
-
+					
+					genHistory.add("UPDATEWATER:" + textField_waterHeight.getText());
 				} catch (NumberFormatException nfe) {
 					JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Updating Water", JOptionPane.ERROR_MESSAGE);
 				} finally {
@@ -1419,6 +1424,7 @@ public class MainWindow extends JFrame implements FocusListener {
 		}.start();
 	}
 
+	//TODO fix: threading breaks action sequence
 	public void actionLoadActions () {
 
 		if (!actionReady())
@@ -1427,7 +1433,7 @@ public class MainWindow extends JFrame implements FocusListener {
 		new Thread() {
 			@Override
 			public void run() {
-				startLoading("Loading Actions");
+//				startLoading("Loading Actions");
 				try {
 					File actionsFile;
 
@@ -1454,7 +1460,7 @@ public class MainWindow extends JFrame implements FocusListener {
 					JOptionPane.showMessageDialog(null, "Unable to load actions file", "Error Loading Map", JOptionPane.ERROR_MESSAGE);
 					logger.log(Level.WARNING, "Error loading actions file: " + ex.getMessage());
 				} finally {
-					stopLoading();
+//					stopLoading();
 				}
 			}
 		}.start();
@@ -1562,6 +1568,7 @@ public class MainWindow extends JFrame implements FocusListener {
 				textField_mapBorderWeight.setText(options[5]);
 				textField_mapMaxHeight.setText(options[6]);
 				checkbox_moreLand.setSelected(Boolean.parseBoolean(options[7]));
+				checkbox_mapRandomSeed.setSelected(false);
 
 				btnGenerateHeightmap.doClick();
 			} catch (Exception nfe) {
@@ -1592,8 +1599,19 @@ public class MainWindow extends JFrame implements FocusListener {
 			textField_maxDirtSlope.setText(options[3]);
 			textField_maxDiagSlope.setText(options[4]);
 			textField_maxDirtHeight.setText(options[5]);
+			checkbox_biomeRandomSeed.setSelected(false);
 
 			btnDropDirt.doClick();
+			break;
+		case "UPDATEWATER":
+			if (options.length < 1) {
+				JOptionPane.showMessageDialog(null, "Not enough options for DROPDIRT", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+			textField_waterHeight.setText(options[0]);
+
+			btnUpdateWater.doClick();
 			break;
 		case "UNDOBIOME":
 			btnUndoLastBiome.doClick();
@@ -1662,7 +1680,7 @@ public class MainWindow extends JFrame implements FocusListener {
 				if (extension.equals("textField_"))
 					return true;
 
-			return false;
+			return true;//false;
 		}
 
 		private String getExtension(File f) {
