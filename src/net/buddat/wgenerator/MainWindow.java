@@ -55,8 +55,8 @@ import java.awt.BorderLayout;
 public class MainWindow extends JFrame {
 
 	private static final long serialVersionUID = -407206109473532425L;
-	
-	private static final String version = "2.1";
+
+	private static final String version = "2.2";
 	private WurmAPI api;
 	private HeightMap heightMap;
 	private TileMap tileMap;
@@ -138,7 +138,8 @@ public class MainWindow extends JFrame {
 	private JCheckBox checkBox_landSlide;
 	private JButton btnUpdateMapName;
 	private static JLabel lblMapCoords;
-	private JCheckBox checkbox_ShowGrid;
+	private JCheckBox chcekbox_showGrid;
+	private JTextField textField_mapGridSize;
 
 
 	public static void main(String[] args) {
@@ -188,73 +189,107 @@ public class MainWindow extends JFrame {
 		progressBar.setValue(100);
 
 		JPanel viewPanel = new JPanel();
-		
+
 		JPanel mapCoordsPanel = new JPanel();
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
-			gl_contentPane.createParallelGroup(Alignment.TRAILING)
+				gl_contentPane.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-						.addComponent(progressBar, GroupLayout.DEFAULT_SIZE, 913, Short.MAX_VALUE)
-						.addGroup(gl_contentPane.createSequentialGroup()
-							.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-								.addComponent(mapPanel, GroupLayout.DEFAULT_SIZE, 592, Short.MAX_VALUE)
-								.addComponent(mapCoordsPanel, GroupLayout.DEFAULT_SIZE, 592, Short.MAX_VALUE)
-								.addComponent(viewPanel, GroupLayout.DEFAULT_SIZE, 592, Short.MAX_VALUE))
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(optionsPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-					.addContainerGap())
-		);
+						.addContainerGap()
+						.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+								.addComponent(progressBar, GroupLayout.DEFAULT_SIZE, 919, Short.MAX_VALUE)
+								.addGroup(gl_contentPane.createSequentialGroup()
+										.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+												.addComponent(mapPanel, GroupLayout.DEFAULT_SIZE, 598, Short.MAX_VALUE)
+												.addComponent(mapCoordsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+												.addComponent(viewPanel, GroupLayout.DEFAULT_SIZE, 598, Short.MAX_VALUE))
+												.addPreferredGap(ComponentPlacement.RELATED)
+												.addComponent(optionsPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+												.addContainerGap())
+				);
 		gl_contentPane.setVerticalGroup(
-			gl_contentPane.createParallelGroup(Alignment.LEADING)
+				gl_contentPane.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-						.addGroup(gl_contentPane.createSequentialGroup()
-							.addComponent(mapCoordsPanel, GroupLayout.PREFERRED_SIZE, 18, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(mapPanel, GroupLayout.DEFAULT_SIZE, 504, Short.MAX_VALUE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(viewPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addComponent(optionsPane, GroupLayout.DEFAULT_SIZE, 572, Short.MAX_VALUE))
-					.addGap(5))
-		);
-		
+						.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+								.addGroup(gl_contentPane.createSequentialGroup()
+										.addComponent(mapCoordsPanel, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
+										.addPreferredGap(ComponentPlacement.RELATED)
+										.addComponent(mapPanel, GroupLayout.DEFAULT_SIZE, 498, Short.MAX_VALUE)
+										.addPreferredGap(ComponentPlacement.RELATED)
+										.addComponent(viewPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+										.addComponent(optionsPane, GroupLayout.DEFAULT_SIZE, 572, Short.MAX_VALUE))
+										.addGap(5))
+				);
+
+		JPanel panel_25 = new JPanel();
+
 		JLabel lblNewLabel_4 = new JLabel("Map Coords:");
 		lblNewLabel_4.setHorizontalAlignment(SwingConstants.CENTER);
-		
+
 		lblMapCoords = new JLabel("");
 		lblMapCoords.setHorizontalAlignment(SwingConstants.LEFT);
-		
-		checkbox_ShowGrid = new JCheckBox("Show Grid");
-		checkbox_ShowGrid.addActionListener(new ActionListener() {
+
+		JPanel panel_28 = new JPanel();
+		panel_28.setLayout(new GridLayout(0, 3, 0, 0));
+
+		chcekbox_showGrid = new JCheckBox("Grid");
+		panel_28.add(chcekbox_showGrid);
+		chcekbox_showGrid.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				mapPanel.showGrid(checkbox_ShowGrid.isSelected());
+				mapPanel.showGrid(chcekbox_showGrid.isSelected());
 			}
 		});
-		checkbox_ShowGrid.setHorizontalAlignment(SwingConstants.CENTER);
+		chcekbox_showGrid.setHorizontalAlignment(SwingConstants.CENTER);
+
+		JLabel lblSize = new JLabel("Size:");
+		lblSize.setToolTipText("Grid cell count. Press enter to submit");
+		lblSize.setHorizontalAlignment(SwingConstants.RIGHT);
+		panel_28.add(lblSize);
+
+		textField_mapGridSize = new JTextField("" + Constants.GRID_SIZE);
+		mapPanel.setGridSize(Constants.GRID_SIZE);
+		textField_mapGridSize.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					mapPanel.setGridSize(Integer.parseInt(textField_mapGridSize.getText()));
+				} catch (NumberFormatException ex) {
+					JOptionPane.showMessageDialog(null,"Map size must be an integer", "Input Error", JOptionPane.WARNING_MESSAGE);
+				}
+			}
+		});
+		panel_28.add(textField_mapGridSize);
+		textField_mapGridSize.setColumns(10);
 		GroupLayout gl_mapCoordsPanel = new GroupLayout(mapCoordsPanel);
 		gl_mapCoordsPanel.setHorizontalGroup(
-			gl_mapCoordsPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_mapCoordsPanel.createSequentialGroup()
-					.addComponent(lblNewLabel_4, GroupLayout.PREFERRED_SIZE, 143, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(lblMapCoords, GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(checkbox_ShowGrid, GroupLayout.PREFERRED_SIZE, 148, GroupLayout.PREFERRED_SIZE)
-					.addGap(1))
-		);
+				gl_mapCoordsPanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(Alignment.TRAILING, gl_mapCoordsPanel.createSequentialGroup()
+						.addComponent(panel_25, GroupLayout.DEFAULT_SIZE, 401, Short.MAX_VALUE)
+						.addPreferredGap(ComponentPlacement.UNRELATED)
+						.addComponent(panel_28, GroupLayout.PREFERRED_SIZE, 179, GroupLayout.PREFERRED_SIZE)
+						.addContainerGap())
+				);
 		gl_mapCoordsPanel.setVerticalGroup(
-			gl_mapCoordsPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_mapCoordsPanel.createSequentialGroup()
-					.addGroup(gl_mapCoordsPanel.createParallelGroup(Alignment.LEADING)
-						.addComponent(checkbox_ShowGrid)
-						.addComponent(lblNewLabel_4, GroupLayout.PREFERRED_SIZE, 18, GroupLayout.PREFERRED_SIZE)
-						.addComponent(lblMapCoords, GroupLayout.PREFERRED_SIZE, 18, GroupLayout.PREFERRED_SIZE))
-					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-		);
+				gl_mapCoordsPanel.createParallelGroup(Alignment.LEADING)
+				.addComponent(panel_25, GroupLayout.DEFAULT_SIZE, 24, Short.MAX_VALUE)
+				.addComponent(panel_28, GroupLayout.PREFERRED_SIZE, 24, Short.MAX_VALUE)
+				);
+		GroupLayout gl_panel_25 = new GroupLayout(panel_25);
+		gl_panel_25.setHorizontalGroup(
+				gl_panel_25.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_25.createSequentialGroup()
+						.addComponent(lblNewLabel_4, GroupLayout.PREFERRED_SIZE, 113, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addComponent(lblMapCoords, GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
+						.addContainerGap())
+				);
+		gl_panel_25.setVerticalGroup(
+				gl_panel_25.createParallelGroup(Alignment.LEADING)
+				.addComponent(lblNewLabel_4, GroupLayout.DEFAULT_SIZE, 24, Short.MAX_VALUE)
+				.addComponent(lblMapCoords, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 24, Short.MAX_VALUE)
+				);
+		panel_25.setLayout(gl_panel_25);
 		mapCoordsPanel.setLayout(gl_mapCoordsPanel);
 
 		btnViewMap = new JButton("View Map");
@@ -376,6 +411,10 @@ public class MainWindow extends JFrame {
 						.addComponent(panel_6, GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
 						.addContainerGap())
 				);
+		
+				btnLoadHeightmap = new JButton("Import Heightmap");
+				btnLoadHeightmap.setToolTipText("16 bit grayscale PNG");
+				panel_7.add(btnLoadHeightmap);
 		heightmapPanel.setLayout(gl_heightmapPanel);
 
 		JPanel erosionPanel = new JPanel();
@@ -953,7 +992,7 @@ public class MainWindow extends JFrame {
 		orePanel.setLayout(gl_orePanel);
 
 		JPanel actionPanel = new JPanel();
-		optionsPane.addTab("Import/Export", null, actionPanel, null);
+		optionsPane.addTab("Actions/Export", null, actionPanel, null);
 		optionsPane.setEnabledAt(5, true);
 
 		JPanel panel_24 = new JPanel();
@@ -974,12 +1013,25 @@ public class MainWindow extends JFrame {
 		btnUpdateMapName = new JButton("Update Map Name");
 		btnUpdateMapName.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				mapName = textField_mapName.getText();
-				if (!apiClosed) {
-					getAPI().close();
+				if (heightMap == null) {
+					JOptionPane.showMessageDialog(null, "Heightmap does not exist - Generate one first", "Error Saving Map Api", JOptionPane.ERROR_MESSAGE);
+					return;
 				}
-				apiClosed = true;
-				updateAPIMap();
+				if (tileMap == null) {
+					JOptionPane.showMessageDialog(null, "Tile map does not exist - Generate one first", "Error Saving Map Api", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				new Thread() {
+					@Override
+					public void run() {
+						mapName = textField_mapName.getText();
+						if (!apiClosed) {
+							getAPI().close();
+						}
+						apiClosed = true;
+						updateAPIMap();
+					}
+				}.start();
 			}
 		});
 		panel_26.add(btnUpdateMapName);
@@ -994,6 +1046,9 @@ public class MainWindow extends JFrame {
 		panel_26.add(btnSaveMapFiles);
 
 		btnSaveActions = new JButton("Save Actions");
+		
+				btnSaveHeightmap = new JButton("Save Heightmap");
+				panel_26.add(btnSaveHeightmap);
 
 		JLabel label_2 = new JLabel("");
 		panel_26.add(label_2);
@@ -1011,15 +1066,6 @@ public class MainWindow extends JFrame {
 			}
 		});
 		panel_26.add(btnClearActions);
-
-		JLabel lblNewLabel_3 = new JLabel("");
-		panel_26.add(lblNewLabel_3);
-
-		btnSaveHeightmap = new JButton("Save Heightmap");
-		panel_26.add(btnSaveHeightmap);
-
-		btnLoadHeightmap = new JButton("Load Heightmap");
-		panel_26.add(btnLoadHeightmap);
 		GroupLayout gl_actionPanel = new GroupLayout(actionPanel);
 		gl_actionPanel.setHorizontalGroup(
 				gl_actionPanel.createParallelGroup(Alignment.LEADING)
@@ -1640,7 +1686,7 @@ public class MainWindow extends JFrame {
 				bw.write(s + "\r\n");
 
 			bw.close();
-			
+
 			actionSaveHeightmap();
 		} catch (IOException ex) {
 			System.err.println("Saving actions failed: "+ex.toString());
@@ -1721,7 +1767,7 @@ public class MainWindow extends JFrame {
 			return;
 		}
 
-		startLoading("Loading Heightmap");
+		startLoading("Saving Heightmap");
 		heightMap.exportHeightImage(mapName);
 		stopLoading();
 	}
@@ -2045,7 +2091,7 @@ public class MainWindow extends JFrame {
 
 		}
 	}
-	
+
 	static void updateMapCoords (int x, int y, boolean show) {
 		if (show) {
 			lblMapCoords.setText("Tile ("+x+","+y+"), Player ("+(x*4)+","+(y*4)+")");

@@ -21,6 +21,7 @@ public class TileMap {
 	private double waterHeight;
 	private boolean hasOres;
 	private long dirtDropProgress;
+	private JProgressBar progressBar;
 
 	private HashMap<Point, Tile> lastBiomeChanges;
 
@@ -38,48 +39,18 @@ public class TileMap {
 		this.lastBiomeChanges = new HashMap<Point, Tile>();
 	}
 
-	public void dropDirt(int dirtCount, int maxSlope, int maxDiagSlope, int maxDirtHeight, double cliffRatio, boolean landSlide, JProgressBar progress) {
-		double maxSlopeHeight = maxSlope * singleDirt;
-		double maxDiagSlopeHeight = maxDiagSlope * singleDirt;
-		double maxHeight = maxDirtHeight * singleDirt;
-		double taperHeight = maxHeight - ((dirtCount / 2) * singleDirt);
-		int mapSize = heightMap.getMapSize();
+	public void dropDirt(final int dirtCount, final int maxSlope, final int maxDiagSlope, final int maxDirtHeight, final double cliffRatio, final boolean landSlide, JProgressBar progress) {
+		final double maxSlopeHeight = maxSlope * singleDirt;
+		final double maxDiagSlopeHeight = maxDiagSlope * singleDirt;
+		final double maxHeight = maxDirtHeight * singleDirt;
+		final double taperHeight = maxHeight - ((dirtCount / 2) * singleDirt);
+		final int mapSize = heightMap.getMapSize();
 
-		long startTime = System.currentTimeMillis();
-
-//				for (int x = 0; x < mapSize; x++) {
-//
-//					if (x%50 == 0) {
-//						int progressValue = (int)((float)x/heightMap.getMapSize()*100f); 
-//						long predict = (int)((System.currentTimeMillis()-startTime)/1000.0*(100.0/progressValue-1));
-//			            progress.setValue(progressValue);
-//			            progress.setString(progress.getString().substring(0, progress.getString().indexOf("("))+"("+predict+" secs)");
-//					}
-//					
-//					for (int y = 0; y < heightMap.getMapSize(); y++) {
-//						
-//						for (int i = 0; i < findDropAmount(x, y, maxSlopeHeight, maxDiagSlopeHeight, dirtCount, cliffRatio); i++) {
-//							if (heightMap.getHeight(x, y) > maxHeight)
-//								continue;
-//							
-//							if (heightMap.getHeight(x, y) > taperHeight)
-//								if ((maxHeight - heightMap.getHeight(x, y)) * heightMap.getMaxHeight() < i)
-//									continue;
-//							
-//							if (landSlide) {
-//								Point dropTile = findDropTile(x, y, maxSlopeHeight, maxDiagSlopeHeight);
-//								addDirt((int) dropTile.getX(), (int) dropTile.getY(), 1);
-//							} else {
-//								Point dropTile = new Point(x,y);
-//								addDirt((int) dropTile.getX(), (int) dropTile.getY(), 1);
-//							}
-//						}
-//					}
-//				}
-
-		int slice = 7;
-		int total = 16;
+		final long startTime = System.currentTimeMillis();
+		int slice = 30;
+		int total = 64;
 		dirtDropProgress = 0;
+		progressBar = progress;
 
 		class Iteration implements Runnable {
 			int index, sizex, sizey;
@@ -94,18 +65,20 @@ public class TileMap {
 			}
 
 			public void run() {
+				//				for (int x = 0; x < heightMap.getMapSize(); x++) {
+				//				for (int y = 0; y < heightMap.getMapSize(); y++) {
 				for (int x = ix[index]; x < ix[index]+sizex; x++) {
 					for (int y = iy[index]; y < iy[index]+sizey; y++) {
-						
+
 						int mod = heightMap.getMapSize()/32;
 						if ( x%mod == 0 && y%mod == 0) {
 							dirtDropProgress += mod*mod;
 							int progressValue = (int)((float)dirtDropProgress/(heightMap.getMapSize()*heightMap.getMapSize())*100f); 
 							long predict = (int)((System.currentTimeMillis()-startTime)/1000.0*(100.0/progressValue-1));
-				            progress.setValue(progressValue);
-				            progress.setString(progress.getString().substring(0, progress.getString().indexOf("("))+"("+predict+" secs)");
+							progressBar.setValue(progressValue);
+							progressBar.setString(progressBar.getString().substring(0, progressBar.getString().indexOf("("))+"("+predict+" secs)");
 						}
-						
+
 						for (int i = 0; i < findDropAmount(x, y, maxSlopeHeight, maxDiagSlopeHeight, dirtCount, cliffRatio); i++) {
 							if (heightMap.getHeight(x, y) > maxHeight)
 								continue;
@@ -156,17 +129,17 @@ public class TileMap {
 				return;
 			}
 		}
-		
+
 		Thread thirdThread = new Thread(new Iteration(0,new int[]{mapSize*slice/total},new int[]{0},mapSize*(total-slice*2)/total,mapSize));
 		thirdThread.start();
-		
+
 		try {
 			thirdThread.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			return;
 		}
-		
+
 		log("Dirt Dropping (" + dirtCount + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 

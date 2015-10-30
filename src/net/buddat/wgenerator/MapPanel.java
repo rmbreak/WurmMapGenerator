@@ -30,6 +30,7 @@ public class MapPanel extends JPanel {
 	private int markerOffsetY = 0;
 	private boolean showMarker = false;
 	private boolean showGrid = false;
+	private int gridSize = 1;
 
 	public MapPanel() {
 		super();
@@ -160,14 +161,13 @@ public class MapPanel extends JPanel {
 		}
 
 		if (showGrid) {
-			int gridCount = 10;
-			double gridSize = mapSize/gridCount*scale;
+			double gridScale = mapSize/gridSize*scale;
 			g.setColor(Color.CYAN);
-			for (int x = 0; x <= gridCount; x++) {
-				g.drawLine(imageX, imageY+(int)(x*gridSize), imageX+(int)(mapSize*scale), (int)(imageY+x*gridSize));
+			for (int x = 0; x <= gridSize; x++) {
+				g.drawLine(imageX, imageY+(int)(x*gridScale), imageX+(int)(mapSize*scale), (int)(imageY+x*gridScale));
 			}
-			for (int y = 0; y <= gridCount; y++) {
-				g.drawLine((int)(imageX+y*gridSize), imageY, (int)(imageX+y*gridSize), imageY+(int)(mapSize*scale));
+			for (int y = 0; y <= gridSize; y++) {
+				g.drawLine((int)(imageX+y*gridScale), imageY, (int)(imageX+y*gridScale), imageY+(int)(mapSize*scale));
 			}
 		}
 	}
@@ -196,5 +196,11 @@ public class MapPanel extends JPanel {
 		return mapImage;
 	}
 	
+	public void setGridSize(int size) {
+		if (size <= 0)
+			size = 1;
+		gridSize = size;
+		repaint();
+	}
 	
 }

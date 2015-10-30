@@ -35,7 +35,7 @@ public class Constants {
 	public static final int GRASS_ITERATIONS = 50;
 	public static final int BIOME_RATE = 60;
 	public static final int BIOME_MAX_SLOPE = 20;
-	public static final int BIOME_SEEDS = 50;
+	public static final int BIOME_SEEDS = 500;
 	public static final int BIOME_SIZE = 60;
 	public static final int BIOME_MIN_HEIGHT = 50;
 	public static final int BIOME_MAX_HEIGHT = 50;
@@ -51,5 +51,7 @@ public class Constants {
 	public static final int MIN_EDGE = 64;
 	public static final double BORDER_WEIGHT = 6.0;
 	public static final boolean MORE_LAND = true;
+	
+	public static final int GRID_SIZE = 8;
 	
 }
