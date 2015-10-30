@@ -1269,8 +1269,6 @@ public class MainWindow extends JFrame {
 
 	}
 
-
-
 	private void startLoading(String task) {
 		progressBar.setValue(0);
 		progressBar.setString(task);
@@ -1284,7 +1282,6 @@ public class MainWindow extends JFrame {
 	private boolean actionReady() {
 		return progressBar.getValue() == 100;
 	}
-
 
 	public void actionGenerateHeightmap () {
 
