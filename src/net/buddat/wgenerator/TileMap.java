@@ -69,7 +69,7 @@ public class TileMap {
 
 		for (int x = 0; x < heightMap.getMapSize(); x++) {
 
-			if (x%100 == 0) {
+			if (x%50 == 0) {
 				int progressValue = (int)((float)x/heightMap.getMapSize()*100f); 
 				long predict = (int)((System.currentTimeMillis()-startTime)/1000.0*(100.0/progressValue-1));
 	            progress.setValue(progressValue);

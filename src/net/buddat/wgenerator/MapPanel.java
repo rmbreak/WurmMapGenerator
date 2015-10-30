@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 public class MapPanel extends JPanel {
 	
 	private static final long serialVersionUID = -6072723167611034006L;
-	
+
 	private BufferedImage mapImage;
 	
 	private int mapSize;
@@ -25,14 +25,18 @@ public class MapPanel extends JPanel {
 	private int imageY = 0;
 	private int startX = 0;
 	private int startY = 0;
+	
+	private int markerOffsetX = 0;
+	private int markerOffsetY = 0;
+	private boolean showMarker = false;
+	private boolean showGrid = false;
 
 	public MapPanel() {
 		super();
 		
-//		this.setSize(width, height);
 		this.setMapSize(1024);
 
-	    addMouseWheelListener(new MouseAdapter() {
+	    this.addMouseWheelListener(new MouseAdapter() {
 
 	        @Override
 	        public void mouseWheelMoved(MouseWheelEvent e) {
@@ -68,6 +72,14 @@ public class MapPanel extends JPanel {
 	    		super.mousePressed(e);
 	    		startX = e.getX();
 	    		startY = e.getY();
+	    		
+	    		if (e.getButton() == MouseEvent.BUTTON3) {
+	    			markerOffsetX = (int)((startX-imageX)/scale);
+	    			markerOffsetY = (int)((startY-imageY)/scale);
+	    			showMarker = !showMarker;
+	    			MainWindow.updateMapCoords((int)((markerOffsetX)), (int)(mapSize-(markerOffsetY)), showMarker);
+	    			repaint();
+	    		}
 	    	}
 	    });
 	    
@@ -89,6 +101,11 @@ public class MapPanel extends JPanel {
 	    	}
 	    });
 		
+	}
+	
+	public void showGrid(boolean show) {
+		showGrid = show;
+		repaint();
 	}
 
 	public void updateScale() {
@@ -136,6 +153,23 @@ public class MapPanel extends JPanel {
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 		g.drawImage(this.mapImage, imageX, imageY, getImageWidth(), getImageHeight(), null);
+
+		if (showMarker) {
+			g.setColor(Color.RED);
+			g.fillOval((int)((markerOffsetX*scale)+imageX)-4, (int)((markerOffsetY*scale)+imageY)-4, 8, 8);
+		}
+
+		if (showGrid) {
+			int gridCount = 10;
+			double gridSize = mapSize/gridCount*scale;
+			g.setColor(Color.CYAN);
+			for (int x = 0; x <= gridCount; x++) {
+				g.drawLine(imageX, imageY+(int)(x*gridSize), imageX+(int)(mapSize*scale), (int)(imageY+x*gridSize));
+			}
+			for (int y = 0; y <= gridCount; y++) {
+				g.drawLine((int)(imageX+y*gridSize), imageY, (int)(imageX+y*gridSize), imageY+(int)(mapSize*scale));
+			}
+		}
 	}
 	
 	public void setMapSize(int newMapSize) {
