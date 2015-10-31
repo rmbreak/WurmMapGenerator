@@ -2,6 +2,7 @@ package net.buddat.wgenerator;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -18,6 +19,7 @@ public class MapPanel extends JPanel {
 
 	private BufferedImage mapImage;
 	
+	private MainWindow window;
 	private int mapSize;
 	private double scale = 0.0f;
 	private double minScale = 1.0f;
@@ -27,15 +29,14 @@ public class MapPanel extends JPanel {
 	private int startY = 0;
 	private int markerOffsetX = 0;
 	private int markerOffsetY = 0;
-	private int paintPosX = 0;
-	private int paintPosY = 0;
 	private boolean showMarker = false;
 	private boolean showGrid = false;
 	private int gridSize = 1;
 	private boolean isPaintingMode = false;
 
-	public MapPanel() {
+	public MapPanel(MainWindow w) {
 		super();
+		window = w;
 		
 		this.setMapSize(1024);
 
@@ -76,18 +77,17 @@ public class MapPanel extends JPanel {
 	    		startX = e.getX();
 	    		startY = e.getY();
 
-				if(e.getButton() == MouseEvent.BUTTON1 && isPaintingMode)
-				{
-					paintPosX = (int)((startX-imageX)/scale);
-					paintPosY = (int)(((startY-imageY)/scale));
-					MainWindow.attemptPaintBiomeTo(paintPosX, paintPosY);
+				if(e.getButton() == MouseEvent.BUTTON1 && isPaintingMode) {
+					int paintPosX = (int)((startX-imageX)/scale);
+					int paintPosY = (int)(((startY-imageY)/scale));
+					window.actionSeedBiome(new Point(paintPosX, paintPosY));
 				}
 
 	    		if (e.getButton() == MouseEvent.BUTTON3) {
 	    			markerOffsetX = (int)((startX-imageX)/scale);
 	    			markerOffsetY = (int)((startY-imageY)/scale);
 	    			showMarker = !showMarker;
-	    			MainWindow.updateMapCoords((int)((markerOffsetX)), (int)(mapSize-(markerOffsetY)), showMarker);
+	    			window.updateMapCoords((int)((markerOffsetX)), (int)(mapSize-(markerOffsetY)), showMarker);
 	    			repaint();
 	    		}
 	    	}
@@ -113,9 +113,8 @@ public class MapPanel extends JPanel {
 		
 	}
 
-	public void togglePaintingMode()
-	{
-		isPaintingMode = !isPaintingMode;
+	public void setPaintingMode(boolean mode) {
+		isPaintingMode = mode;
 	}
 
 	public boolean isPaintingMode()
