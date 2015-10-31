@@ -19,6 +19,7 @@ import net.buddat.wgenerator.util.Constants;
 import net.buddat.wgenerator.util.StreamCapturer;
 
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -51,12 +52,16 @@ import java.util.Random;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import org.eclipse.wb.swing.FocusTraversalOnArray;
+import java.awt.Component;
+import javax.swing.JScrollPane;
 
 public class MainWindow extends JFrame {
 
 	private static final long serialVersionUID = -407206109473532425L;
 
-	private static final String version = "2.2";
+	private static final String version = "2.3";
 	private WurmAPI api;
 	private HeightMap heightMap;
 	private TileMap tileMap;
@@ -140,6 +145,11 @@ public class MainWindow extends JFrame {
 	private static JLabel lblMapCoords;
 	private JCheckBox chcekbox_showGrid;
 	private JTextField textField_mapGridSize;
+	private JTextField textField_biomeDensity;
+	private JButton btnViewErrors;
+	private JTextArea textArea_Errors;
+	private CardLayout cl_mainPanel;
+	private JPanel mainPanel;
 
 
 	public static void main(String[] args) {
@@ -170,8 +180,6 @@ public class MainWindow extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 
-		mapPanel = new MapPanel();
-
 		JTabbedPane optionsPane = new JTabbedPane(JTabbedPane.TOP);
 
 		progressBar = new JProgressBar();
@@ -191,21 +199,23 @@ public class MainWindow extends JFrame {
 		JPanel viewPanel = new JPanel();
 
 		JPanel mapCoordsPanel = new JPanel();
+
+		mainPanel = new JPanel();
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
 				gl_contentPane.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_contentPane.createSequentialGroup()
 						.addContainerGap()
 						.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-								.addComponent(progressBar, GroupLayout.DEFAULT_SIZE, 919, Short.MAX_VALUE)
+								.addComponent(progressBar, GroupLayout.DEFAULT_SIZE, 913, Short.MAX_VALUE)
 								.addGroup(gl_contentPane.createSequentialGroup()
 										.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-												.addComponent(mapPanel, GroupLayout.DEFAULT_SIZE, 598, Short.MAX_VALUE)
-												.addComponent(mapCoordsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-												.addComponent(viewPanel, GroupLayout.DEFAULT_SIZE, 598, Short.MAX_VALUE))
-												.addPreferredGap(ComponentPlacement.RELATED)
-												.addComponent(optionsPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-												.addContainerGap())
+												.addComponent(mainPanel, GroupLayout.DEFAULT_SIZE, 592, Short.MAX_VALUE)
+												.addComponent(mapCoordsPanel, GroupLayout.DEFAULT_SIZE, 592, Short.MAX_VALUE)
+												.addComponent(viewPanel, GroupLayout.DEFAULT_SIZE, 592, Short.MAX_VALUE))
+										.addPreferredGap(ComponentPlacement.RELATED)
+										.addComponent(optionsPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+						.addContainerGap())
 				);
 		gl_contentPane.setVerticalGroup(
 				gl_contentPane.createParallelGroup(Alignment.LEADING)
@@ -216,12 +226,27 @@ public class MainWindow extends JFrame {
 								.addGroup(gl_contentPane.createSequentialGroup()
 										.addComponent(mapCoordsPanel, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
 										.addPreferredGap(ComponentPlacement.RELATED)
-										.addComponent(mapPanel, GroupLayout.DEFAULT_SIZE, 498, Short.MAX_VALUE)
+										.addComponent(mainPanel, GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
 										.addPreferredGap(ComponentPlacement.RELATED)
 										.addComponent(viewPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-										.addComponent(optionsPane, GroupLayout.DEFAULT_SIZE, 572, Short.MAX_VALUE))
-										.addGap(5))
+								.addComponent(optionsPane, GroupLayout.DEFAULT_SIZE, 580, Short.MAX_VALUE))
+						.addGap(0))
 				);
+		cl_mainPanel = new CardLayout(0,0);
+		mainPanel.setLayout(cl_mainPanel);
+
+		mapPanel = new MapPanel();
+		mainPanel.add(mapPanel, "MAP");
+		mapPanel.setGridSize(Constants.GRID_SIZE);
+
+		JPanel errorPanel = new JPanel();
+		mainPanel.add(errorPanel, "ERRORS");
+		errorPanel.setLayout(new GridLayout(0, 1, 0, 0));
+
+		textArea_Errors = new JTextArea();
+		errorPanel.add(new JScrollPane(textArea_Errors));
+		textArea_Errors.setEditable(false);
+		mainPanel.setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{mapPanel, errorPanel}));
 
 		JPanel panel_25 = new JPanel();
 
@@ -249,7 +274,6 @@ public class MainWindow extends JFrame {
 		panel_28.add(lblSize);
 
 		textField_mapGridSize = new JTextField("" + Constants.GRID_SIZE);
-		mapPanel.setGridSize(Constants.GRID_SIZE);
 		textField_mapGridSize.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
@@ -303,6 +327,16 @@ public class MainWindow extends JFrame {
 
 		btnViewHeight = new JButton("View Heightmap");
 		viewPanel.add(btnViewHeight);
+
+		btnViewErrors = new JButton("View Errors");
+		btnViewErrors.setVisible(false);
+		btnViewErrors.setBackground(new Color(255, 51, 51));
+		btnViewErrors.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				cl_mainPanel.show(mainPanel,"ERRORS");
+			}
+		});
+		viewPanel.add(btnViewErrors);
 
 		JPanel heightmapPanel = new JPanel();
 		optionsPane.addTab("Heightmap", null, heightmapPanel, null);
@@ -400,7 +434,7 @@ public class MainWindow extends JFrame {
 						.addGroup(gl_heightmapPanel.createParallelGroup(Alignment.TRAILING)
 								.addComponent(panel_6, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
 								.addComponent(panel_7, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
-								.addContainerGap())
+						.addContainerGap())
 				);
 		gl_heightmapPanel.setVerticalGroup(
 				gl_heightmapPanel.createParallelGroup(Alignment.TRAILING)
@@ -411,10 +445,10 @@ public class MainWindow extends JFrame {
 						.addComponent(panel_6, GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
 						.addContainerGap())
 				);
-		
-				btnLoadHeightmap = new JButton("Import Heightmap");
-				btnLoadHeightmap.setToolTipText("16 bit grayscale PNG");
-				panel_7.add(btnLoadHeightmap);
+
+		btnLoadHeightmap = new JButton("Import Heightmap");
+		btnLoadHeightmap.setToolTipText("16 bit grayscale PNG");
+		panel_7.add(btnLoadHeightmap);
 		heightmapPanel.setLayout(gl_heightmapPanel);
 
 		JPanel erosionPanel = new JPanel();
@@ -479,7 +513,7 @@ public class MainWindow extends JFrame {
 						.addGroup(gl_erosionPanel.createParallelGroup(Alignment.TRAILING)
 								.addComponent(panel_1, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
 								.addComponent(panel_5, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
-								.addContainerGap())
+						.addContainerGap())
 				);
 		gl_erosionPanel.setVerticalGroup(
 				gl_erosionPanel.createParallelGroup(Alignment.TRAILING)
@@ -595,7 +629,7 @@ public class MainWindow extends JFrame {
 						.addGroup(gl_dropDirtPanel.createParallelGroup(Alignment.LEADING)
 								.addComponent(panel_9, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
 								.addComponent(panel_13, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
-								.addContainerGap())
+						.addContainerGap())
 				);
 		gl_dropDirtPanel.setVerticalGroup(
 				gl_dropDirtPanel.createParallelGroup(Alignment.TRAILING)
@@ -637,6 +671,10 @@ public class MainWindow extends JFrame {
 		lblBiomeSize.setToolTipText("How big the biome should grow");
 		panel_16.add(lblBiomeSize);
 
+		JLabel lblBiomeDensity = new JLabel("Biome Density");
+		lblBiomeDensity.setToolTipText("Higher = more sparse biome");
+		panel_16.add(lblBiomeDensity);
+
 		JLabel lblMaxSlope = new JLabel("Max Slope");
 		lblMaxSlope.setToolTipText("Don't grow above this slope");
 		panel_16.add(lblMaxSlope);
@@ -657,17 +695,11 @@ public class MainWindow extends JFrame {
 		lblGrowth.setToolTipText("Chance for biome to grow in a particular direction");
 		panel_16.add(lblGrowth);
 
-		JLabel lblNorth = new JLabel(" - North");
+		JLabel lblNorth = new JLabel(" - North / South");
 		panel_16.add(lblNorth);
 
-		JLabel lblSouth = new JLabel(" - South");
-		panel_16.add(lblSouth);
-
-		JLabel lblEast = new JLabel(" - East");
+		JLabel lblEast = new JLabel(" - East / West");
 		panel_16.add(lblEast);
-
-		JLabel lblWest = new JLabel(" - West");
-		panel_16.add(lblWest);
 
 		JLabel label_3 = new JLabel("");
 		panel_16.add(label_3);
@@ -692,6 +724,10 @@ public class MainWindow extends JFrame {
 		textField_biomeSize.setColumns(10);
 		panel_17.add(textField_biomeSize);
 
+		textField_biomeDensity = new JTextField("" + Constants.BIOME_DENSITY);
+		panel_17.add(textField_biomeDensity);
+		textField_biomeDensity.setColumns(10);
+
 		textField_biomeMaxSlope = new JTextField("" + Constants.BIOME_MAX_SLOPE);
 		textField_biomeMaxSlope.setColumns(10);
 		panel_17.add(textField_biomeMaxSlope);
@@ -710,25 +746,33 @@ public class MainWindow extends JFrame {
 		JLabel label_6 = new JLabel("");
 		panel_17.add(label_6);
 
-		textField_growthN = new JTextField("" + Constants.BIOME_RATE / 2);
-		textField_growthN.setEnabled(false);
-		panel_17.add(textField_growthN);
-		textField_growthN.setColumns(10);
-
-		textField_growthS = new JTextField("" + (int) (Constants.BIOME_RATE * 1.3));
-		textField_growthS.setEnabled(false);
-		panel_17.add(textField_growthS);
-		textField_growthS.setColumns(10);
+		JPanel panel_29 = new JPanel();
+		panel_17.add(panel_29);
+		panel_29.setLayout(new GridLayout(0, 2, 0, 0));
 
 		textField_growthE = new JTextField("" + (int) (Constants.BIOME_RATE * 0.6));
+		panel_29.add(textField_growthE);
 		textField_growthE.setEnabled(false);
-		panel_17.add(textField_growthE);
-		textField_growthE.setColumns(10);
+		textField_growthE.setColumns(4);
 
 		textField_growthW = new JTextField("" + Constants.BIOME_RATE);
+		panel_29.add(textField_growthW);
 		textField_growthW.setEnabled(false);
-		panel_17.add(textField_growthW);
-		textField_growthW.setColumns(10);
+		textField_growthW.setColumns(4);
+
+		JPanel panel_30 = new JPanel();
+		panel_17.add(panel_30);
+		panel_30.setLayout(new GridLayout(0, 2, 0, 0));
+
+		textField_growthN = new JTextField("" + Constants.BIOME_RATE / 2);
+		panel_30.add(textField_growthN);
+		textField_growthN.setEnabled(false);
+		textField_growthN.setColumns(4);
+
+		textField_growthS = new JTextField("" + (int) (Constants.BIOME_RATE * 1.3));
+		panel_30.add(textField_growthS);
+		textField_growthS.setEnabled(false);
+		textField_growthS.setColumns(4);
 
 		checkbox_growthRandom = new JCheckBox("Randomize");
 		checkbox_growthRandom.setToolTipText("Randomly determine growth chance for each direction");
@@ -791,7 +835,7 @@ public class MainWindow extends JFrame {
 						.addGroup(gl_biomePanel.createParallelGroup(Alignment.LEADING)
 								.addComponent(panel_14, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
 								.addComponent(panel_18, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
-								.addContainerGap())
+						.addContainerGap())
 				);
 		gl_biomePanel.setVerticalGroup(
 				gl_biomePanel.createParallelGroup(Alignment.TRAILING)
@@ -868,7 +912,7 @@ public class MainWindow extends JFrame {
 				setRockTotal();
 			}
 		});
-		textField_Iron.setColumns(10);
+		textField_Iron.setColumns(4);
 		panel_22.add(textField_Iron);
 
 		textField_Gold = new JTextField("" + Constants.ORE_GOLD);
@@ -877,7 +921,7 @@ public class MainWindow extends JFrame {
 				setRockTotal();
 			}
 		});
-		textField_Gold.setColumns(10);
+		textField_Gold.setColumns(4);
 		panel_22.add(textField_Gold);
 
 		textField_Silver = new JTextField("" + Constants.ORE_SILVER);
@@ -886,7 +930,7 @@ public class MainWindow extends JFrame {
 				setRockTotal();
 			}
 		});
-		textField_Silver.setColumns(10);
+		textField_Silver.setColumns(4);
 		panel_22.add(textField_Silver);
 
 		textField_Zinc = new JTextField("" + Constants.ORE_ZINC);
@@ -895,7 +939,7 @@ public class MainWindow extends JFrame {
 				setRockTotal();
 			}
 		});
-		textField_Zinc.setColumns(10);
+		textField_Zinc.setColumns(4);
 		panel_22.add(textField_Zinc);
 
 		textField_Copper = new JTextField("" + Constants.ORE_COPPER);
@@ -904,7 +948,7 @@ public class MainWindow extends JFrame {
 				setRockTotal();
 			}
 		});
-		textField_Copper.setColumns(10);
+		textField_Copper.setColumns(4);
 		panel_22.add(textField_Copper);
 
 		textField_Lead = new JTextField("" + Constants.ORE_LEAD);
@@ -914,7 +958,7 @@ public class MainWindow extends JFrame {
 			}
 		});
 		panel_22.add(textField_Lead);
-		textField_Lead.setColumns(10);
+		textField_Lead.setColumns(4);
 
 		textField_Tin = new JTextField("" + Constants.ORE_TIN);
 		textField_Tin.addActionListener(new ActionListener() {
@@ -922,7 +966,7 @@ public class MainWindow extends JFrame {
 				setRockTotal();
 			}
 		});
-		textField_Tin.setColumns(10);
+		textField_Tin.setColumns(4);
 		panel_22.add(textField_Tin);
 
 		textField_Marble = new JTextField("" + Constants.ORE_MARBLE);
@@ -931,7 +975,7 @@ public class MainWindow extends JFrame {
 				setRockTotal();
 			}
 		});
-		textField_Marble.setColumns(10);
+		textField_Marble.setColumns(4);
 		panel_22.add(textField_Marble);
 
 		textField_Slate = new JTextField("" + Constants.ORE_SLATE);
@@ -940,7 +984,7 @@ public class MainWindow extends JFrame {
 				setRockTotal();
 			}
 		});
-		textField_Slate.setColumns(10);
+		textField_Slate.setColumns(4);
 		panel_22.add(textField_Slate);
 
 		textField_Addy = new JTextField("" + Constants.ORE_ADDY);
@@ -949,7 +993,7 @@ public class MainWindow extends JFrame {
 				setRockTotal();
 			}
 		});
-		textField_Addy.setColumns(10);
+		textField_Addy.setColumns(4);
 		panel_22.add(textField_Addy);
 
 		textField_Glimmer = new JTextField("" + Constants.ORE_GLIMMER);
@@ -958,12 +1002,12 @@ public class MainWindow extends JFrame {
 				setRockTotal();
 			}
 		});
-		textField_Glimmer.setColumns(10);
+		textField_Glimmer.setColumns(4);
 		panel_22.add(textField_Glimmer);
 
 		textField_Rock = new JTextField("");
 		textField_Rock.setEditable(false);
-		textField_Rock.setColumns(10);
+		textField_Rock.setColumns(4);
 		panel_22.add(textField_Rock);
 
 		JPanel panel_23 = new JPanel();
@@ -978,7 +1022,7 @@ public class MainWindow extends JFrame {
 						.addGroup(gl_orePanel.createParallelGroup(Alignment.TRAILING)
 								.addComponent(panel_19, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
 								.addComponent(panel_23, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
-								.addContainerGap())
+						.addContainerGap())
 				);
 		gl_orePanel.setVerticalGroup(
 				gl_orePanel.createParallelGroup(Alignment.TRAILING)
@@ -1046,9 +1090,9 @@ public class MainWindow extends JFrame {
 		panel_26.add(btnSaveMapFiles);
 
 		btnSaveActions = new JButton("Save Actions");
-		
-				btnSaveHeightmap = new JButton("Save Heightmap");
-				panel_26.add(btnSaveHeightmap);
+
+		btnSaveHeightmap = new JButton("Save Heightmap");
+		panel_26.add(btnSaveHeightmap);
 
 		JLabel label_2 = new JLabel("");
 		panel_26.add(label_2);
@@ -1091,13 +1135,14 @@ public class MainWindow extends JFrame {
 		setupButtonActions();
 		setRockTotal();
 		updateMapCoords(0,0,false);
-		System.setErr(new PrintStream(new StreamCapturer(System.err)));
+		System.setErr(new PrintStream(new StreamCapturer(System.err,this)));
 	}
 
 	private void setupButtonActions() {
 
 		btnViewMap.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				cl_mainPanel.show(mainPanel,"MAP");
 				if (!actionReady())
 					return;
 				new Thread() {
@@ -1110,6 +1155,7 @@ public class MainWindow extends JFrame {
 		});
 		btnTopo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				cl_mainPanel.show(mainPanel,"MAP");
 				if (!actionReady())
 					return;
 				new Thread() {
@@ -1122,6 +1168,7 @@ public class MainWindow extends JFrame {
 		});
 		btnViewCave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				cl_mainPanel.show(mainPanel,"MAP");
 				if (!actionReady())
 					return;
 				new Thread() {
@@ -1134,6 +1181,7 @@ public class MainWindow extends JFrame {
 		});
 		btnViewHeight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				cl_mainPanel.show(mainPanel,"MAP");
 				if (!actionReady())
 					return;
 				new Thread() {
@@ -1443,38 +1491,50 @@ public class MainWindow extends JFrame {
 
 		startLoading("Seeding Biome");
 		try {
-			double[] rates = new double[4];
-
+			int[] rates = new int[4];
 			if (checkbox_growthRandom.isSelected()) {
 				int min = Integer.parseInt(textField_growthMin.getText());
 				int max = Integer.parseInt(textField_growthMax.getText());
-				rates[0] = (int)(Math.random()*(max-min)+min) / 100.0;
-				rates[1] = (int)(Math.random()*(max-min)+min) / 100.0;
-				rates[2] = (int)(Math.random()*(max-min)+min) / 100.0;
-				rates[3] = (int)(Math.random()*(max-min)+min) / 100.0;
+				if(min >= max) {
+					min = max-1;
+				}
+				rates[0] = min;
+				rates[1] = max;
+				rates[2] = 0;
+				rates[3] = 0;
 			} else {
-				rates[0] = Integer.parseInt(textField_growthN.getText()) / 100.0;
-				rates[1] = Integer.parseInt(textField_growthS.getText()) / 100.0; 
-				rates[2] = Integer.parseInt(textField_growthE.getText()) / 100.0; 
-				rates[3] = Integer.parseInt(textField_growthW.getText()) / 100.0; 
+				rates[0] = Integer.parseInt(textField_growthN.getText());
+				rates[1] = Integer.parseInt(textField_growthS.getText()); 
+				rates[2] = Integer.parseInt(textField_growthE.getText()); 
+				rates[3] = Integer.parseInt(textField_growthW.getText()); 
 			}
 
-			int minHeight = chckbxAroundWater.isSelected()
-					? Integer.parseInt(textField_waterHeight.getText())-Integer.parseInt(textField_biomeMinHeight.getText())
-							: Integer.parseInt(textField_biomeMinHeight.getText());
-					int maxHeight = chckbxAroundWater.isSelected()
-							? Integer.parseInt(textField_waterHeight.getText())+Integer.parseInt(textField_biomeMaxHeight.getText())
-									: Integer.parseInt(textField_biomeMaxHeight.getText());
+			if (Integer.parseInt(textField_biomeDensity.getText()) < 1) {
+				textField_biomeDensity.setText("1");
+			}
+			if (Integer.parseInt(textField_biomeMinHeight.getText()) < 0) {
+				textField_biomeMinHeight.setText("0");
+			}
+			if (Integer.parseInt(textField_biomeMaxHeight.getText()) > Integer.parseInt(textField_maxDirtHeight.getText())) {
+				textField_biomeMaxHeight.setText(textField_maxDirtHeight.getText());
+			}
 
-							tileMap.plantBiome(Integer.parseInt(textField_seedCount.getText()), Integer.parseInt(textField_biomeSize.getText()), rates, 
-									Integer.parseInt(textField_biomeMaxSlope.getText()), minHeight, maxHeight, (Tile) comboBox_biomeType.getSelectedItem(), progressBar);
+			int minHeight = chckbxAroundWater.isSelected()? Integer.parseInt(textField_waterHeight.getText())-Integer.parseInt(textField_biomeMinHeight.getText())
+					: Integer.parseInt(textField_biomeMinHeight.getText());
+			int maxHeight = chckbxAroundWater.isSelected()? Integer.parseInt(textField_waterHeight.getText())+Integer.parseInt(textField_biomeMaxHeight.getText())
+			: Integer.parseInt(textField_biomeMaxHeight.getText());
 
-							updateMapView(true, 0);
+			tileMap.plantBiome(Integer.parseInt(textField_seedCount.getText()), Integer.parseInt(textField_biomeSize.getText()), Integer.parseInt(textField_biomeDensity.getText()), 
+					rates, checkbox_growthRandom.isSelected(), Integer.parseInt(textField_biomeMaxSlope.getText()), minHeight, maxHeight, (Tile) comboBox_biomeType.getSelectedItem(), progressBar);
 
-							genHistory.add("SEEDBIOME("+comboBox_biomeType.getSelectedItem()+"):" + comboBox_biomeType.getSelectedIndex() + "," + 
-									textField_seedCount.getText() + "," + textField_biomeSize.getText() + "," + textField_biomeMaxSlope.getText() + "," + 
-									(int)(100*rates[0]) + "," + (int)(100*rates[1]) + "," + (int)(100*rates[2]) + "," + (int)(100*rates[3]) + "," + 
-									textField_biomeMinHeight.getText() + "," + textField_biomeMaxHeight.getText() + "," + chckbxAroundWater.isSelected());
+			updateMapView(true, 0);
+
+			genHistory.add("SEEDBIOME("+comboBox_biomeType.getSelectedItem()+"):" + comboBox_biomeType.getSelectedIndex() + "," + textField_seedCount.getText() + 
+					"," + textField_biomeSize.getText() + "," + textField_biomeDensity.getText() + "," + textField_biomeMaxSlope.getText() + "," +
+					textField_growthN.getText()+","+textField_growthS.getText()+","+textField_growthE.getText()+","+textField_growthW.getText()+"," +
+					checkbox_growthRandom.isSelected() +","+ textField_growthMin.getText()+","+textField_growthMax.getText() +","+
+					textField_biomeMinHeight.getText() + "," + textField_biomeMaxHeight.getText() + "," + chckbxAroundWater.isSelected());
+
 		} catch (NumberFormatException nfe) {
 			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Dropping Dirt", JOptionPane.ERROR_MESSAGE);
 		} finally {
@@ -1982,24 +2042,29 @@ public class MainWindow extends JFrame {
 			break;
 		default:
 			if(parts[0].startsWith("SEEDBIOME")){
-				if (options.length != 11) {
+				if (options.length != 15) {
 					JOptionPane.showMessageDialog(null, "Not enough options for SEEDBIOME", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 
 				try {
-					comboBox_biomeType.setSelectedIndex(Integer.parseInt(options[0]));
-					textField_seedCount.setText(options[1]);
-					textField_biomeSize.setText(options[2]);
-					textField_biomeMaxSlope.setText(options[3]);
-					textField_growthN.setText(options[4]);
-					textField_growthS.setText(options[5]);
-					textField_growthE.setText(options[6]);
-					textField_growthW.setText(options[7]);
-					textField_biomeMinHeight.setText(options[8]);
-					textField_biomeMaxHeight.setText(options[9]);
-					chckbxAroundWater.setSelected(Boolean.parseBoolean(options[10]));
-					checkbox_growthRandom.setSelected(false);
+					int i = 0;
+					comboBox_biomeType.setSelectedIndex(Integer.parseInt(options[i++]));
+					textField_seedCount.setText(options[i++]);
+					textField_biomeSize.setText(options[i++]);
+					textField_biomeDensity.setText(options[i++]);
+					textField_biomeMaxSlope.setText(options[i++]);
+					textField_growthN.setText(options[i++]);
+					textField_growthS.setText(options[i++]);
+					textField_growthE.setText(options[i++]);
+					textField_growthW.setText(options[i++]);
+					checkbox_growthRandom.setSelected(!Boolean.parseBoolean(options[i++]));
+					checkbox_growthRandom.doClick();
+					textField_growthMin.setText(options[i++]);
+					textField_growthMax.setText(options[i++]);
+					textField_biomeMinHeight.setText(options[i++]);
+					textField_biomeMaxHeight.setText(options[i++]);
+					chckbxAroundWater.setSelected(Boolean.parseBoolean(options[i++]));
 
 					actionSeedBiome();
 				} catch (Exception nfe) {
@@ -2086,7 +2151,7 @@ public class MainWindow extends JFrame {
 			for (int i = 0; i < rates.length; i++)
 				total += rates[i];
 
-			textField_Rock.setText("" + (100.0f - total));
+			textField_Rock.setText((100.0f - total)+" %");
 		} catch (NumberFormatException nfe) {
 
 		}
@@ -2099,4 +2164,10 @@ public class MainWindow extends JFrame {
 			lblMapCoords.setText("Right click to place a marker");
 		}
 	}
+
+	public void submitError(String err) {
+		textArea_Errors.append(err);
+		btnViewErrors.setVisible(true);
+	}
+
 }

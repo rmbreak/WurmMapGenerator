@@ -37,6 +37,7 @@ public class Constants {
 	public static final int BIOME_MAX_SLOPE = 20;
 	public static final int BIOME_SEEDS = 500;
 	public static final int BIOME_SIZE = 60;
+	public static final int BIOME_DENSITY = 1;
 	public static final int BIOME_MIN_HEIGHT = 50;
 	public static final int BIOME_MAX_HEIGHT = 50;
 	public static final int BIOME_RANDOM_MIN = 50;

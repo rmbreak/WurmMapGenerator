@@ -5,16 +5,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-import javax.swing.JOptionPane;
+import net.buddat.wgenerator.MainWindow;
 
 public class StreamCapturer extends OutputStream {
 
 	private StringBuilder buffer;
 	private PrintStream old;
+	private MainWindow window;
 
-	public StreamCapturer(PrintStream old) {
+	public StreamCapturer(PrintStream old, MainWindow window) {
 		buffer = new StringBuilder(128);
 		this.old = old;
+		this.window = window;
 	}
 
 	@Override
@@ -24,9 +26,8 @@ public class StreamCapturer extends OutputStream {
 		buffer.append(value);
 		if (value.equals("\n")) {
 			String mes = buffer.toString();
-			if (mes.indexOf("xception") > -1) {
-				JOptionPane.showMessageDialog(null, mes, "Error", JOptionPane.ERROR_MESSAGE);
-				System.exit(1);
+			if (mes.indexOf("xception") > -1 || mes.indexOf("\t") == 0) {
+				window.submitError(mes);
 			}
 			buffer.delete(0, buffer.length());
 		}
