@@ -9,6 +9,8 @@ import javax.swing.JProgressBar;
 
 import com.wurmonline.mesh.Tiles.Tile;
 
+import net.buddat.wgenerator.util.Constants;
+
 public class TileMap {
 
 	private Random biomeRandom;
@@ -216,7 +218,7 @@ public class TileMap {
 		long totalSize;
 		int totalSeeds = 0;
 
-		while (totalSeeds < seedCount) {
+		for (long killCount = 0; totalSeeds < seedCount; killCount++) {
 			nextList.clear();
 			progress.setValue((int)((float)totalSeeds/seedCount*100f));
 
@@ -238,6 +240,10 @@ public class TileMap {
 
 			if (totalSize != 1) {
 				totalSeeds++;
+			}
+			// Prevent infinite looping
+			if (killCount > seedCount*Constants.BIOME_SEED_LIMIT_MULTIPLIER) {
+				break;
 			}
 		}
 

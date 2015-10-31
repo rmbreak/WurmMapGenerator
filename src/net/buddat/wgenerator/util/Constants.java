@@ -54,5 +54,6 @@ public class Constants {
 	public static final boolean MORE_LAND = true;
 	
 	public static final int GRID_SIZE = 8;
+	public static final int BIOME_SEED_LIMIT_MULTIPLIER = 10000;
 	
 }
