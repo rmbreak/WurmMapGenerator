@@ -50,7 +50,7 @@ public class MainWindow extends JFrame {
 
 	private static final long serialVersionUID = -407206109473532425L;
 
-	private static final String version = "2.4";
+	private static final String version = "2.4.2";
 	private WurmAPI api;
 	private HeightMap heightMap;
 	private TileMap tileMap;
@@ -134,7 +134,6 @@ public class MainWindow extends JFrame {
 	private JLabel lblMapCoords;
 	private JCheckBox chcekbox_showGrid;
 	private JTextField textField_mapGridSize;
-	//	private static MainWindow instance;
 	private JTextField textField_biomeDensity;
 	private JButton btnViewErrors;
 	private JTextArea textArea_Errors;
@@ -168,7 +167,6 @@ public class MainWindow extends JFrame {
 		setTitle("Wurm Map Generator - v"+version);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 951, 650);
-		//		instance = this;
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -369,12 +367,12 @@ public class MainWindow extends JFrame {
 
 		JLabel lblMaxHeight = new JLabel("Max Height");
 		labelPanel.add(lblMaxHeight);
-
-		checkbox_moreLand = new JCheckBox("More Land", Constants.MORE_LAND);
-		labelPanel.add(checkbox_moreLand);
-
-		checkbox_mapRandomSeed = new JCheckBox("Random Seed", true);
-		labelPanel.add(checkbox_mapRandomSeed);
+		
+				JLabel label = new JLabel("");
+				labelPanel.add(label);
+				
+						JLabel lblNewLabel = new JLabel("");
+						labelPanel.add(lblNewLabel);
 
 		JPanel inputPanel = new JPanel();
 		panel.add(inputPanel);
@@ -386,6 +384,7 @@ public class MainWindow extends JFrame {
 		comboBox_mapSize.setSelectedIndex(1);
 
 		textField_mapSeed = new JTextField("" + System.currentTimeMillis());
+		textField_mapSeed.setEnabled(false);
 		inputPanel.add(textField_mapSeed);
 		textField_mapSeed.setColumns(10);
 
@@ -408,12 +407,17 @@ public class MainWindow extends JFrame {
 		textField_mapMaxHeight = new JTextField("" + (int) Constants.MAP_HEIGHT);
 		inputPanel.add(textField_mapMaxHeight);
 		textField_mapMaxHeight.setColumns(10);
-
-		JLabel label = new JLabel("");
-		inputPanel.add(label);
-
-		JLabel lblNewLabel = new JLabel("");
-		inputPanel.add(lblNewLabel);
+		
+				checkbox_moreLand = new JCheckBox("More Land", Constants.MORE_LAND);
+				inputPanel.add(checkbox_moreLand);
+				
+						checkbox_mapRandomSeed = new JCheckBox("Random Seed", true);
+						inputPanel.add(checkbox_mapRandomSeed);
+						checkbox_mapRandomSeed.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent arg0) {
+								textField_mapSeed.setEnabled(!checkbox_mapRandomSeed.isSelected());
+							}
+						});
 
 		JPanel panel_7 = new JPanel();
 
@@ -569,6 +573,7 @@ public class MainWindow extends JFrame {
 		panel_12.setLayout(new GridLayout(0, 1, 0, 2));
 
 		textField_biomeSeed = new JTextField("" + System.currentTimeMillis());
+		textField_biomeSeed.setEnabled(false);
 		textField_biomeSeed.setColumns(10);
 		panel_12.add(textField_biomeSeed);
 
@@ -607,6 +612,11 @@ public class MainWindow extends JFrame {
 		panel_12.add(checkBox_landSlide);
 
 		checkbox_biomeRandomSeed = new JCheckBox("Random Seed");
+		checkbox_biomeRandomSeed.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				textField_biomeSeed.setEnabled(!checkbox_biomeRandomSeed.isSelected());
+			}
+		});
 		panel_12.add(checkbox_biomeRandomSeed);
 		checkbox_biomeRandomSeed.setSelected(true);
 
@@ -1084,6 +1094,10 @@ public class MainWindow extends JFrame {
 					@Override
 					public void run() {
 						mapName = textField_mapName.getText();
+						if(mapName.equals("")) {
+							textField_mapName.setText("empty");
+							mapName = "empty";
+						}
 						if (!apiClosed) {
 							getAPI().close();
 						}
@@ -1975,6 +1989,7 @@ public class MainWindow extends JFrame {
 				textField_mapMaxHeight.setText(options[6]);
 				checkbox_moreLand.setSelected(Boolean.parseBoolean(options[7]));
 				checkbox_mapRandomSeed.setSelected(false);
+				textField_mapSeed.setEnabled(true);
 
 				actionGenerateHeightmap();
 			} catch (Exception nfe) {
@@ -2006,6 +2021,7 @@ public class MainWindow extends JFrame {
 			textField_maxDiagSlope.setText(options[4]);
 			textField_maxDirtHeight.setText(options[5]);
 			checkbox_biomeRandomSeed.setSelected(false);
+			textField_biomeSeed.setEnabled(true);
 
 			actionDropDirt();
 			break;
@@ -2137,7 +2153,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public class TextFileView extends FileFilter {
+	private class TextFileView extends FileFilter {
 
 		public boolean accept(File f) {
 			if (f.isDirectory()) {
@@ -2169,7 +2185,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	class ImageFileView extends FileFilter {
+	private class ImageFileView extends FileFilter {
 
 		public boolean accept(File f) {
 			if (f.isDirectory()) {

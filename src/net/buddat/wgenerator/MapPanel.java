@@ -46,7 +46,9 @@ public class MapPanel extends JPanel {
 			public void mouseWheelMoved(MouseWheelEvent e) {
 				startX = e.getX();
 				startY = e.getY();
-				double delta = 0.05f * e.getPreciseWheelRotation();
+				double ratioX = ((startX-imageX)/scale/mapSize);
+				double ratioY = ((startY-imageY)/scale/mapSize);
+				double delta = 0.1f * e.getPreciseWheelRotation();
 				if(e.isShiftDown())
 					delta *= 2;
 				int preH = getImageHeight();
@@ -54,10 +56,8 @@ public class MapPanel extends JPanel {
 				scale -= delta;
 				if(scale <= minScale)
 					scale = minScale;
-				int deltaX = (int)((getImageWidth() - preW) / 2);
-				int deltaY = (int)((getImageHeight() - preH) / 2);
-				double ratioX = ((startX-imageX)/scale/getImageWidth());
-				double ratioY = ((startY-imageY)/scale/getImageHeight());
+				int deltaX = (int)((getImageWidth() - preW));
+				int deltaY = (int)((getImageHeight() - preH));
 				imageX -= (int)(deltaX*ratioX);
 				imageY -= (int)(deltaY*ratioY);
 				checkBounds();
@@ -217,12 +217,15 @@ public class MapPanel extends JPanel {
 	}
 
 	public void setMapImage(BufferedImage newImage) {
+		int newSize = newImage.getWidth();
+		int oldSize = mapImage.getWidth();
 		if (mapImage != null)
 			mapImage.flush();
 		mapImage = newImage;
 		updateScale();
 		checkBounds();
-		scale = minScale;
+		if (oldSize != newSize)
+			scale = minScale;
 	}
 
 	public BufferedImage getMapImage() {
