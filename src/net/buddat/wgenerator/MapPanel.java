@@ -25,12 +25,14 @@ public class MapPanel extends JPanel {
 	private int imageY = 0;
 	private int startX = 0;
 	private int startY = 0;
-	
 	private int markerOffsetX = 0;
 	private int markerOffsetY = 0;
+	private int paintPosX = 0;
+	private int paintPosY = 0;
 	private boolean showMarker = false;
 	private boolean showGrid = false;
 	private int gridSize = 1;
+	private boolean isPaintingMode = false;
 
 	public MapPanel() {
 		super();
@@ -73,7 +75,14 @@ public class MapPanel extends JPanel {
 	    		super.mousePressed(e);
 	    		startX = e.getX();
 	    		startY = e.getY();
-	    		
+
+				if(e.getButton() == MouseEvent.BUTTON1 && isPaintingMode)
+				{
+					paintPosX = (int)((startX-imageX)/scale);
+					paintPosY = (int)(((startY-imageY)/scale));
+					MainWindow.attemptPaintBiomeTo(paintPosX, paintPosY);
+				}
+
 	    		if (e.getButton() == MouseEvent.BUTTON3) {
 	    			markerOffsetX = (int)((startX-imageX)/scale);
 	    			markerOffsetY = (int)((startY-imageY)/scale);
@@ -102,6 +111,16 @@ public class MapPanel extends JPanel {
 	    	}
 	    });
 		
+	}
+
+	public void togglePaintingMode()
+	{
+		isPaintingMode = !isPaintingMode;
+	}
+
+	public boolean isPaintingMode()
+	{
+		return isPaintingMode;
 	}
 	
 	public void showGrid(boolean show) {

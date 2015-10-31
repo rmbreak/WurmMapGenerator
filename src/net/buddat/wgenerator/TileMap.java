@@ -244,7 +244,27 @@ public class TileMap {
 		log("Biome Seeding (" + type.tilename + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 
-	private ArrayList<Point> growBiome(ArrayList<Point> fromList, Tile type, int density, int[] growthRate, int maxBiomeSlope, int minHeight, int maxHeight) {
+	public void plantBiomeAt(int x, int y, int growthIterations, double[] growthRate, int maxBiomeSlope, int minHeight, int maxHeight, Tile type, JProgressBar progress) {
+		long startTime = System.currentTimeMillis();
+
+		ArrayList<Point> grassList = new ArrayList<Point>();
+		ArrayList<Point> nextList = new ArrayList<Point>();
+
+		lastBiomeChanges.clear();
+
+		grassList.add(new Point(x, y));
+
+
+		for (int i = 0; i < growthIterations; i++) {
+			progress.setValue((int)((float)i/growthIterations*90f));
+			nextList = growBiome(grassList, type, growthRate, maxBiomeSlope, minHeight, maxHeight);
+			grassList = growBiome(nextList, type, growthRate, maxBiomeSlope, minHeight, maxHeight);
+		}
+
+		log("Biome Seeding (" + type.tilename + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+	}
+
+	private ArrayList<Point> growBiome(ArrayList<Point> fromList, Tile type, double[] growthRate, int maxBiomeSlope, int minHeight, int maxHeight) {
 		ArrayList<Point> nextList = new ArrayList<Point>();
 
 		int dirMod = (type.isTree() ? biomeRandom.nextInt(6) + 2*density : (type.isBush() ? biomeRandom.nextInt(3) + 2*density : biomeRandom.nextInt(density)+1));
