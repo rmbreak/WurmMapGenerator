@@ -44,6 +44,8 @@ public class MapPanel extends JPanel {
 
 	        @Override
 	        public void mouseWheelMoved(MouseWheelEvent e) {
+	    		startX = e.getX();
+	    		startY = e.getY();
 	            double delta = 0.05f * e.getPreciseWheelRotation();
 	            if(e.isShiftDown())
 	            	delta *= 2;
@@ -52,10 +54,12 @@ public class MapPanel extends JPanel {
 	            scale -= delta;
 	            if(scale <= minScale)
 	            	scale = minScale;
-	            int offY = (int)((getImageHeight() - preH) / 2);
-	            int offX = (int)((getImageWidth() - preW) / 2);
-            	imageX -= offX;
-            	imageY -= offY;
+	            int deltaX = (int)((getImageWidth() - preW) / 2);
+	            int deltaY = (int)((getImageHeight() - preH) / 2);
+    			double ratioX = ((startX-imageX)/scale/getImageWidth());
+    			double ratioY = ((startY-imageY)/scale/getImageHeight());
+            	imageX -= (int)(deltaX*ratioX);
+            	imageY -= (int)(deltaY*ratioY);
 	            checkBounds();
 	            revalidate();
 	            repaint();
@@ -108,6 +112,10 @@ public class MapPanel extends JPanel {
 	    		startY = e.getY();
 	    		checkBounds();
 	    		repaint();
+	    	}
+	    	@Override
+	    	public void mouseMoved(MouseEvent e) {
+	    		super.mouseMoved(e);
 	    	}
 	    });
 		
