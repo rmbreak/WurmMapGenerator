@@ -50,7 +50,7 @@ public class MainWindow extends JFrame {
 
 	private static final long serialVersionUID = -407206109473532425L;
 
-	private static final String version = "2.3";
+	private static final String version = "2.4";
 	private WurmAPI api;
 	private HeightMap heightMap;
 	private TileMap tileMap;
@@ -657,9 +657,9 @@ public class MainWindow extends JFrame {
 		JLabel lblSeedCount = new JLabel("Seed Count");
 		lblSeedCount.setToolTipText("Amount of biomes to add to the map");
 		panel_16.add(lblSeedCount);
-		
-				JLabel label_5 = new JLabel("");
-				panel_16.add(label_5);
+
+		JLabel label_5 = new JLabel("");
+		panel_16.add(label_5);
 
 		JLabel lblBiomeSize = new JLabel("Biome Size");
 		lblBiomeSize.setToolTipText("How big the biome should grow");
@@ -714,20 +714,20 @@ public class MainWindow extends JFrame {
 		textField_seedCount = new JTextField("" + Constants.BIOME_SEEDS);
 		textField_seedCount.setColumns(10);
 		panel_17.add(textField_seedCount);
-		
-				checkbox_paintMode = new JCheckBox("Paint Mode");
-				checkbox_paintMode.setToolTipText("Click on map to plant seed");
-				checkbox_paintMode.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						mapPanel.setPaintingMode(checkbox_paintMode.isSelected());
-						if (checkbox_paintMode.isSelected()) {
-							textField_seedCount.setEnabled(false);
-						} else {
-							textField_seedCount.setEnabled(true);
-						}
-					}
-				});
-				panel_17.add(checkbox_paintMode);
+
+		checkbox_paintMode = new JCheckBox("Paint Mode");
+		checkbox_paintMode.setToolTipText("Click on map to plant seed");
+		checkbox_paintMode.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				mapPanel.setPaintingMode(checkbox_paintMode.isSelected());
+				if (checkbox_paintMode.isSelected()) {
+					textField_seedCount.setEnabled(false);
+				} else {
+					textField_seedCount.setEnabled(true);
+				}
+			}
+		});
+		panel_17.add(checkbox_paintMode);
 
 		textField_biomeSize = new JTextField("" + Constants.BIOME_SIZE);
 		textField_biomeSize.setColumns(10);
@@ -1390,7 +1390,7 @@ public class MainWindow extends JFrame {
 		progressBar.setString("");
 	}
 
-	private boolean actionReady() {
+	boolean actionReady() {
 		return progressBar.getValue() == 100;
 	}
 
@@ -1571,71 +1571,6 @@ public class MainWindow extends JFrame {
 			stopLoading();
 		}
 	}
-
-	//	public void actionPaintBiome(int x, int y)
-	//	{
-	//		if(heightMap == null) {
-	//			JOptionPane.showMessageDialog(null, "HeightMap does not exist - Generate or import one first", "Error Adding Biome", JOptionPane.ERROR_MESSAGE);
-	//			return;
-	//		}
-	//		if(tileMap == null) {
-	//			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Adding Biome", JOptionPane.ERROR_MESSAGE);
-	//			return;
-	//		}
-	//		
-	//		if(!(x < 0 || x > heightMap.getMapSize()) || !(y < 0 || y > heightMap.getMapSize())) {
-	//			startLoading("Painting Biome");
-	//			try {
-	//				int[] rates = new int[4];
-	//				if (checkbox_growthRandom.isSelected()) {
-	//					int min = Integer.parseInt(textField_growthMin.getText());
-	//					int max = Integer.parseInt(textField_growthMax.getText());
-	//					if(min >= max) {
-	//						min = max-1;
-	//					}
-	//					rates[0] = min;
-	//					rates[1] = max;
-	//					rates[2] = 0;
-	//					rates[3] = 0;
-	//				} else {
-	//					rates[0] = Integer.parseInt(textField_growthN.getText());
-	//					rates[1] = Integer.parseInt(textField_growthS.getText()); 
-	//					rates[2] = Integer.parseInt(textField_growthE.getText()); 
-	//					rates[3] = Integer.parseInt(textField_growthW.getText()); 
-	//				}
-	//
-	//				if (Integer.parseInt(textField_biomeDensity.getText()) < 1) {
-	//					textField_biomeDensity.setText("1");
-	//				}
-	//				if (Integer.parseInt(textField_biomeMinHeight.getText()) < 0) {
-	//					textField_biomeMinHeight.setText("0");
-	//				}
-	//				if (Integer.parseInt(textField_biomeMaxHeight.getText()) > Integer.parseInt(textField_maxDirtHeight.getText())) {
-	//					textField_biomeMaxHeight.setText(textField_maxDirtHeight.getText());
-	//				}
-	//
-	//				int minHeight = Integer.parseInt(textField_paintingBiomeMinHeight.getText());
-	//				int maxHeight = Integer.parseInt(textField_paintingBiomeMaxHeight.getText());
-	//
-	//				tileMap.plantBiomeAt(x, y, Integer.parseInt(textField_paintingBiomeSize.getText()), Integer.parseInt(textField_biomeDensity.getText()), rates,
-	//						Integer.parseInt(textField_paintingBiomeMaxSlope.getText()), minHeight, maxHeight, (Tile) paintingBiomeTypes.getSelectedItem(), progressBar);
-	//
-	//				tileMap.plantBiomeAt(x, y, Integer.parseInt(textField_biomeSize.getText()), Integer.parseInt(textField_biomeDensity.getText()), 
-	//						rates, checkbox_growthRandom.isSelected(), Integer.parseInt(textField_biomeMaxSlope.getText()), minHeight, maxHeight, (Tile) comboBox_biomeType.getSelectedItem(), progressBar);
-	//
-	//				updateMapView(true, 0);
-	//
-	//				genHistory.add("PAINTBIOME("+paintingBiomeTypes.getSelectedItem()+"):" + paintingBiomeTypes.getSelectedIndex() + "," +
-	//						x + "," + y + "," + textField_paintingBiomeSize.getText() + "," + textField_paintingBiomeMaxSlope.getText() + "," +
-	//						(int)(100*rates[0]) + "," + (int)(100*rates[1]) + "," + (int)(100*rates[2]) + "," + (int)(100*rates[3]) + "," +
-	//						textField_paintingBiomeMinHeight.getText() + "," + textField_paintingBiomeMaxHeight.getText());
-	//			} catch (NumberFormatException nfe) {
-	//				JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Dropping Dirt", JOptionPane.ERROR_MESSAGE);
-	//			} finally {
-	//				stopLoading();
-	//			}
-	//		}
-	//	}
 
 	public void actionUndoBiome () {
 		if (tileMap == null) {
@@ -2135,32 +2070,6 @@ public class MainWindow extends JFrame {
 				JOptionPane.showMessageDialog(this, "Error: " + nfe.getMessage().toLowerCase(), "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 			}
 			break;
-			//		case "PAINTBIOME":
-			//			if(options.length != 12)
-			//			{
-			//				JOptionPane.showMessageDialog(null, "Not enough options for PAINTBIOME", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
-			//				return;
-			//			}
-			//
-			//			try
-			//			{
-			//				paintingBiomeTypes.setSelectedIndex(Integer.parseInt(options[0]));
-			//				textField_paintingBiomeSize.setText(options[3]);
-			//				textField_paintingBiomeMaxSlope.setText(options[4]);
-			//				textField_paintingGrowthN.setText(options[5]);
-			//				textField_paintingGrowthS.setText(options[6]);
-			//				textField_paintingGrowthE.setText(options[7]);
-			//				textField_paintingGrowthW.setText(options[8]);
-			//				textField_paintingBiomeMinHeight.setText(options[9]);
-			//				textField_paintingBiomeMaxHeight.setText(options[10]);
-			//
-			//				attemptPaintBiome(Integer.parseInt(options[1]), Integer.parseInt(options[2]));
-			//			}
-			//			catch(Exception nfe)
-			//			{
-			//				JOptionPane.showMessageDialog(null, "Error parsing number" + nfe.getMessage().toLowerCase(), "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
-			//			}
-
 
 		default:
 			if(parts[0].startsWith("SEEDBIOME")) {

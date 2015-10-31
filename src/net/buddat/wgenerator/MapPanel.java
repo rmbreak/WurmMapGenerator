@@ -14,11 +14,11 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 public class MapPanel extends JPanel {
-	
+
 	private static final long serialVersionUID = -6072723167611034006L;
 
 	private BufferedImage mapImage;
-	
+
 	private MainWindow window;
 	private int mapSize;
 	private double scale = 0.0f;
@@ -37,88 +37,95 @@ public class MapPanel extends JPanel {
 	public MapPanel(MainWindow w) {
 		super();
 		window = w;
-		
+
 		this.setMapSize(1024);
 
-	    this.addMouseWheelListener(new MouseAdapter() {
+		this.addMouseWheelListener(new MouseAdapter() {
 
-	        @Override
-	        public void mouseWheelMoved(MouseWheelEvent e) {
-	    		startX = e.getX();
-	    		startY = e.getY();
-	            double delta = 0.05f * e.getPreciseWheelRotation();
-	            if(e.isShiftDown())
-	            	delta *= 2;
-	            int preH = getImageHeight();
-	            int preW = getImageWidth();
-	            scale -= delta;
-	            if(scale <= minScale)
-	            	scale = minScale;
-	            int deltaX = (int)((getImageWidth() - preW) / 2);
-	            int deltaY = (int)((getImageHeight() - preH) / 2);
-    			double ratioX = ((startX-imageX)/scale/getImageWidth());
-    			double ratioY = ((startY-imageY)/scale/getImageHeight());
-            	imageX -= (int)(deltaX*ratioX);
-            	imageY -= (int)(deltaY*ratioY);
-	            checkBounds();
-	            revalidate();
-	            repaint();
-	        }
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				startX = e.getX();
+				startY = e.getY();
+				double delta = 0.05f * e.getPreciseWheelRotation();
+				if(e.isShiftDown())
+					delta *= 2;
+				int preH = getImageHeight();
+				int preW = getImageWidth();
+				scale -= delta;
+				if(scale <= minScale)
+					scale = minScale;
+				int deltaX = (int)((getImageWidth() - preW) / 2);
+				int deltaY = (int)((getImageHeight() - preH) / 2);
+				double ratioX = ((startX-imageX)/scale/getImageWidth());
+				double ratioY = ((startY-imageY)/scale/getImageHeight());
+				imageX -= (int)(deltaX*ratioX);
+				imageY -= (int)(deltaY*ratioY);
+				checkBounds();
+				revalidate();
+				repaint();
+			}
 
-	    });
-	    
-	    this.addComponentListener(new ComponentAdapter() {
-	    	public void componentResized(ComponentEvent e) {
-	    		updateScale();
-	    		checkBounds();
-	    	}
-	    });
-	    
-	    this.addMouseListener(new MouseAdapter() {
-	    	@Override
-	    	public void mousePressed(MouseEvent e) {
-	    		super.mousePressed(e);
-	    		startX = e.getX();
-	    		startY = e.getY();
+		});
+
+		this.addComponentListener(new ComponentAdapter() {
+			public void componentResized(ComponentEvent e) {
+				updateScale();
+				checkBounds();
+			}
+		});
+
+		this.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				super.mousePressed(e);
+				startX = e.getX();
+				startY = e.getY();
 
 				if(e.getButton() == MouseEvent.BUTTON1 && isPaintingMode) {
-					int paintPosX = (int)((startX-imageX)/scale);
-					int paintPosY = (int)(((startY-imageY)/scale));
-					window.actionSeedBiome(new Point(paintPosX, paintPosY));
+					if (!window.actionReady())
+						return;
+					new Thread() {
+						@Override
+						public void run() {
+							int paintPosX = (int)((startX-imageX)/scale);
+							int paintPosY = (int)(((startY-imageY)/scale));
+							window.actionSeedBiome(new Point(paintPosX, paintPosY));
+						}
+					}.start();
 				}
 
-	    		if (e.getButton() == MouseEvent.BUTTON3) {
-	    			markerOffsetX = (int)((startX-imageX)/scale);
-	    			markerOffsetY = (int)((startY-imageY)/scale);
-	    			showMarker = !showMarker;
-	    			window.updateMapCoords((int)((markerOffsetX)), (int)(mapSize-(markerOffsetY)), showMarker);
-	    			repaint();
-	    		}
-	    	}
-	    });
-	    
-	    this.addMouseMotionListener(new MouseMotionAdapter() {
-	    	@Override
-	    	public void mouseDragged(MouseEvent e) {
-	    		if(e.getX() < startX)
-	    			imageX -= (startX - e.getX());
-	    		else if(e.getX() > startX)
-	    			imageX += (e.getX() - startX);
-	    		if(e.getY() < startY)
-	    			imageY -= (startY - e.getY());
-	    		else if(e.getY() > startY)
-	    			imageY += (e.getY() - startY);
-	    		startX = e.getX();
-	    		startY = e.getY();
-	    		checkBounds();
-	    		repaint();
-	    	}
-	    	@Override
-	    	public void mouseMoved(MouseEvent e) {
-	    		super.mouseMoved(e);
-	    	}
-	    });
-		
+				if (e.getButton() == MouseEvent.BUTTON3) {
+					markerOffsetX = (int)((startX-imageX)/scale);
+					markerOffsetY = (int)((startY-imageY)/scale);
+					showMarker = !showMarker;
+					window.updateMapCoords((int)((markerOffsetX)), (int)(mapSize-(markerOffsetY)), showMarker);
+					repaint();
+				}
+			}
+		});
+
+		this.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				if(e.getX() < startX)
+					imageX -= (startX - e.getX());
+				else if(e.getX() > startX)
+					imageX += (e.getX() - startX);
+				if(e.getY() < startY)
+					imageY -= (startY - e.getY());
+				else if(e.getY() > startY)
+					imageY += (e.getY() - startY);
+				startX = e.getX();
+				startY = e.getY();
+				checkBounds();
+				repaint();
+			}
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				super.mouseMoved(e);
+			}
+		});
+
 	}
 
 	public void setPaintingMode(boolean mode) {
@@ -129,7 +136,7 @@ public class MapPanel extends JPanel {
 	{
 		return isPaintingMode;
 	}
-	
+
 	public void showGrid(boolean show) {
 		showGrid = show;
 		repaint();
@@ -147,11 +154,11 @@ public class MapPanel extends JPanel {
 	private int getImageWidth() {
 		return (int)Math.round(this.mapImage.getWidth() * this.scale);
 	}
-	
+
 	private int getImageHeight() {
 		return (int)Math.round(this.mapImage.getHeight() * this.scale);
 	}
-	
+
 	public void checkBounds() {
 		int wH = this.getHeight();
 		int wW = this.getWidth();
@@ -174,7 +181,7 @@ public class MapPanel extends JPanel {
 		else if(imageY > 0)
 			imageY = 0;
 	}
-	
+
 	@Override
 	public void paintComponent(Graphics g) {
 		g.setColor(Color.BLACK);
@@ -197,10 +204,10 @@ public class MapPanel extends JPanel {
 			}
 		}
 	}
-	
+
 	public void setMapSize(int newMapSize) {
 		mapSize = newMapSize;
-		
+
 		if (mapImage != null)
 			mapImage.flush();
 		mapImage = new BufferedImage(mapSize, mapSize, BufferedImage.TYPE_BYTE_GRAY);
@@ -208,7 +215,7 @@ public class MapPanel extends JPanel {
 		checkBounds();
 		scale = minScale;
 	}
-	
+
 	public void setMapImage(BufferedImage newImage) {
 		if (mapImage != null)
 			mapImage.flush();
@@ -217,16 +224,16 @@ public class MapPanel extends JPanel {
 		checkBounds();
 		scale = minScale;
 	}
-	
+
 	public BufferedImage getMapImage() {
 		return mapImage;
 	}
-	
+
 	public void setGridSize(int size) {
 		if (size <= 0)
 			size = 1;
 		gridSize = size;
 		repaint();
 	}
-	
+
 }
