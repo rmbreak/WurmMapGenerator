@@ -186,19 +186,22 @@ public class HeightMap {
 		double maxHeight = 0.0f;
 		for (int i = 0; i < mapSize; i++) {
 			for (int j = 0; j < mapSize; j++) {
-				if (getHeight(i, j) > maxHeight)
+				if (getHeight(i, j) > maxHeight) {
 					maxHeight = getHeight(i, j);
+				}
 			}
 		}
 		
 		double normalize = 1.0f / maxHeight;
-		for (int i = 0; i < mapSize; i++)
-			for (int j = 0; j < mapSize; j++)
+		for (int i = 0; i < mapSize; i++) {
+			for (int j = 0; j < mapSize; j++) {
 				setHeight(i, j, getHeight(i, j) * normalize, false);
+			}
+		}
 		
 		double normalizeLow = 1.0 / 0.5;
 		double normalizeHigh = 2.0f / 0.5;
-		for (int i = 0; i < mapSize; i++)
+		for (int i = 0; i < mapSize; i++) {
 			for (int j = 0; j < mapSize; j++) {
 				if (getHeight(i, j) < 0.5) {
 					setHeight(i, j, (getHeight(i, j) * normalizeLow) / 3.0, false);
@@ -207,6 +210,7 @@ public class HeightMap {
 					setHeight(i, j, newHeight / 3.0, false);
 				}
 			}
+		}
 		
 		log("HeightMap Normalization (" + mapSize + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
@@ -312,6 +316,27 @@ public class HeightMap {
 	
 	static int clamp(int val, int min, int max) {
 	    return Math.max(min, Math.min(max, val));
+	}
+	
+	void createPond(int ox, int oy, double water, int baseWidth, int slope) {
+		if (water <= 0)
+			water = 0;
+		if (slope <= 0)
+			slope = 1;
+		int size = baseWidth-1;
+		while (getHeight(ox, oy) > water) {
+			double dig = slope*singleDirt;
+			for (int x = ox-size; x <= ox+size; x++) {
+				for (int y = oy-size; y <= oy+size; y++) {
+					if (x < 0 || x >= mapSize || y < 0 || y >= mapSize || getHeight(x,y) < water )
+						continue;
+					if (Math.sqrt(Math.pow(x-ox, 2)+Math.pow(y-oy, 2)) <= size)
+						setHeight(x,y,getHeight(x,y)-dig,false);
+				}
+			}
+			size++;
+		}
+		
 	}
 	
 	private static void log (String s) {

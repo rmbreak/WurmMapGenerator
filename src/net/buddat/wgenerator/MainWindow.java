@@ -50,7 +50,7 @@ public class MainWindow extends JFrame {
 
 	private static final long serialVersionUID = -407206109473532425L;
 
-	private static final String version = "2.4.2";
+	private static final String version = "2.5";
 	private WurmAPI api;
 	private HeightMap heightMap;
 	private TileMap tileMap;
@@ -60,6 +60,7 @@ public class MainWindow extends JFrame {
 	private String mapName;
 	private String actionsFileDirectory;
 	private JPanel contentPane;
+	private Constants.VIEW_TYPE defaultView = Constants.VIEW_TYPE.HEIGHT;
 
 	private JTextField textField_mapSeed;
 	private JTextField textField_mapResolution;
@@ -123,7 +124,7 @@ public class MainWindow extends JFrame {
 	private JButton btnLoadActions;
 	private JButton btnViewHeight;
 	private JButton btnViewCave;
-	private JButton btnTopo;
+	private JButton btnViewTopo;
 	private JButton btnViewMap;
 	private JTextField textField_cliffRatio;
 	private JButton btnSaveHeightmap;
@@ -140,6 +141,13 @@ public class MainWindow extends JFrame {
 	private CardLayout cl_mainPanel;
 	private JPanel mainPanel;
 	private JCheckBox checkbox_paintMode;
+	private JButton btnGenerateRivers;
+	private JCheckBox checkbox_paintRivers;
+	private JTextField textField_riverDepth;
+	private JTextField textField_riverWidth;
+	private JTextField textField_riverSlope;
+	private JButton btnResetRivers;
+	private JCheckBox checkbox_autoDropDirt;
 
 
 
@@ -310,8 +318,8 @@ public class MainWindow extends JFrame {
 		btnViewMap = new JButton("View Map");
 		viewPanel.add(btnViewMap);
 
-		btnTopo = new JButton("View Topo");
-		viewPanel.add(btnTopo);
+		btnViewTopo = new JButton("View Topo");
+		viewPanel.add(btnViewTopo);
 
 		btnViewCave = new JButton("View Cave");
 		viewPanel.add(btnViewCave);
@@ -367,12 +375,12 @@ public class MainWindow extends JFrame {
 
 		JLabel lblMaxHeight = new JLabel("Max Height");
 		labelPanel.add(lblMaxHeight);
-		
-				JLabel label = new JLabel("");
-				labelPanel.add(label);
-				
-						JLabel lblNewLabel = new JLabel("");
-						labelPanel.add(lblNewLabel);
+
+		JLabel label = new JLabel("");
+		labelPanel.add(label);
+
+		JLabel lblNewLabel = new JLabel("");
+		labelPanel.add(lblNewLabel);
 
 		JPanel inputPanel = new JPanel();
 		panel.add(inputPanel);
@@ -407,17 +415,17 @@ public class MainWindow extends JFrame {
 		textField_mapMaxHeight = new JTextField("" + (int) Constants.MAP_HEIGHT);
 		inputPanel.add(textField_mapMaxHeight);
 		textField_mapMaxHeight.setColumns(10);
-		
-				checkbox_moreLand = new JCheckBox("More Land", Constants.MORE_LAND);
-				inputPanel.add(checkbox_moreLand);
-				
-						checkbox_mapRandomSeed = new JCheckBox("Random Seed", true);
-						inputPanel.add(checkbox_mapRandomSeed);
-						checkbox_mapRandomSeed.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent arg0) {
-								textField_mapSeed.setEnabled(!checkbox_mapRandomSeed.isSelected());
-							}
-						});
+
+		checkbox_moreLand = new JCheckBox("More Land", Constants.MORE_LAND);
+		inputPanel.add(checkbox_moreLand);
+
+		checkbox_mapRandomSeed = new JCheckBox("Random Seed", true);
+		inputPanel.add(checkbox_mapRandomSeed);
+		checkbox_mapRandomSeed.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				textField_mapSeed.setEnabled(!checkbox_mapRandomSeed.isSelected());
+			}
+		});
 
 		JPanel panel_7 = new JPanel();
 
@@ -567,6 +575,35 @@ public class MainWindow extends JFrame {
 
 		JLabel label_4 = new JLabel("");
 		panel_11.add(label_4);
+		
+		JSeparator separator = new JSeparator();
+		panel_11.add(separator);
+		
+		checkbox_paintRivers = new JCheckBox("Paint Rivers");
+		checkbox_paintRivers.setToolTipText("Click and drag on map to draw rivers");
+		checkbox_paintRivers.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				mapPanel.setRiverPaintingMode(checkbox_paintRivers.isSelected());
+			}
+		});
+		panel_11.add(checkbox_paintRivers);
+		
+		checkbox_autoDropDirt = new JCheckBox("Auto Drop Dirt");
+		checkbox_autoDropDirt.setToolTipText("Drop dirt after generating rivers");
+		checkbox_autoDropDirt.setSelected(true);
+		panel_11.add(checkbox_autoDropDirt);
+		
+		JLabel lblRiverDepth = new JLabel("River depth");
+		lblRiverDepth.setToolTipText("Deepest part of the river");
+		panel_11.add(lblRiverDepth);
+		
+		JLabel lblRiverWidth = new JLabel("River width");
+		lblRiverWidth.setToolTipText("Base size at the deepest part");
+		panel_11.add(lblRiverWidth);
+		
+		JLabel lblRiverSlope = new JLabel("River slope");
+		lblRiverSlope.setToolTipText("Lower = gradual, Higher = steep edges");
+		panel_11.add(lblRiverSlope);
 
 		JPanel panel_12 = new JPanel();
 		panel_10.add(panel_12);
@@ -619,6 +656,34 @@ public class MainWindow extends JFrame {
 		});
 		panel_12.add(checkbox_biomeRandomSeed);
 		checkbox_biomeRandomSeed.setSelected(true);
+		
+		JSeparator separator_1 = new JSeparator();
+		panel_12.add(separator_1);
+		
+		btnGenerateRivers = new JButton("Generate Rivers");
+		btnGenerateRivers.setToolTipText("Alters the heightmap");
+		panel_12.add(btnGenerateRivers);
+		
+		btnResetRivers = new JButton("Reset Rivers");
+		btnResetRivers.setToolTipText("Clear the currently drawn rivers");
+		btnResetRivers.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				mapPanel.clearRiverSeeds();
+			}
+		});
+		panel_12.add(btnResetRivers);
+		
+		textField_riverDepth = new JTextField("" + Constants.RIVER_DEPTH);
+		panel_12.add(textField_riverDepth);
+		textField_riverDepth.setColumns(10);
+		
+		textField_riverWidth = new JTextField("" + Constants.RIVER_WIDTH);
+		panel_12.add(textField_riverWidth);
+		textField_riverWidth.setColumns(10);
+		
+		textField_riverSlope = new JTextField("" + Constants.RIVER_SLOPE);
+		panel_12.add(textField_riverSlope);
+		textField_riverSlope.setColumns(10);
 
 		JPanel panel_13 = new JPanel();
 
@@ -1184,7 +1249,7 @@ public class MainWindow extends JFrame {
 				}.start();
 			}
 		});
-		btnTopo.addActionListener(new ActionListener() {
+		btnViewTopo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				cl_mainPanel.show(mainPanel,"MAP");
 				if (!actionReady())
@@ -1267,6 +1332,18 @@ public class MainWindow extends JFrame {
 					@Override
 					public void run() {
 						actionUpdateWater();
+					}
+				}.start();
+			}
+		});
+		btnGenerateRivers.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionGenerateRivers();
 					}
 				}.start();
 			}
@@ -1448,7 +1525,7 @@ public class MainWindow extends JFrame {
 			heightMap.erode(Integer.parseInt(textField_erodeIterations.getText()), Integer.parseInt(textField_erodeMinSlope.getText()), 
 					Integer.parseInt(textField_erodeMaxSlope.getText()), Integer.parseInt(textField_erodeSediment.getText()), progressBar);
 
-			updateMapView(false, 0);
+			updateMapView();
 
 			genHistory.add("ERODE:" + textField_erodeIterations.getText() + "," + textField_erodeMinSlope.getText() + "," + textField_erodeSediment.getText());
 		} catch (NumberFormatException nfe) {
@@ -1478,7 +1555,10 @@ public class MainWindow extends JFrame {
 					Integer.parseInt(textField_maxDiagSlope.getText()), Integer.parseInt(textField_maxDirtHeight.getText()), 
 					Double.parseDouble(textField_cliffRatio.getText()), checkBox_landSlide.isSelected(), progressBar);
 
-			updateMapView(true, 0);
+			if (defaultView == Constants.VIEW_TYPE.HEIGHT) {
+				defaultView = Constants.VIEW_TYPE.ISO;
+			}
+			updateMapView();
 
 			genHistory.add("DROPDIRT:" + textField_biomeSeed.getText() + "," + textField_waterHeight.getText() + "," + textField_dirtPerTile.getText() + "," +
 					textField_maxDirtSlope.getText() + "," + textField_maxDiagSlope.getText() + "," + textField_maxDirtHeight.getText());
@@ -1505,7 +1585,7 @@ public class MainWindow extends JFrame {
 			lblWater.setText("Water: "+textField_waterHeight.getText());
 			tileMap.setWaterHeight(Integer.parseInt(textField_waterHeight.getText()));
 
-			updateMapView(true, 0);
+			updateMapView();
 
 			genHistory.add("UPDATEWATER:" + textField_waterHeight.getText());
 		} catch (NumberFormatException nfe) {
@@ -1515,6 +1595,36 @@ public class MainWindow extends JFrame {
 		}
 	}
 
+	
+	public void actionGenerateRivers () {
+		if (tileMap == null) {
+			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Adding Biome", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		startLoading("Generating Rivers");
+		try {
+			double water = (Integer.parseInt(textField_waterHeight.getText())-Integer.parseInt(textField_dirtPerTile.getText())-
+					Integer.parseInt(textField_riverDepth.getText()))/(double)Integer.parseInt(textField_mapMaxHeight.getText());
+			for (Point p:mapPanel.getRiverSeeds()) {
+				heightMap.createPond(p.x,p.y,water,Integer.parseInt(textField_riverWidth.getText()),Integer.parseInt(textField_riverSlope.getText()));
+			}
+
+			mapPanel.setRiverPaintingMode(false);
+			checkbox_paintRivers.setSelected(false);
+			mapPanel.clearRiverSeeds();
+			
+			if (checkbox_autoDropDirt.isSelected()) {
+				actionDropDirt();
+			}
+
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Dropping Dirt", JOptionPane.ERROR_MESSAGE);
+		} finally {
+			stopLoading();
+		}
+	}
+	
 	public void actionSeedBiome (Point origin) {
 		if (tileMap == null) {
 			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Adding Biome", JOptionPane.ERROR_MESSAGE);
@@ -1576,7 +1686,7 @@ public class MainWindow extends JFrame {
 						textField_biomeMinHeight.getText() + "," + textField_biomeMaxHeight.getText() + "," + chckbxAroundWater.isSelected());
 			}
 
-			updateMapView(true, 0);
+			updateMapView();
 
 
 		} catch (NumberFormatException nfe) {
@@ -1597,7 +1707,7 @@ public class MainWindow extends JFrame {
 
 			tileMap.undoLastBiome();
 
-			updateMapView(true, 0);
+			updateMapView();
 
 			genHistory.add("UNDOBIOME:null");
 		} finally {
@@ -1621,7 +1731,7 @@ public class MainWindow extends JFrame {
 				}
 			}
 
-			updateMapView(true, 0);
+			updateMapView();
 
 			genHistory.add("RESETBIOMES:null"); 
 		} finally {
@@ -1651,7 +1761,8 @@ public class MainWindow extends JFrame {
 
 			tileMap.generateOres(rates, progressBar);
 
-			updateMapView(true, 2);
+			defaultView = Constants.VIEW_TYPE.CAVE;
+			updateMapView();
 
 			genHistory.add("GENORES:" + textField_Rock.getText() + "," + textField_Iron.getText() + "," + textField_Gold.getText() + "," +
 					textField_Silver.getText() + "," + textField_Zinc.getText() + "," + textField_Copper.getText() + "," +
@@ -1672,7 +1783,8 @@ public class MainWindow extends JFrame {
 
 		startLoading("Loading");
 		try {
-			updateMapView(true, 0);
+			defaultView = Constants.VIEW_TYPE.ISO;
+			updateMapView();
 		} finally {
 			stopLoading();
 		}
@@ -1686,7 +1798,8 @@ public class MainWindow extends JFrame {
 
 		startLoading("Loading");
 		try {
-			updateMapView(true, 1);
+			defaultView = Constants.VIEW_TYPE.TOPO;
+			updateMapView();
 		} finally {
 			stopLoading();
 		}
@@ -1705,7 +1818,8 @@ public class MainWindow extends JFrame {
 
 		startLoading("Loading");
 		try {
-			updateMapView(true, 2);
+			defaultView = Constants.VIEW_TYPE.CAVE;
+			updateMapView();
 		} finally {
 			stopLoading();
 		}
@@ -1719,7 +1833,8 @@ public class MainWindow extends JFrame {
 
 		startLoading("Loading");
 		try {
-			updateMapView(false, 0);
+			defaultView = Constants.VIEW_TYPE.HEIGHT;
+			updateMapView();
 		} finally {
 			stopLoading();
 		}
@@ -1884,7 +1999,7 @@ public class MainWindow extends JFrame {
 		heightMap = new HeightMap(heightImage, mapSize, maxHeight);
 		heightMap.importHeightImage();
 
-		updateMapView(false, 0);
+		updateMapView();
 	}
 
 	private WurmAPI getAPI() {
@@ -1907,11 +2022,12 @@ public class MainWindow extends JFrame {
 
 		heightMap.generateHeights(progressBar); 
 
-		updateMapView(false, 0);
+		updateMapView();
 	}
 
-	private void updateMapView(boolean apiView, int viewType) {
-		if (!apiView) {
+
+	private void updateMapView() {
+		if (defaultView == Constants.VIEW_TYPE.HEIGHT) {
 			startLoading("Loading View");
 			Graphics g = mapPanel.getMapImage().getGraphics();
 
@@ -1924,12 +2040,12 @@ public class MainWindow extends JFrame {
 			}
 		} else {
 			updateAPIMap();
-
-			if (viewType == 1)
+	
+			if (defaultView == Constants.VIEW_TYPE.TOPO)
 				mapPanel.setMapImage(getAPI().getMapData().createTopographicDump(true, (short) 250));
-			else if (viewType == 2)
+			else if (defaultView == Constants.VIEW_TYPE.CAVE)
 				mapPanel.setMapImage(getAPI().getMapData().createCaveDump(true));
-			else
+			else if (defaultView == Constants.VIEW_TYPE.ISO)
 				mapPanel.setMapImage(getAPI().getMapData().createMapDump());
 		}
 
@@ -1938,32 +2054,48 @@ public class MainWindow extends JFrame {
 		mapPanel.repaint();
 		stopLoading();
 	}
-
+	
 	private void updateAPIMap() {
 		startLoading("Updating Map");
 		MapData map = getAPI().getMapData();
 		Random treeRand = new Random(System.currentTimeMillis());
 
 		for (int i = 0; i < heightMap.getMapSize(); i++) {
-			progressBar.setValue((int)((float)i/heightMap.getMapSize()*98f));
+			progressBar.setValue((int)((float)i/heightMap.getMapSize()*100f/3));
 			for (int j = 0; j < heightMap.getMapSize(); j++) {
 				map.setSurfaceHeight(i, j, tileMap.getSurfaceHeight(i, j));
 				map.setRockHeight(i, j, tileMap.getRockHeight(i, j));
 
-				if (tileMap.hasOres())
+				if (tileMap.hasOres()) {
 					map.setCaveTile(i, j, tileMap.getOreType(i, j), tileMap.getOreCount(i, j));
-
-				if (tileMap.getType(i, j).isTree())
-					map.setTree(i, j, tileMap.getType(i, j).getTreeType((byte) 0), 
-							FoliageAge.values()[treeRand.nextInt(FoliageAge.values().length)], GrowthTreeStage.MEDIUM);
-				else if (tileMap.getType(i, j).isBush())
-					map.setBush(i, j, tileMap.getType(i, j).getBushType((byte) 0), 
-							FoliageAge.values()[treeRand.nextInt(FoliageAge.values().length)], GrowthTreeStage.MEDIUM);
-				else 
-					map.setSurfaceTile(i, j, tileMap.getType(i, j));
+				}
+				map.setSurfaceTile(i, j, Tile.TILE_ROCK);
 			}
 		}
-		stopLoading();
+		for (int i = 0; i < heightMap.getMapSize(); i++) {
+			progressBar.setValue((int)((float)i/heightMap.getMapSize()*100f/3)+33);
+			for (int j = 0; j < heightMap.getMapSize(); j++) {
+				if(tileMap.getType(i, j) != Tile.TILE_ROCK && !tileMap.getType(i, j).isTree() && !tileMap.getType(i, j).isBush()) {
+					for(int x = i - 1; x <= i + 1; x++) {
+						for(int y = j - 1; y <= j + 1; y++) {
+							if(x > 0 && y > 0 && x < heightMap.getMapSize() && y <heightMap.getMapSize()) {
+								map.setSurfaceTile(x, y, tileMap.getType(i, j));
+							}
+						}
+					}
+				}    
+			}
+		}
+		for (int i = 0; i < heightMap.getMapSize(); i++) {
+			progressBar.setValue((int)((float)i/heightMap.getMapSize()*100f/3)+66);
+			for (int j = 0; j < heightMap.getMapSize(); j++) {
+				if (tileMap.getType(i, j).isTree()) {
+					map.setTree(i, j, tileMap.getType(i, j).getTreeType((byte) 0), FoliageAge.values()[treeRand.nextInt(FoliageAge.values().length)], GrowthTreeStage.MEDIUM);
+				} else if (tileMap.getType(i, j).isBush()) {
+					map.setBush(i, j, tileMap.getType(i, j).getBushType((byte) 0), FoliageAge.values()[treeRand.nextInt(FoliageAge.values().length)], GrowthTreeStage.MEDIUM);
+				}
+			}
+		}
 	}
 
 	private void parseAction(String action) {
@@ -2236,13 +2368,14 @@ public class MainWindow extends JFrame {
 	}
 
 	public void updateMapCoords (int x, int y, boolean show) {
-		if (show) {
-			lblMapCoords.setText("Tile ("+x+","+y+"), Player ("+(x*4)+","+(y*4)+")");
+		if (show && tileMap != null) {
+			int height = tileMap.getMapHeight(x, mapPanel.getMapSize()-y);
+			lblMapCoords.setText("Tile ("+x+","+y+"), Player ("+(x*4)+","+(y*4)+"), Height ("+height+")");
 		} else {
 			lblMapCoords.setText("Right click to place a marker");
 		}
 	}
-
+	
 	public void submitError(String err) {
 		textArea_Errors.append(err);
 		btnViewErrors.setVisible(true);

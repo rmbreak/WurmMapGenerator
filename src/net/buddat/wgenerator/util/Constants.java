@@ -28,6 +28,10 @@ public class Constants {
 	public static final int MAX_DIRT_DIAG_SLOPE = 56;
 	public static final int WATER_HEIGHT = 500;
 	public static final int CLIFF_RATIO = 1;
+
+	public static final int RIVER_DEPTH = 40;
+	public static final int RIVER_WIDTH = 6;
+	public static final int RIVER_SLOPE = 12;
 	
 	public static final int EROSION_ITERATIONS = 30;
 	public static final int ROCK_WEIGHT = 3800;
@@ -55,5 +59,7 @@ public class Constants {
 	
 	public static final int GRID_SIZE = 8;
 	public static final int BIOME_SEED_LIMIT_MULTIPLIER = 10000;
+	
+	public static enum VIEW_TYPE {ISO,TOPO,CAVE,HEIGHT};
 	
 }

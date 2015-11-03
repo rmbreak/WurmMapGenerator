@@ -42,13 +42,13 @@ public class TileMap {
 		this.lastBiomeChanges = new HashMap<Point, Tile>();
 	}
 
-	public void dropDirt(final int dirtCount, final int maxSlope, final int maxDiagSlope, final int maxDirtHeight, final double cliffRatio, final boolean landSlide, JProgressBar progress) {
+	public void dropDirtQuadrants(final int dirtCount, final int maxSlope, final int maxDiagSlope, final int maxDirtHeight, final double cliffRatio, final boolean landSlide, JProgressBar progress) {
 		final double maxSlopeHeight = maxSlope * singleDirt;
 		final double maxDiagSlopeHeight = maxDiagSlope * singleDirt;
 		final double maxHeight = maxDirtHeight * singleDirt;
 		final double taperHeight = maxHeight - ((dirtCount / 2) * singleDirt);
 		final int mapSize = heightMap.getMapSize();
-
+		System.out.println("Single dirt: "+singleDirt);
 		final long startTime = System.currentTimeMillis();
 		int slice = 30;
 		int total = 64;
@@ -141,6 +141,78 @@ public class TileMap {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			return;
+		}
+
+		// Reset seed due to drop dirt altering it
+		setBiomeSeed(biomeSeed);
+		log("Dirt Dropping (" + dirtCount + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+	}
+
+	public void dropDirt(final int dirtCount, final int maxSlope, final int maxDiagSlope, final int maxDirtHeight, final double cliffRatio, final boolean landSlide, JProgressBar progress) {
+		final double maxSlopeHeight = maxSlope * singleDirt;
+		final double maxDiagSlopeHeight = maxDiagSlope * singleDirt;
+		final double maxHeight = maxDirtHeight * singleDirt;
+		final double taperHeight = maxHeight - ((dirtCount / 2) * singleDirt);
+		final int mapSize = heightMap.getMapSize();
+		final long startTime = System.currentTimeMillis();
+		dirtDropProgress = 0;
+		progressBar = progress;
+
+		class Iteration implements Runnable {
+			int sizex, sizey;
+			int ix, iy;
+
+			public Iteration(int ix, int iy, int sizex, int sizey) {
+				this.ix = ix;
+				this.iy = iy;
+				this.sizex = sizex;
+				this.sizey = sizey;
+			}
+
+			public void run() {
+				for (int x = ix; x < ix+sizex; x++) {
+					for (int y = iy; y < iy+sizey; y++) {
+
+						int mod = heightMap.getMapSize()/32;
+						if ( x%mod == 0 && y%mod == 0) {
+							dirtDropProgress += mod*mod;
+							int progressValue = (int)((float)dirtDropProgress/(heightMap.getMapSize()*heightMap.getMapSize()*dirtCount)*100f); 
+							long predict = (int)((System.currentTimeMillis()-startTime)/1000.0*(100.0/progressValue-1));
+							progressBar.setValue(progressValue);
+							progressBar.setString(progressBar.getString().substring(0, progressBar.getString().indexOf("("))+"("+predict+" secs)");
+						}
+
+						if (heightMap.getHeight(x, y) > maxHeight)
+							continue;
+
+						if (heightMap.getHeight(x, y) > taperHeight)
+							if ((maxHeight - heightMap.getHeight(x, y)) * heightMap.getMaxHeight() < 1)
+								continue;
+
+						if (landSlide) {
+							Point dropTile = findDropTile(x, y, maxSlopeHeight, maxDiagSlopeHeight);
+							addDirt((int) dropTile.getX(), (int) dropTile.getY(), 1);
+						} else {
+							Point dropTile = new Point(x,y);
+							addDirt((int) dropTile.getX(), (int) dropTile.getY(), 1);
+						}
+					}
+				}
+			}
+		}
+
+		Thread firstThreads[] = new Thread[dirtCount];
+		for (int i = 0; i < dirtCount; i++) {
+			firstThreads[i] = new Thread(new Iteration(0,0,mapSize,mapSize));
+			firstThreads[i].start();
+		}
+		for (Thread thread : firstThreads) {
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				return;
+			}
 		}
 
 		// Reset seed due to drop dirt altering it
@@ -393,8 +465,10 @@ public class TileMap {
 	}
 
 	private void setDirt(int x, int y, short newDirt) {
-		if (newDirt < 0)
+		if (newDirt < 0) {
 			newDirt = 0;
+			System.out.println("wtf");
+		}
 
 		if (newDirt > 0) {
 			if (getTileHeight(x, y) >= waterHeight)
@@ -406,8 +480,10 @@ public class TileMap {
 		dirtMap[x][y] = newDirt;
 	}
 
-	public void addDirt(int x, int y, int count) {
-		setDirt(x, y, (short) (getDirt(x, y) + count));
+	void addDirt(int x, int y, int count) {
+		synchronized(this) {
+			setDirt(x, y, (short) (getDirt(x, y) + count));
+		}
 	}
 
 	private double getDirtHeight(int x, int y) {
@@ -418,12 +494,16 @@ public class TileMap {
 		return heightMap.getHeight(x, y) + getDirtHeight(x, y);
 	}
 
-	public short getSurfaceHeight(int x, int y) {
+	short getSurfaceHeight(int x, int y) {
 		return (short) ((getTileHeight(x, y) - getWaterHeight()) * heightMap.getMaxHeight());
 	}
 
-	public short getRockHeight(int x, int y) {
+	short getRockHeight(int x, int y) {
 		return (short) ((heightMap.getHeight(x, y) - getWaterHeight()) * heightMap.getMaxHeight());
+	}
+
+	public int getMapHeight(int x, int y) {
+		return (int)(getTileHeight(x, y) * heightMap.getMaxHeight());
 	}
 
 	private double getDifference(int x1, int y1, int x2, int y2) {
@@ -434,7 +514,7 @@ public class TileMap {
 		return getDifference((int) p.getX(), (int) p.getY(), (int) p2.getX(), (int) p2.getY());
 	}
 
-	public void setBiomeSeed(int newSeed) {
+	void setBiomeSeed(int newSeed) {
 		biomeSeed = newSeed;
 		biomeRandom = new Random(newSeed);
 	}
@@ -443,7 +523,7 @@ public class TileMap {
 		return waterHeight;
 	}
 
-	public void setWaterHeight(int newHeight) {
+	void setWaterHeight(int newHeight) {
 		this.waterHeight = newHeight * singleDirt;
 	}
 

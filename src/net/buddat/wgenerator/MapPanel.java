@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
@@ -32,11 +33,14 @@ public class MapPanel extends JPanel {
 	private boolean showMarker = false;
 	private boolean showGrid = false;
 	private int gridSize = 1;
-	private boolean isPaintingMode = false;
+	private boolean isBiomePaintingMode = false;
+	private boolean isRiverPaintingMode = false;
+	private ArrayList<Point> riverSeeds;
 
 	public MapPanel(MainWindow w) {
 		super();
 		window = w;
+		riverSeeds = new ArrayList<Point>();
 
 		this.setMapSize(1024);
 
@@ -81,7 +85,7 @@ public class MapPanel extends JPanel {
 				startX = e.getX();
 				startY = e.getY();
 
-				if(e.getButton() == MouseEvent.BUTTON1 && isPaintingMode) {
+				if(e.getButton() == MouseEvent.BUTTON1 && isBiomePaintingMode) {
 					if (!window.actionReady())
 						return;
 					new Thread() {
@@ -92,9 +96,7 @@ public class MapPanel extends JPanel {
 							window.actionSeedBiome(new Point(paintPosX, paintPosY));
 						}
 					}.start();
-				}
-
-				if (e.getButton() == MouseEvent.BUTTON3) {
+				} else if (e.getButton() == MouseEvent.BUTTON3) {
 					markerOffsetX = (int)((startX-imageX)/scale);
 					markerOffsetY = (int)((startY-imageY)/scale);
 					showMarker = !showMarker;
@@ -107,18 +109,24 @@ public class MapPanel extends JPanel {
 		this.addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				if(e.getX() < startX)
-					imageX -= (startX - e.getX());
-				else if(e.getX() > startX)
-					imageX += (e.getX() - startX);
-				if(e.getY() < startY)
-					imageY -= (startY - e.getY());
-				else if(e.getY() > startY)
-					imageY += (e.getY() - startY);
-				startX = e.getX();
-				startY = e.getY();
-				checkBounds();
-				repaint();
+
+				if(isRiverPaintingMode) {
+					riverSeeds.add(new Point((int)((e.getX()-imageX)/scale),(int)((e.getY()-imageY)/scale)));
+					repaint();
+				} else {
+					if(e.getX() < startX)
+						imageX -= (startX - e.getX());
+					else if(e.getX() > startX)
+						imageX += (e.getX() - startX);
+					if(e.getY() < startY)
+						imageY -= (startY - e.getY());
+					else if(e.getY() > startY)
+						imageY += (e.getY() - startY);
+					startX = e.getX();
+					startY = e.getY();
+					checkBounds();
+					repaint();
+				}
 			}
 			@Override
 			public void mouseMoved(MouseEvent e) {
@@ -129,12 +137,20 @@ public class MapPanel extends JPanel {
 	}
 
 	public void setPaintingMode(boolean mode) {
-		isPaintingMode = mode;
+		isBiomePaintingMode = mode;
 	}
-
-	public boolean isPaintingMode()
-	{
-		return isPaintingMode;
+	
+	public void setRiverPaintingMode(boolean mode) {
+		isRiverPaintingMode = mode;
+	}
+	
+	public ArrayList<Point> getRiverSeeds() {
+		return riverSeeds;
+	}
+	
+	public void clearRiverSeeds() {
+		riverSeeds.clear();
+		repaint();
 	}
 
 	public void showGrid(boolean show) {
@@ -188,11 +204,6 @@ public class MapPanel extends JPanel {
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 		g.drawImage(this.mapImage, imageX, imageY, getImageWidth(), getImageHeight(), null);
 
-		if (showMarker) {
-			g.setColor(Color.RED);
-			g.fillOval((int)((markerOffsetX*scale)+imageX)-4, (int)((markerOffsetY*scale)+imageY)-4, 8, 8);
-		}
-
 		if (showGrid) {
 			double gridScale = mapSize/gridSize*scale;
 			g.setColor(Color.CYAN);
@@ -202,6 +213,17 @@ public class MapPanel extends JPanel {
 			for (int y = 0; y <= gridSize; y++) {
 				g.drawLine((int)(imageX+y*gridScale), imageY, (int)(imageX+y*gridScale), imageY+(int)(mapSize*scale));
 			}
+		}
+
+		int riverMarker = 12;
+		g.setColor(Color.yellow);
+		for (Point p:riverSeeds) {
+			g.fillOval((int)(p.x*scale+imageX)-riverMarker/2, (int)(p.y*scale+imageY)-riverMarker/2, riverMarker, riverMarker);
+		}
+		
+		if (showMarker) {
+			g.setColor(Color.RED);
+			g.fillOval((int)((markerOffsetX*scale)+imageX)-4, (int)((markerOffsetY*scale)+imageY)-4, 8, 8);
 		}
 	}
 
@@ -239,4 +261,7 @@ public class MapPanel extends JPanel {
 		repaint();
 	}
 
+	public int getMapSize() {
+		return mapSize;
+	}
 }
