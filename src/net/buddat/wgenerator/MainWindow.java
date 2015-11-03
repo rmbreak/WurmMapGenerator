@@ -50,7 +50,7 @@ public class MainWindow extends JFrame {
 
 	private static final long serialVersionUID = -407206109473532425L;
 
-	private static final String version = "2.5";
+	private static final String version = "2.5.2";
 	private WurmAPI api;
 	private HeightMap heightMap;
 	private TileMap tileMap;
@@ -645,7 +645,7 @@ public class MainWindow extends JFrame {
 
 		checkBox_landSlide = new JCheckBox("Land Slide");
 		checkBox_landSlide.setToolTipText("Pushes dirt down that is above max slope");
-		checkBox_landSlide.setSelected(true);
+		checkBox_landSlide.setSelected(false);
 		panel_12.add(checkBox_landSlide);
 
 		checkbox_biomeRandomSeed = new JCheckBox("Random Seed");
@@ -2022,6 +2022,7 @@ public class MainWindow extends JFrame {
 
 		heightMap.generateHeights(progressBar); 
 
+		defaultView = Constants.VIEW_TYPE.HEIGHT;
 		updateMapView();
 	}
 

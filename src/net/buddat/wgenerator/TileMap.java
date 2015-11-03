@@ -152,11 +152,12 @@ public class TileMap {
 		final double maxSlopeHeight = maxSlope * singleDirt;
 		final double maxDiagSlopeHeight = maxDiagSlope * singleDirt;
 		final double maxHeight = maxDirtHeight * singleDirt;
-		final double taperHeight = maxHeight - ((dirtCount / 2) * singleDirt);
+		final double taperHeight = maxHeight - ((dirtCount / 1.0) * singleDirt);
 		final int mapSize = heightMap.getMapSize();
 		final long startTime = System.currentTimeMillis();
 		dirtDropProgress = 0;
 		progressBar = progress;
+		System.out.println("Max dirt height: "+maxDirtHeight+"  "+maxHeight+"  "+taperHeight+"  "+dirtCount);
 
 		class Iteration implements Runnable {
 			int sizex, sizey;
@@ -172,7 +173,6 @@ public class TileMap {
 			public void run() {
 				for (int x = ix; x < ix+sizex; x++) {
 					for (int y = iy; y < iy+sizey; y++) {
-
 						int mod = heightMap.getMapSize()/32;
 						if ( x%mod == 0 && y%mod == 0) {
 							dirtDropProgress += mod*mod;
@@ -182,11 +182,11 @@ public class TileMap {
 							progressBar.setString(progressBar.getString().substring(0, progressBar.getString().indexOf("("))+"("+predict+" secs)");
 						}
 
-						if (heightMap.getHeight(x, y) > maxHeight)
+						if (heightMap.getHeight(x, y) + dirtMap[x][y]*singleDirt > maxHeight)
 							continue;
 
-						if (heightMap.getHeight(x, y) > taperHeight)
-							if ((maxHeight - heightMap.getHeight(x, y)) * heightMap.getMaxHeight() < 1)
+						if (heightMap.getHeight(x, y) + dirtMap[x][y] > taperHeight)
+							if ((maxHeight - heightMap.getHeight(x, y) - dirtMap[x][y]) * heightMap.getMaxHeight() < dirtCount/2)
 								continue;
 
 						if (landSlide) {
@@ -467,7 +467,6 @@ public class TileMap {
 	private void setDirt(int x, int y, short newDirt) {
 		if (newDirt < 0) {
 			newDirt = 0;
-			System.out.println("wtf");
 		}
 
 		if (newDirt > 0) {
