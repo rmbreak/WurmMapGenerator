@@ -575,10 +575,10 @@ public class MainWindow extends JFrame {
 
 		JLabel label_4 = new JLabel("");
 		panel_11.add(label_4);
-		
+
 		JSeparator separator = new JSeparator();
 		panel_11.add(separator);
-		
+
 		checkbox_paintRivers = new JCheckBox("Paint Rivers");
 		checkbox_paintRivers.setToolTipText("Click and drag on map to draw rivers");
 		checkbox_paintRivers.addActionListener(new ActionListener() {
@@ -587,20 +587,20 @@ public class MainWindow extends JFrame {
 			}
 		});
 		panel_11.add(checkbox_paintRivers);
-		
+
 		checkbox_autoDropDirt = new JCheckBox("Auto Drop Dirt");
 		checkbox_autoDropDirt.setToolTipText("Drop dirt after generating rivers");
 		checkbox_autoDropDirt.setSelected(true);
 		panel_11.add(checkbox_autoDropDirt);
-		
+
 		JLabel lblRiverDepth = new JLabel("River depth");
 		lblRiverDepth.setToolTipText("Deepest part of the river");
 		panel_11.add(lblRiverDepth);
-		
+
 		JLabel lblRiverWidth = new JLabel("River width");
 		lblRiverWidth.setToolTipText("Base size at the deepest part");
 		panel_11.add(lblRiverWidth);
-		
+
 		JLabel lblRiverSlope = new JLabel("River slope");
 		lblRiverSlope.setToolTipText("Lower = gradual, Higher = steep edges");
 		panel_11.add(lblRiverSlope);
@@ -656,14 +656,14 @@ public class MainWindow extends JFrame {
 		});
 		panel_12.add(checkbox_biomeRandomSeed);
 		checkbox_biomeRandomSeed.setSelected(true);
-		
+
 		JSeparator separator_1 = new JSeparator();
 		panel_12.add(separator_1);
-		
+
 		btnGenerateRivers = new JButton("Generate Rivers");
 		btnGenerateRivers.setToolTipText("Alters the heightmap");
 		panel_12.add(btnGenerateRivers);
-		
+
 		btnResetRivers = new JButton("Reset Rivers");
 		btnResetRivers.setToolTipText("Clear the currently drawn rivers");
 		btnResetRivers.addActionListener(new ActionListener() {
@@ -672,15 +672,15 @@ public class MainWindow extends JFrame {
 			}
 		});
 		panel_12.add(btnResetRivers);
-		
+
 		textField_riverDepth = new JTextField("" + Constants.RIVER_DEPTH);
 		panel_12.add(textField_riverDepth);
 		textField_riverDepth.setColumns(10);
-		
+
 		textField_riverWidth = new JTextField("" + Constants.RIVER_WIDTH);
 		panel_12.add(textField_riverWidth);
 		textField_riverWidth.setColumns(10);
-		
+
 		textField_riverSlope = new JTextField("" + Constants.RIVER_SLOPE);
 		panel_12.add(textField_riverSlope);
 		textField_riverSlope.setColumns(10);
@@ -1595,7 +1595,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	
+
 	public void actionGenerateRivers () {
 		if (tileMap == null) {
 			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Adding Biome", JOptionPane.ERROR_MESSAGE);
@@ -1613,7 +1613,7 @@ public class MainWindow extends JFrame {
 			mapPanel.setRiverPaintingMode(false);
 			checkbox_paintRivers.setSelected(false);
 			mapPanel.clearRiverSeeds();
-			
+
 			if (checkbox_autoDropDirt.isSelected()) {
 				actionDropDirt();
 			}
@@ -1624,7 +1624,7 @@ public class MainWindow extends JFrame {
 			stopLoading();
 		}
 	}
-	
+
 	public void actionSeedBiome (Point origin) {
 		if (tileMap == null) {
 			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Adding Biome", JOptionPane.ERROR_MESSAGE);
@@ -2041,7 +2041,7 @@ public class MainWindow extends JFrame {
 			}
 		} else {
 			updateAPIMap();
-	
+
 			if (defaultView == Constants.VIEW_TYPE.TOPO)
 				mapPanel.setMapImage(getAPI().getMapData().createTopographicDump(true, (short) 250));
 			else if (defaultView == Constants.VIEW_TYPE.CAVE)
@@ -2055,47 +2055,54 @@ public class MainWindow extends JFrame {
 		mapPanel.repaint();
 		stopLoading();
 	}
-	
+
 	private void updateAPIMap() {
 		startLoading("Updating Map");
 		MapData map = getAPI().getMapData();
 		Random treeRand = new Random(System.currentTimeMillis());
 
-		for (int i = 0; i < heightMap.getMapSize(); i++) {
-			progressBar.setValue((int)((float)i/heightMap.getMapSize()*100f/3));
-			for (int j = 0; j < heightMap.getMapSize(); j++) {
-				map.setSurfaceHeight(i, j, tileMap.getSurfaceHeight(i, j));
-				map.setRockHeight(i, j, tileMap.getRockHeight(i, j));
+		try {
+			for (int i = 0; i < heightMap.getMapSize(); i++) {
+				progressBar.setValue((int)((float)i/heightMap.getMapSize()*100f/3));
+				for (int j = 0; j < heightMap.getMapSize(); j++) {
+					map.setSurfaceHeight(i, j, tileMap.getSurfaceHeight(i, j));
+					map.setRockHeight(i, j, tileMap.getRockHeight(i, j));
 
-				if (tileMap.hasOres()) {
-					map.setCaveTile(i, j, tileMap.getOreType(i, j), tileMap.getOreCount(i, j));
+					if (tileMap.hasOres()) {
+						map.setCaveTile(i, j, tileMap.getOreType(i, j), tileMap.getOreCount(i, j));
+					}
+					map.setSurfaceTile(i, j, Tile.TILE_ROCK);
 				}
-				map.setSurfaceTile(i, j, Tile.TILE_ROCK);
 			}
-		}
-		for (int i = 0; i < heightMap.getMapSize(); i++) {
-			progressBar.setValue((int)((float)i/heightMap.getMapSize()*100f/3)+33);
-			for (int j = 0; j < heightMap.getMapSize(); j++) {
-				if(tileMap.getType(i, j) != Tile.TILE_ROCK && !tileMap.getType(i, j).isTree() && !tileMap.getType(i, j).isBush()) {
-					for(int x = i - 1; x <= i + 1; x++) {
-						for(int y = j - 1; y <= j + 1; y++) {
-							if(x > 0 && y > 0 && x < heightMap.getMapSize() && y <heightMap.getMapSize()) {
-								map.setSurfaceTile(x, y, tileMap.getType(i, j));
+			for (int i = 0; i < heightMap.getMapSize(); i++) {
+				progressBar.setValue((int)((float)i/heightMap.getMapSize()*100f/3)+33);
+				for (int j = 0; j < heightMap.getMapSize(); j++) {
+					if(tileMap.getType(i, j) != Tile.TILE_ROCK && !tileMap.getType(i, j).isTree() && !tileMap.getType(i, j).isBush()) {
+						for(int x = i - 1; x <= i + 1; x++) {
+							for(int y = j - 1; y <= j + 1; y++) {
+								if(x > 0 && y > 0 && x < heightMap.getMapSize() && y <heightMap.getMapSize()) {
+									map.setSurfaceTile(x, y, tileMap.getType(i, j));
+								}
 							}
 						}
-					}
-				}    
-			}
-		}
-		for (int i = 0; i < heightMap.getMapSize(); i++) {
-			progressBar.setValue((int)((float)i/heightMap.getMapSize()*100f/3)+66);
-			for (int j = 0; j < heightMap.getMapSize(); j++) {
-				if (tileMap.getType(i, j).isTree()) {
-					map.setTree(i, j, tileMap.getType(i, j).getTreeType((byte) 0), FoliageAge.values()[treeRand.nextInt(FoliageAge.values().length)], GrowthTreeStage.MEDIUM);
-				} else if (tileMap.getType(i, j).isBush()) {
-					map.setBush(i, j, tileMap.getType(i, j).getBushType((byte) 0), FoliageAge.values()[treeRand.nextInt(FoliageAge.values().length)], GrowthTreeStage.MEDIUM);
+					}    
 				}
 			}
+			for (int i = 0; i < heightMap.getMapSize(); i++) {
+				progressBar.setValue((int)((float)i/heightMap.getMapSize()*100f/3)+66);
+				for (int j = 0; j < heightMap.getMapSize(); j++) {
+					if (tileMap.getType(i, j).isTree()) {
+						map.setTree(i, j, tileMap.getType(i, j).getTreeType((byte) 0), FoliageAge.values()[treeRand.nextInt(FoliageAge.values().length)], GrowthTreeStage.MEDIUM);
+					} else if (tileMap.getType(i, j).isBush()) {
+						map.setBush(i, j, tileMap.getType(i, j).getBushType((byte) 0), FoliageAge.values()[treeRand.nextInt(FoliageAge.values().length)], GrowthTreeStage.MEDIUM);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			stopLoading();
 		}
 	}
 
@@ -2376,7 +2383,7 @@ public class MainWindow extends JFrame {
 			lblMapCoords.setText("Right click to place a marker");
 		}
 	}
-	
+
 	public void submitError(String err) {
 		textArea_Errors.append(err);
 		btnViewErrors.setVisible(true);

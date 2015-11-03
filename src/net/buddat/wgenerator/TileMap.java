@@ -42,122 +42,15 @@ public class TileMap {
 		this.lastBiomeChanges = new HashMap<Point, Tile>();
 	}
 
-	public void dropDirtQuadrants(final int dirtCount, final int maxSlope, final int maxDiagSlope, final int maxDirtHeight, final double cliffRatio, final boolean landSlide, JProgressBar progress) {
-		final double maxSlopeHeight = maxSlope * singleDirt;
-		final double maxDiagSlopeHeight = maxDiagSlope * singleDirt;
-		final double maxHeight = maxDirtHeight * singleDirt;
-		final double taperHeight = maxHeight - ((dirtCount / 2) * singleDirt);
-		final int mapSize = heightMap.getMapSize();
-		System.out.println("Single dirt: "+singleDirt);
-		final long startTime = System.currentTimeMillis();
-		int slice = 30;
-		int total = 64;
-		dirtDropProgress = 0;
-		progressBar = progress;
-
-		class Iteration implements Runnable {
-			int index, sizex, sizey;
-			int ix[], iy[];
-
-			public Iteration(int i, int[] ix, int[] iy, int sizex, int sizey) {
-				index = i;
-				this.ix = ix;
-				this.iy = iy;
-				this.sizex = sizex;
-				this.sizey = sizey;
-			}
-
-			public void run() {
-				//				for (int x = 0; x < heightMap.getMapSize(); x++) {
-				//				for (int y = 0; y < heightMap.getMapSize(); y++) {
-				for (int x = ix[index]; x < ix[index]+sizex; x++) {
-					for (int y = iy[index]; y < iy[index]+sizey; y++) {
-
-						int mod = heightMap.getMapSize()/32;
-						if ( x%mod == 0 && y%mod == 0) {
-							dirtDropProgress += mod*mod;
-							int progressValue = (int)((float)dirtDropProgress/(heightMap.getMapSize()*heightMap.getMapSize())*100f); 
-							long predict = (int)((System.currentTimeMillis()-startTime)/1000.0*(100.0/progressValue-1));
-							progressBar.setValue(progressValue);
-							progressBar.setString(progressBar.getString().substring(0, progressBar.getString().indexOf("("))+"("+predict+" secs)");
-						}
-
-						for (int i = 0; i < findDropAmount(x, y, maxSlopeHeight, maxDiagSlopeHeight, dirtCount, cliffRatio); i++) {
-							if (heightMap.getHeight(x, y) > maxHeight)
-								continue;
-
-							if (heightMap.getHeight(x, y) > taperHeight)
-								if ((maxHeight - heightMap.getHeight(x, y)) * heightMap.getMaxHeight() < i)
-									continue;
-
-							if (landSlide) {
-								Point dropTile = findDropTile(x, y, maxSlopeHeight, maxDiagSlopeHeight);
-								addDirt((int) dropTile.getX(), (int) dropTile.getY(), 1);
-							} else {
-								Point dropTile = new Point(x,y);
-								addDirt((int) dropTile.getX(), (int) dropTile.getY(), 1);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		Thread firstThreads[] = new Thread[4];
-		for (int i = 0; i < 4; i++) {
-			firstThreads[i] = new Thread(new Iteration(i,new int[]{0,mapSize*(total-slice)/total,0,mapSize*(total-slice)/total},
-					new int[]{0,0,mapSize*(total-slice)/total,mapSize*(total-slice)/total},mapSize*slice/total,mapSize*slice/total));
-			firstThreads[i].start();
-		}
-		for (Thread thread : firstThreads) {
-			try {
-				thread.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				return;
-			}
-		}
-
-		Thread secondThreads[] = new Thread[2];
-		for (int i = 0; i < 2; i++) {
-			secondThreads[i] = new Thread(new Iteration(i,new int[]{0,mapSize*(total-slice)/total},
-					new int[]{mapSize*slice/total,mapSize*slice/total},mapSize*slice/total,mapSize*(total-slice*2)/total));
-			secondThreads[i].start();
-		}
-		for (Thread thread : secondThreads) {
-			try {
-				thread.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				return;
-			}
-		}
-
-		Thread thirdThread = new Thread(new Iteration(0,new int[]{mapSize*slice/total},new int[]{0},mapSize*(total-slice*2)/total,mapSize));
-		thirdThread.start();
-
-		try {
-			thirdThread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			return;
-		}
-
-		// Reset seed due to drop dirt altering it
-		setBiomeSeed(biomeSeed);
-		log("Dirt Dropping (" + dirtCount + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
-	}
-
 	public void dropDirt(final int dirtCount, final int maxSlope, final int maxDiagSlope, final int maxDirtHeight, final double cliffRatio, final boolean landSlide, JProgressBar progress) {
 		final double maxSlopeHeight = maxSlope * singleDirt;
 		final double maxDiagSlopeHeight = maxDiagSlope * singleDirt;
 		final double maxHeight = maxDirtHeight * singleDirt;
-		final double taperHeight = maxHeight - ((dirtCount / 1.0) * singleDirt);
+		final double taperHeight = maxHeight - (dirtCount * singleDirt);
 		final int mapSize = heightMap.getMapSize();
 		final long startTime = System.currentTimeMillis();
 		dirtDropProgress = 0;
 		progressBar = progress;
-		System.out.println("Max dirt height: "+maxDirtHeight+"  "+maxHeight+"  "+taperHeight+"  "+dirtCount);
 
 		class Iteration implements Runnable {
 			int sizex, sizey;
@@ -181,13 +74,20 @@ public class TileMap {
 							progressBar.setValue(progressValue);
 							progressBar.setString(progressBar.getString().substring(0, progressBar.getString().indexOf("("))+"("+predict+" secs)");
 						}
-
-						if (heightMap.getHeight(x, y) + dirtMap[x][y]*singleDirt > maxHeight)
+						
+						if (dirtMap[x][y] >= findDropAmount(x, y, maxSlope, maxDiagSlope, dirtCount, cliffRatio)) {
 							continue;
+						}
 
-						if (heightMap.getHeight(x, y) + dirtMap[x][y] > taperHeight)
-							if ((maxHeight - heightMap.getHeight(x, y) - dirtMap[x][y]) * heightMap.getMaxHeight() < dirtCount/2)
+						if (heightMap.getHeight(x, y) + dirtMap[x][y]*singleDirt > maxHeight) {
+							continue;
+						}
+
+						if (heightMap.getHeight(x, y) + dirtMap[x][y] > taperHeight) {
+							if ((maxHeight - heightMap.getHeight(x, y) - dirtMap[x][y]) * heightMap.getMaxHeight() < dirtCount/2) {
 								continue;
+							}
+						}
 
 						if (landSlide) {
 							Point dropTile = findDropTile(x, y, maxSlopeHeight, maxDiagSlopeHeight);
@@ -222,13 +122,13 @@ public class TileMap {
 
 
 	private int findDropAmount(int x, int y, double maxSlope, double maxDiagSlope, int dirtCount, double cliffRatio) {
-
-		double slope  = (heightMap.maxDiff(x, y) * cliffRatio);
-		double slopeMax = (maxSlope + maxDiagSlope / 2);
+		double slope  = (heightMap.maxDiff(x, y) / singleDirt * cliffRatio);
+		double slopeMax = (maxSlope + maxDiagSlope) / 2.0;
 
 		int dirtToDrop = (int)(dirtCount - ((dirtCount / slopeMax) * slope));
 		if (dirtToDrop < 0)
 			dirtToDrop = 0;
+		
 		return dirtToDrop;
 	}
 

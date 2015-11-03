@@ -27,7 +27,7 @@ public class Constants {
 	public static final int MAX_DIRT_SLOPE = 40;
 	public static final int MAX_DIRT_DIAG_SLOPE = 56;
 	public static final int WATER_HEIGHT = 500;
-	public static final int CLIFF_RATIO = 1;
+	public static final double CLIFF_RATIO = 1.5;
 
 	public static final int RIVER_DEPTH = 40;
 	public static final int RIVER_WIDTH = 6;
