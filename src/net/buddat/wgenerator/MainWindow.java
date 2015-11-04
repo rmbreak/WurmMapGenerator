@@ -12,6 +12,7 @@ import com.wurmonline.wurmapi.api.MapData;
 import com.wurmonline.wurmapi.api.WurmAPI;
 
 import net.buddat.wgenerator.util.Constants;
+import net.buddat.wgenerator.util.ProgressHandler;
 import net.buddat.wgenerator.util.StreamCapturer;
 
 import javax.swing.GroupLayout.Alignment;
@@ -39,7 +40,10 @@ public class MainWindow extends JFrame {
 	private String mapName;
 	private String actionsFileDirectory;
 	private Constants.VIEW_TYPE defaultView = Constants.VIEW_TYPE.HEIGHT;
+	private ProgressHandler progress;
 
+	private JProgressBar progressBar;
+	private JLabel lblMemory;
 	private JPanel contentPane;
 	private JTextField textField_mapSeed;
 	private JTextField textField_mapResolution;
@@ -78,7 +82,6 @@ public class MainWindow extends JFrame {
 	private JTextField textField_Rock;
 	private JTextField textField_maxDirtSlope;
 	private JTextField textField_mapName;
-	private JProgressBar progressBar;
 	private JComboBox<Integer> comboBox_mapSize;
 	private JCheckBox checkbox_biomeRandomSeed;
 	private JComboBox<Tile> comboBox_biomeType;
@@ -152,7 +155,7 @@ public class MainWindow extends JFrame {
 	public MainWindow() {
 		setTitle("Wurm Map Generator - v"+Constants.version);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 951, 650);
+		setBounds(100, 100, 1000, 750);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -291,6 +294,10 @@ public class MainWindow extends JFrame {
 				);
 		panel_25.setLayout(gl_panel_25);
 		mapCoordsPanel.setLayout(gl_mapCoordsPanel);
+		
+		lblMemory = new JLabel("Mem:");
+		lblMemory.setHorizontalAlignment(SwingConstants.LEFT);
+		viewPanel.add(lblMemory);
 
 		btnViewMap = new JButton("View Map");
 		viewPanel.add(btnViewMap);
@@ -1207,6 +1214,7 @@ public class MainWindow extends JFrame {
 		setupButtonActions();
 		setRockTotal();
 		updateMapCoords(0,0,false);
+		progress = new ProgressHandler(progressBar,lblMemory);
 		System.setErr(new PrintStream(new StreamCapturer(System.err,this)));
 	}
 
@@ -1448,13 +1456,11 @@ public class MainWindow extends JFrame {
 	}
 
 	private void startLoading(String task) {
-		progressBar.setValue(0);
-		progressBar.setString(task);
+		progress.update(0, task);
 	}
 
 	private void stopLoading() {
-		progressBar.setValue(100);
-		progressBar.setString("");
+		progress.update(100,"");
 	}
 
 	boolean actionReady() {
@@ -1480,7 +1486,7 @@ public class MainWindow extends JFrame {
 					Integer.parseInt(textField_mapMinEdge.getText()), Double.parseDouble(textField_mapBorderWeight.getText()), 
 					Integer.parseInt(textField_mapMaxHeight.getText()), checkbox_moreLand.isSelected());
 
-			heightMap.generateHeights(progressBar); 
+			heightMap.generateHeights(progress); 
 
 			defaultView = Constants.VIEW_TYPE.HEIGHT;
 			updateMapView();
@@ -1504,7 +1510,7 @@ public class MainWindow extends JFrame {
 		startLoading("Eroding Height Map ()");
 		try {
 			heightMap.erode(Integer.parseInt(textField_erodeIterations.getText()), Integer.parseInt(textField_erodeMinSlope.getText()), 
-					Integer.parseInt(textField_erodeMaxSlope.getText()), Integer.parseInt(textField_erodeSediment.getText()), progressBar);
+					Integer.parseInt(textField_erodeMaxSlope.getText()), Integer.parseInt(textField_erodeSediment.getText()), progress);
 
 			updateMapView();
 
@@ -1534,7 +1540,7 @@ public class MainWindow extends JFrame {
 			tileMap.setWaterHeight(Integer.parseInt(textField_waterHeight.getText()));
 			tileMap.dropDirt(Integer.parseInt(textField_dirtPerTile.getText()), Integer.parseInt(textField_maxDirtSlope.getText()), 
 					Integer.parseInt(textField_maxDiagSlope.getText()), Integer.parseInt(textField_maxDirtHeight.getText()), 
-					Double.parseDouble(textField_cliffRatio.getText()), checkBox_landSlide.isSelected(), progressBar);
+					Double.parseDouble(textField_cliffRatio.getText()), checkBox_landSlide.isSelected(), progress);
 
 			if (defaultView == Constants.VIEW_TYPE.HEIGHT) {
 				defaultView = Constants.VIEW_TYPE.ISO;
@@ -1649,7 +1655,7 @@ public class MainWindow extends JFrame {
 
 			if (origin == null) {
 				tileMap.plantBiome(Integer.parseInt(textField_seedCount.getText()), Integer.parseInt(textField_biomeSize.getText()), Integer.parseInt(textField_biomeDensity.getText()), 
-						rates, checkbox_growthRandom.isSelected(), Integer.parseInt(textField_biomeMaxSlope.getText()), minHeight, maxHeight, (Tile) comboBox_biomeType.getSelectedItem(), progressBar);
+						rates, checkbox_growthRandom.isSelected(), Integer.parseInt(textField_biomeMaxSlope.getText()), minHeight, maxHeight, (Tile) comboBox_biomeType.getSelectedItem(), progress);
 
 				genHistory.add("SEEDBIOME("+comboBox_biomeType.getSelectedItem()+"):" + comboBox_biomeType.getSelectedIndex() + "," + textField_seedCount.getText() + 
 						"," + textField_biomeSize.getText() + "," + textField_biomeDensity.getText() + "," + textField_biomeMaxSlope.getText() + "," +
@@ -1658,7 +1664,7 @@ public class MainWindow extends JFrame {
 						textField_biomeMinHeight.getText() + "," + textField_biomeMaxHeight.getText() + "," + chckbxAroundWater.isSelected());
 			} else {
 				tileMap.plantBiomeAt(origin.x, origin.y, Integer.parseInt(textField_biomeSize.getText()), Integer.parseInt(textField_biomeDensity.getText()), 
-						rates, checkbox_growthRandom.isSelected(), Integer.parseInt(textField_biomeMaxSlope.getText()), minHeight, maxHeight, (Tile) comboBox_biomeType.getSelectedItem(), progressBar);
+						rates, checkbox_growthRandom.isSelected(), Integer.parseInt(textField_biomeMaxSlope.getText()), minHeight, maxHeight, (Tile) comboBox_biomeType.getSelectedItem(), progress);
 
 				genHistory.add("PAINTBIOME("+comboBox_biomeType.getSelectedItem()+"):" + comboBox_biomeType.getSelectedIndex() + "," + origin.x + "," + origin.y + 
 						"," + textField_biomeSize.getText() + "," + textField_biomeDensity.getText() + "," + textField_biomeMaxSlope.getText() + "," +
@@ -1707,7 +1713,7 @@ public class MainWindow extends JFrame {
 
 			for (int i = 0; i < heightMap.getMapSize(); i++) {
 				for (int j = 0; j < heightMap.getMapSize(); j++) {
-					progressBar.setValue((int)((float)(i*heightMap.getMapSize()+j)/(heightMap.getMapSize()*heightMap.getMapSize())*90f));
+					progress.update((int)((float)(i*heightMap.getMapSize()+j)/(heightMap.getMapSize()*heightMap.getMapSize())*100f));
 					tileMap.addDirt(i, j, 0);
 				}
 			}
@@ -1740,7 +1746,7 @@ public class MainWindow extends JFrame {
 					Double.parseDouble(textField_Glimmer.getText()), Double.parseDouble(textField_Marble.getText()), Double.parseDouble(textField_Slate.getText())					
 			};
 
-			tileMap.generateOres(rates, progressBar);
+			tileMap.generateOres(rates, progress);
 
 			defaultView = Constants.VIEW_TYPE.CAVE;
 			updateMapView();
@@ -2000,7 +2006,7 @@ public class MainWindow extends JFrame {
 			Graphics g = mapPanel.getMapImage().getGraphics();
 
 			for (int i = 0; i < heightMap.getMapSize(); i++) {
-				progressBar.setValue((int)((float)i/heightMap.getMapSize()*98f));
+				progress.update((int)((float)i/heightMap.getMapSize()*98f));
 				for (int j = 0; j < heightMap.getMapSize(); j++) {
 					g.setColor(new Color((float) heightMap.getHeight(i, j), (float) heightMap.getHeight(i, j), (float) heightMap.getHeight(i, j)));
 					g.fillRect(i, j, 1, 1);
@@ -2030,7 +2036,7 @@ public class MainWindow extends JFrame {
 
 		try {
 			for (int i = 0; i < heightMap.getMapSize(); i++) {
-				progressBar.setValue((int)((float)i/heightMap.getMapSize()*100f/3));
+				progress.update((int)((float)i/heightMap.getMapSize()*100f/3));
 				for (int j = 0; j < heightMap.getMapSize(); j++) {
 					map.setSurfaceHeight(i, j, tileMap.getSurfaceHeight(i, j));
 					map.setRockHeight(i, j, tileMap.getRockHeight(i, j));
@@ -2042,7 +2048,7 @@ public class MainWindow extends JFrame {
 				}
 			}
 			for (int i = 0; i < heightMap.getMapSize(); i++) {
-				progressBar.setValue((int)((float)i/heightMap.getMapSize()*100f/3)+33);
+				progress.update((int)((float)i/heightMap.getMapSize()*100f/3)+33);
 				for (int j = 0; j < heightMap.getMapSize(); j++) {
 					if(tileMap.getType(i, j) != Tile.TILE_ROCK && !tileMap.getType(i, j).isTree() && !tileMap.getType(i, j).isBush()) {
 						for(int x = i - 1; x <= i + 1; x++) {
@@ -2056,7 +2062,7 @@ public class MainWindow extends JFrame {
 				}
 			}
 			for (int i = 0; i < heightMap.getMapSize(); i++) {
-				progressBar.setValue((int)((float)i/heightMap.getMapSize()*100f/3)+66);
+				progress.update((int)((float)i/heightMap.getMapSize()*100f/3)+66);
 				for (int j = 0; j < heightMap.getMapSize(); j++) {
 					if (tileMap.getType(i, j).isTree()) {
 						map.setTree(i, j, tileMap.getType(i, j).getTreeType((byte) 0), FoliageAge.values()[treeRand.nextInt(FoliageAge.values().length)], GrowthTreeStage.MEDIUM);
@@ -2070,6 +2076,7 @@ public class MainWindow extends JFrame {
 		}
 		finally {
 			stopLoading();
+			System.gc();//TODO
 		}
 	}
 
@@ -2357,6 +2364,10 @@ public class MainWindow extends JFrame {
 	public void submitError(String err) {
 		textArea_Errors.append(err);
 		btnViewErrors.setVisible(true);
+	}
+	
+	public static void log (String s) { 
+		System.out.println(s);
 	}
 
 }

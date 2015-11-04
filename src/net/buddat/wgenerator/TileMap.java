@@ -5,11 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-import javax.swing.JProgressBar;
-
 import com.wurmonline.mesh.Tiles.Tile;
 
 import net.buddat.wgenerator.util.Constants;
+import net.buddat.wgenerator.util.ProgressHandler;
 
 public class TileMap {
 
@@ -24,7 +23,6 @@ public class TileMap {
 	private boolean hasOres;
 	private long dirtDropProgress;
 	private int biomeSeed;
-	private JProgressBar progressBar;
 
 	private HashMap<Point, Tile> lastBiomeChanges;
 
@@ -42,7 +40,7 @@ public class TileMap {
 		this.lastBiomeChanges = new HashMap<Point, Tile>();
 	}
 
-	void dropDirt(final int dirtCount, final int maxSlope, final int maxDiagSlope, final int maxDirtHeight, final double cliffRatio, final boolean landSlide, JProgressBar progress) {
+	void dropDirt(final int dirtCount, final int maxSlope, final int maxDiagSlope, final int maxDirtHeight, final double cliffRatio, final boolean landSlide, final ProgressHandler progress) {
 		final double maxSlopeHeight = maxSlope * singleDirt;
 		final double maxDiagSlopeHeight = maxDiagSlope * singleDirt;
 		final double maxHeight = maxDirtHeight * singleDirt;
@@ -50,7 +48,6 @@ public class TileMap {
 		final int mapSize = heightMap.getMapSize();
 		final long startTime = System.currentTimeMillis();
 		dirtDropProgress = 0;
-		progressBar = progress;
 
 		class Iteration implements Runnable {
 			int sizex, sizey;
@@ -71,8 +68,7 @@ public class TileMap {
 							dirtDropProgress += mod*mod;
 							int progressValue = (int)((float)dirtDropProgress/(heightMap.getMapSize()*heightMap.getMapSize()*dirtCount)*100f); 
 							long predict = (int)((System.currentTimeMillis()-startTime)/1000.0*(100.0/progressValue-1));
-							progressBar.setValue(progressValue);
-							progressBar.setString(progressBar.getString().substring(0, progressBar.getString().indexOf("("))+"("+predict+" secs)");
+							progress.update(progressValue, (progress.getText().substring(0, progress.getText().indexOf("("))+"("+predict+" secs)"));
 						}
 
 						if (dirtMap[x][y] >= findDropAmount(x, y, maxSlope, maxDiagSlope, dirtCount, cliffRatio)) {
@@ -117,7 +113,7 @@ public class TileMap {
 
 		// Reset seed due to drop dirt altering it
 		setBiomeSeed(biomeSeed);
-		log("Dirt Dropping (" + dirtCount + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+		MainWindow.log("Dirt Dropping (" + dirtCount + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 
 
@@ -128,12 +124,12 @@ public class TileMap {
 		return dirtToDrop;
 	}
 
-	void generateOres(double[] rates, JProgressBar progress) {
+	void generateOres(double[] rates, ProgressHandler progress) {
 		setBiomeSeed(biomeSeed);
 		long startTime = System.currentTimeMillis();
 
 		for (int x = 0; x < heightMap.getMapSize(); x++) {
-			progress.setValue((int)((float)x/heightMap.getMapSize()*90f));
+			progress.update((int)((float)x/heightMap.getMapSize()*99f));
 
 			for (int y = 0; y < heightMap.getMapSize(); y++) {
 				double rand = biomeRandom.nextDouble() * 100;
@@ -170,7 +166,7 @@ public class TileMap {
 
 		hasOres = true;
 
-		log("Ore Generation completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+		MainWindow.log("Ore Generation completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 
 	void undoLastBiome() {
@@ -178,7 +174,7 @@ public class TileMap {
 			setType(p, lastBiomeChanges.get(p));
 	}
 
-	void plantBiome(int seedCount, int growthIterations, int density, int[] growthRate, boolean randomGrowth, int maxBiomeSlope, int minHeight, int maxHeight, Tile type, JProgressBar progress) {
+	void plantBiome(int seedCount, int growthIterations, int density, int[] growthRate, boolean randomGrowth, int maxBiomeSlope, int minHeight, int maxHeight, Tile type, ProgressHandler progress) {
 		long startTime = System.currentTimeMillis();
 
 		lastBiomeChanges.clear();
@@ -188,7 +184,7 @@ public class TileMap {
 
 		for (long killCount = 0; totalSeeds < seedCount; killCount++) {
 			nextList.clear();
-			progress.setValue((int)((float)totalSeeds/seedCount*100f));
+			progress.update((int)((float)totalSeeds/seedCount*99f));
 
 			nextList.add(new Point(biomeRandom.nextInt(heightMap.getMapSize()),biomeRandom.nextInt(heightMap.getMapSize())));
 			totalSize = 1;
@@ -215,10 +211,10 @@ public class TileMap {
 			}
 		}
 
-		log("Biome Seeding (" + type.tilename + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+		MainWindow.log("Biome Seeding (" + type.tilename + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 
-	void plantBiomeAt(int x, int y, int growthIterations, int density, int[] growthRate, boolean randomGrowth, int maxBiomeSlope, int minHeight, int maxHeight, Tile type, JProgressBar progress) {
+	void plantBiomeAt(int x, int y, int growthIterations, int density, int[] growthRate, boolean randomGrowth, int maxBiomeSlope, int minHeight, int maxHeight, Tile type, ProgressHandler progress) {
 		long startTime = System.currentTimeMillis();
 
 		ArrayList<Point> nextList = new ArrayList<Point>();
@@ -236,11 +232,11 @@ public class TileMap {
 		}
 
 		for (int i = 0; i < growthIterations/density; i++) {
-			progress.setValue((int)((float)i/growthIterations/density*100f));
+			progress.update((int)((float)i/growthIterations/density*99f));
 			nextList = growBiome(nextList, type, density, randomGrowth? randomRate:growthRate, maxBiomeSlope, minHeight, maxHeight);
 		}
 
-		log("Biome Seeding (" + type.tilename + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+		MainWindow.log("Biome Seeding (" + type.tilename + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 
 	private ArrayList<Point> growBiome(ArrayList<Point> fromList, Tile type, int density, int[] growthRate, int maxBiomeSlope, int minHeight, int maxHeight) {
@@ -448,9 +444,5 @@ public class TileMap {
 		} else {
 			return new Point(x, y);
 		}
-	}
-
-	private static void log (String s) {
-		System.out.println(s);
 	}
 }
