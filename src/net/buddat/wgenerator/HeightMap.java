@@ -10,13 +10,11 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
+import net.buddat.wgenerator.util.Constants;
 import net.buddat.wgenerator.util.SimplexNoise;
 
 /**
- * @author Budda
- *
- * Generates a heightmap with bounds set in the constructor.
- * All height values for each point will be between 0.0 and 1.0
+ * 16 bit grayscale image. All height values for each point will be between 0.0 and 1.0
  */
 public class HeightMap {
 
@@ -29,7 +27,7 @@ public class HeightMap {
 	private int minimumEdge;
 	private int maxHeight;
 	private int borderCutoff;
-	private float borderNormalize;
+	private double borderNormalize;
 	private double singleDirt;
 
 	private BufferedImage heightImage;
@@ -65,10 +63,12 @@ public class HeightMap {
 		this.borderNormalize = (float) (1.0f / borderCutoff);
 
 		this.singleDirt = 1.0 / maxHeight;
+		
+		importHeightImage();
 	}
 
 
-	void importHeightImage() {
+	private void importHeightImage() {
 		if (heightImage.getHeight() != heightImage.getWidth())
 		{
 			JOptionPane.showMessageDialog(null, "The map must be square!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -199,15 +199,16 @@ public class HeightMap {
 			}
 		}
 
-		double normalizeLow = 1.0 / 0.5;
-		double normalizeHigh = 2.0f / 0.5;
+		//Converts the bottom half into the bottom 1/3, and the top half into the top 2/3
+		double normalizeLow = Constants.NORMALIZE_RATIO/50.0;	//2.0/3.0;
+		double normalizeHigh = 2.0-normalizeLow;				//4.0/3.0;
 		for (int i = 0; i < mapSize; i++) {
 			for (int j = 0; j < mapSize; j++) {
 				if (getHeight(i, j) < 0.5) {
-					setHeight(i, j, (getHeight(i, j) * normalizeLow) / 3.0, false);
+					setHeight(i, j, (getHeight(i, j) * normalizeLow), false);
 				} else {
-					double newHeight = 1.0f + (getHeight(i, j) - 0.5) * normalizeHigh;
-					setHeight(i, j, newHeight / 3.0, false);
+					double newHeight = normalizeLow/2.0 + (getHeight(i, j) - 0.5) * normalizeHigh;
+					setHeight(i, j, newHeight, false);
 				}
 			}
 		}
@@ -276,9 +277,8 @@ public class HeightMap {
 	 * @param y Location y
 	 * @param newHeight Height to set the location to
 	 * @param clamp Whether to clamp the location's height depending on x/y and the border cutoff (Constants.BORDER_WEIGHT)
-	 * @return The height that was set after constraints and clamping
 	 */
-	private double setHeight(int x, int y, double newHeight, boolean clamp) {
+	private void setHeight(int x, int y, double newHeight, boolean clamp) {
 		if (newHeight < (moreLand ? -1d : 0))
 			newHeight = (moreLand ? -1d : 0);
 		if (newHeight > 1d)
@@ -299,15 +299,12 @@ public class HeightMap {
 				heightArray[x][y] *= Math.max(0, ((Math.min(mapSize - x, mapSize - y) - minimumEdge)) * borderNormalize);
 			}
 		}
-
-		return heightArray[x][y];
 	}
 
 
 	int getMaxHeight() {
 		return maxHeight;
 	}
-
 
 	int getMapSize() {
 		return mapSize;
@@ -317,10 +314,11 @@ public class HeightMap {
 		return singleDirt;
 	}
 
-	static int clamp(int val, int min, int max) {
+	public static int clamp(int val, int min, int max) {
 		return Math.max(min, Math.min(max, val));
 	}
 
+	/** Digs at the (x,y) location until the water depth is met. Each iteration increases the radius of dirt that is dug. */
 	void createPond(int ox, int oy, double water, int baseWidth, int slope) {
 		if (water <= 0)
 			water = 0;
@@ -345,7 +343,7 @@ public class HeightMap {
 
 	}
 
-	private static void log (String s) {
+	private static void log(String s) {
 		System.out.println(s);
 	}
 }

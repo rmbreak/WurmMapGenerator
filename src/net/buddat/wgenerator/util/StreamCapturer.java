@@ -7,6 +7,7 @@ import java.io.PrintStream;
 
 import net.buddat.wgenerator.MainWindow;
 
+/** Retrieves text from the given print stream and logs it to the interface */
 public class StreamCapturer extends OutputStream {
 
 	private StringBuilder buffer;

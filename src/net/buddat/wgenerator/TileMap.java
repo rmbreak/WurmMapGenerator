@@ -42,7 +42,7 @@ public class TileMap {
 		this.lastBiomeChanges = new HashMap<Point, Tile>();
 	}
 
-	public void dropDirt(final int dirtCount, final int maxSlope, final int maxDiagSlope, final int maxDirtHeight, final double cliffRatio, final boolean landSlide, JProgressBar progress) {
+	void dropDirt(final int dirtCount, final int maxSlope, final int maxDiagSlope, final int maxDirtHeight, final double cliffRatio, final boolean landSlide, JProgressBar progress) {
 		final double maxSlopeHeight = maxSlope * singleDirt;
 		final double maxDiagSlopeHeight = maxDiagSlope * singleDirt;
 		final double maxHeight = maxDirtHeight * singleDirt;
@@ -74,7 +74,7 @@ public class TileMap {
 							progressBar.setValue(progressValue);
 							progressBar.setString(progressBar.getString().substring(0, progressBar.getString().indexOf("("))+"("+predict+" secs)");
 						}
-						
+
 						if (dirtMap[x][y] >= findDropAmount(x, y, maxSlope, maxDiagSlope, dirtCount, cliffRatio)) {
 							continue;
 						}
@@ -128,7 +128,7 @@ public class TileMap {
 		return dirtToDrop;
 	}
 
-	public void generateOres(double[] rates, JProgressBar progress) {
+	void generateOres(double[] rates, JProgressBar progress) {
 		setBiomeSeed(biomeSeed);
 		long startTime = System.currentTimeMillis();
 
@@ -173,12 +173,12 @@ public class TileMap {
 		log("Ore Generation completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 
-	public void undoLastBiome() {
+	void undoLastBiome() {
 		for (Point p : lastBiomeChanges.keySet())
 			setType(p, lastBiomeChanges.get(p));
 	}
 
-	public void plantBiome(int seedCount, int growthIterations, int density, int[] growthRate, boolean randomGrowth, int maxBiomeSlope, int minHeight, int maxHeight, Tile type, JProgressBar progress) {
+	void plantBiome(int seedCount, int growthIterations, int density, int[] growthRate, boolean randomGrowth, int maxBiomeSlope, int minHeight, int maxHeight, Tile type, JProgressBar progress) {
 		long startTime = System.currentTimeMillis();
 
 		lastBiomeChanges.clear();
@@ -218,7 +218,7 @@ public class TileMap {
 		log("Biome Seeding (" + type.tilename + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 
-	public void plantBiomeAt(int x, int y, int growthIterations, int density, int[] growthRate, boolean randomGrowth, int maxBiomeSlope, int minHeight, int maxHeight, Tile type, JProgressBar progress) {
+	void plantBiomeAt(int x, int y, int growthIterations, int density, int[] growthRate, boolean randomGrowth, int maxBiomeSlope, int minHeight, int maxHeight, Tile type, JProgressBar progress) {
 		long startTime = System.currentTimeMillis();
 
 		ArrayList<Point> nextList = new ArrayList<Point>();
@@ -310,7 +310,7 @@ public class TileMap {
 		return false;
 	}
 
-	public Tile getType(int x, int y) {
+	Tile getType(int x, int y) {
 		if (typeMap[x][y] == null)
 			return Tile.TILE_ROCK;
 
@@ -329,7 +329,7 @@ public class TileMap {
 		setType((int) p.getX(), (int) p.getY(), newType);
 	}
 
-	public Tile getOreType(int x, int y) {
+	Tile getOreType(int x, int y) {
 		if (oreTypeMap[x][y] == null)
 			return Tile.TILE_CAVE_WALL;
 
@@ -340,7 +340,7 @@ public class TileMap {
 		oreResourceMap[x][y] = (short) resourceCount;
 	}
 
-	public short getOreCount(int x, int y) {
+	short getOreCount(int x, int y) {
 		return oreResourceMap[x][y];
 	}
 
@@ -352,7 +352,7 @@ public class TileMap {
 		setOreCount(x, y, resourceCount);
 	}
 
-	public boolean hasOres() {
+	boolean hasOres() {
 		return hasOres;
 	}
 
@@ -390,14 +390,14 @@ public class TileMap {
 	}
 
 	short getSurfaceHeight(int x, int y) {
-		return (short) ((getTileHeight(x, y) - getWaterHeight()) * heightMap.getMaxHeight());
+		return (short) ((getTileHeight(x, y) - waterHeight) * heightMap.getMaxHeight());
 	}
 
 	short getRockHeight(int x, int y) {
-		return (short) ((heightMap.getHeight(x, y) - getWaterHeight()) * heightMap.getMaxHeight());
+		return (short) ((heightMap.getHeight(x, y) - waterHeight) * heightMap.getMaxHeight());
 	}
 
-	public int getMapHeight(int x, int y) {
+	int getMapHeight(int x, int y) {
 		return (int)(getTileHeight(x, y) * heightMap.getMaxHeight());
 	}
 
@@ -414,9 +414,9 @@ public class TileMap {
 		biomeRandom = new Random(newSeed);
 	}
 
-	private double getWaterHeight() {
-		return waterHeight;
-	}
+//	private double getWaterHeight() {
+//		return waterHeight;
+//	}
 
 	void setWaterHeight(int newHeight) {
 		this.waterHeight = newHeight * singleDirt;

@@ -14,6 +14,9 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
+/**
+ * Panel to render the map in the window. Contains mouse input listeners for interaction.
+ */
 public class MapPanel extends JPanel {
 
 	private static final long serialVersionUID = -6072723167611034006L;
@@ -136,29 +139,29 @@ public class MapPanel extends JPanel {
 
 	}
 
-	public void setPaintingMode(boolean mode) {
+	void setPaintingMode(boolean mode) {
 		isBiomePaintingMode = mode;
 	}
-	
-	public void setRiverPaintingMode(boolean mode) {
+
+	void setRiverPaintingMode(boolean mode) {
 		isRiverPaintingMode = mode;
 	}
-	
-	public ArrayList<Point> getRiverSeeds() {
+
+	ArrayList<Point> getRiverSeeds() {
 		return riverSeeds;
 	}
-	
-	public void clearRiverSeeds() {
+
+	void clearRiverSeeds() {
 		riverSeeds.clear();
 		repaint();
 	}
 
-	public void showGrid(boolean show) {
+	void showGrid(boolean show) {
 		showGrid = show;
 		repaint();
 	}
 
-	public void updateScale() {
+	void updateScale() {
 		if(this.getWidth() < this.getHeight())
 			this.minScale = (double)this.getWidth() / (double)mapImage.getWidth();
 		if(this.getHeight() < this.getWidth())
@@ -175,7 +178,7 @@ public class MapPanel extends JPanel {
 		return (int)Math.round(this.mapImage.getHeight() * this.scale);
 	}
 
-	public void checkBounds() {
+	void checkBounds() {
 		int wH = this.getHeight();
 		int wW = this.getWidth();
 		int iH = this.getImageHeight();
@@ -220,14 +223,14 @@ public class MapPanel extends JPanel {
 		for (Point p:riverSeeds) {
 			g.fillOval((int)(p.x*scale+imageX)-riverMarker/2, (int)(p.y*scale+imageY)-riverMarker/2, riverMarker, riverMarker);
 		}
-		
+
 		if (showMarker) {
 			g.setColor(Color.RED);
 			g.fillOval((int)((markerOffsetX*scale)+imageX)-4, (int)((markerOffsetY*scale)+imageY)-4, 8, 8);
 		}
 	}
 
-	public void setMapSize(int newMapSize) {
+	void setMapSize(int newMapSize) {
 		mapSize = newMapSize;
 
 		if (mapImage != null)
@@ -238,7 +241,7 @@ public class MapPanel extends JPanel {
 		scale = minScale;
 	}
 
-	public void setMapImage(BufferedImage newImage) {
+	void setMapImage(BufferedImage newImage) {
 		int newSize = newImage.getWidth();
 		int oldSize = mapImage.getWidth();
 		if (mapImage != null)
@@ -250,18 +253,18 @@ public class MapPanel extends JPanel {
 			scale = minScale;
 	}
 
-	public BufferedImage getMapImage() {
+	BufferedImage getMapImage() {
 		return mapImage;
 	}
 
-	public void setGridSize(int size) {
+	void setGridSize(int size) {
 		if (size <= 0)
 			size = 1;
 		gridSize = size;
 		repaint();
 	}
 
-	public int getMapSize() {
+	int getMapSize() {
 		return mapSize;
 	}
 }

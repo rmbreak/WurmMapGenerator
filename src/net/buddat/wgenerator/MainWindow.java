@@ -1,8 +1,5 @@
 package net.buddat.wgenerator;
 
-import java.awt.Color;
-import java.awt.EventQueue;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
@@ -17,34 +14,17 @@ import com.wurmonline.wurmapi.api.WurmAPI;
 import net.buddat.wgenerator.util.Constants;
 import net.buddat.wgenerator.util.StreamCapturer;
 
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import java.awt.Font;
-import java.awt.Graphics;
+import java.awt.*;
 
 import javax.imageio.ImageIO;
-import java.awt.GridLayout;
-import java.awt.Point;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import org.eclipse.wb.swing.FocusTraversalOnArray;
-import java.awt.Component;
-import javax.swing.JScrollPane;
 
 public class MainWindow extends JFrame {
 
@@ -58,9 +38,9 @@ public class MainWindow extends JFrame {
 	private MapPanel mapPanel;
 	private String mapName;
 	private String actionsFileDirectory;
-	private JPanel contentPane;
 	private Constants.VIEW_TYPE defaultView = Constants.VIEW_TYPE.HEIGHT;
 
+	private JPanel contentPane;
 	private JTextField textField_mapSeed;
 	private JTextField textField_mapResolution;
 	private JTextField textField_mapMinEdge;
@@ -147,7 +127,6 @@ public class MainWindow extends JFrame {
 	private JTextField textField_riverSlope;
 	private JButton btnResetRivers;
 	private JCheckBox checkbox_autoDropDirt;
-
 
 
 	public static void main(String[] args) {
@@ -244,7 +223,6 @@ public class MainWindow extends JFrame {
 		textArea_Errors = new JTextArea();
 		errorPanel.add(new JScrollPane(textArea_Errors));
 		textArea_Errors.setEditable(false);
-		mainPanel.setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{mapPanel, errorPanel}));
 
 		JPanel panel_25 = new JPanel();
 
@@ -1225,7 +1203,6 @@ public class MainWindow extends JFrame {
 	}
 
 
-
 	private void init() {
 		setupButtonActions();
 		setRockTotal();
@@ -1485,7 +1462,7 @@ public class MainWindow extends JFrame {
 	}
 
 
-	public void actionGenerateHeightmap () {
+	void actionGenerateHeightmap () {
 
 		startLoading("Generating Height Map ()");
 		try {
@@ -1498,10 +1475,15 @@ public class MainWindow extends JFrame {
 
 			mapPanel.setMapSize((int) comboBox_mapSize.getSelectedItem());
 
-			newHeightMap(textField_mapSeed.getText().hashCode(), (int) comboBox_mapSize.getSelectedItem(), 
+			heightMap = new HeightMap(textField_mapSeed.getText().hashCode(), (int) comboBox_mapSize.getSelectedItem(), 
 					Double.parseDouble(textField_mapResolution.getText()), Integer.parseInt(textField_mapIterations.getText()), 
 					Integer.parseInt(textField_mapMinEdge.getText()), Double.parseDouble(textField_mapBorderWeight.getText()), 
 					Integer.parseInt(textField_mapMaxHeight.getText()), checkbox_moreLand.isSelected());
+
+			heightMap.generateHeights(progressBar); 
+
+			defaultView = Constants.VIEW_TYPE.HEIGHT;
+			updateMapView();
 
 			genHistory.add("HEIGHTMAP:" + textField_mapSeed.getText() + "," + comboBox_mapSize.getSelectedIndex() + "," + textField_mapResolution.getText() + "," +
 					textField_mapIterations.getText() + "," + textField_mapMinEdge.getText() + "," + textField_mapBorderWeight.getText() + "," +
@@ -1513,7 +1495,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionErodeHeightmap () {
+	void actionErodeHeightmap () {
 		if (heightMap == null) {
 			JOptionPane.showMessageDialog(null, "HeightMap does not exist", "Error Eroding HeightMap", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1534,7 +1516,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionDropDirt () {
+	void actionDropDirt () {
 		if (heightMap == null) {
 			JOptionPane.showMessageDialog(null, "HeightMap does not exist", "Error Dropping Dirt", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1560,7 +1542,8 @@ public class MainWindow extends JFrame {
 			updateMapView();
 
 			genHistory.add("DROPDIRT:" + textField_biomeSeed.getText() + "," + textField_waterHeight.getText() + "," + textField_dirtPerTile.getText() + "," +
-					textField_maxDirtSlope.getText() + "," + textField_maxDiagSlope.getText() + "," + textField_maxDirtHeight.getText() + "," + Double.parseDouble(textField_cliffRatio.getText()));
+					textField_maxDirtSlope.getText() + "," + textField_maxDiagSlope.getText() + "," + textField_maxDirtHeight.getText() + "," + 
+					Double.parseDouble(textField_cliffRatio.getText()) + "," + checkBox_landSlide.isSelected());
 		} catch (NumberFormatException nfe) {
 			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Dropping Dirt", JOptionPane.ERROR_MESSAGE);
 		} finally {
@@ -1568,7 +1551,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionUpdateWater () {
+	void actionUpdateWater () {
 		if (heightMap == null) {
 			JOptionPane.showMessageDialog(null, "HeightMap does not exist", "Error Updating Water", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1594,7 +1577,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionGenerateRivers () {
+	void actionGenerateRivers () {
 		if (tileMap == null) {
 			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Adding Biome", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1623,7 +1606,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionSeedBiome (Point origin) {
+	void actionSeedBiome (Point origin) {
 		if (tileMap == null) {
 			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Adding Biome", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1694,7 +1677,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionUndoBiome () {
+	void actionUndoBiome () {
 		if (tileMap == null) {
 			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Resetting Biomes", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1713,7 +1696,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionResetBiomes () {
+	void actionResetBiomes () {
 		if (tileMap == null) {
 			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Resetting Biomes", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1737,7 +1720,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionGenerateOres () {
+	void actionGenerateOres () {
 		if (tileMap == null) {
 			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Resetting Biomes", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1773,7 +1756,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionViewMap () {
+	void actionViewMap () {
 		if (tileMap == null) {
 			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Showing Map", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1788,7 +1771,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionViewTopo () {
+	void actionViewTopo () {
 		if (tileMap == null) {
 			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Showing Map", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1803,7 +1786,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionViewCave () {
+	void actionViewCave () {
 		if (tileMap == null) {
 			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Showing Map", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1823,7 +1806,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionViewHeightmap () {
+	void actionViewHeightmap () {
 		if (heightMap == null) {
 			JOptionPane.showMessageDialog(null, "HeightMap does not exist", "Error Showing Map", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1838,7 +1821,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionSaveImages () {
+	void actionSaveImages () {
 		if (tileMap == null) {
 			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Saving Images", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1859,7 +1842,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionSaveMap () {
+	void actionSaveMap () {
 		if (tileMap == null) {
 			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Saving Map", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1877,7 +1860,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionSaveActions () {
+	void actionSaveActions () {
 		if (tileMap == null) {
 			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Saving Map", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1912,7 +1895,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionLoadActions () {
+	void actionLoadActions () {
 
 		startLoading("Loading Actions");
 		try {
@@ -1945,31 +1928,20 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionLoadHeightmap () {
-
+	void actionLoadHeightmap (File heightImageFile) {
 		startLoading("Loading Heightmap");
 		try {
-			File heightImageFile;
-
-			JFileChooser fc = new JFileChooser();
-			fc.addChoosableFileFilter(new ImageFileView());
-			fc.setAcceptAllFileFilterUsed(false);
-			fc.setCurrentDirectory(new File("./maps/"));
-
-			int returnVal = fc.showDialog(this, "Load Heightmap");
-			if (returnVal != JFileChooser.APPROVE_OPTION) {
-				return;
-			}
-
-			heightImageFile = fc.getSelectedFile();
-
+			int mapSize = (int)comboBox_mapSize.getSelectedItem();
 			api = null;
 			genHistory = new ArrayList<String>();
+			BufferedImage heightImage = new BufferedImage(mapSize, mapSize, BufferedImage.TYPE_USHORT_GRAY);
+			heightImage = ImageIO.read(heightImageFile);
+			mapPanel.setMapSize(mapSize);
+			heightMap = new HeightMap(heightImage, mapSize, Integer.parseInt(textField_mapMaxHeight.getText()));
 
-			newHeightMap(heightImageFile, (int)comboBox_mapSize.getSelectedItem(), Integer.parseInt(textField_mapMaxHeight.getText()));
+			updateMapView();
 
-			genHistory.add("IMPORTHEIGHTMAP:" + fc.getSelectedFile().getName() + 
-					"," + comboBox_mapSize.getSelectedIndex() + "," + textField_mapMaxHeight.getText());
+			genHistory.add("IMPORTHEIGHTMAP:" + heightImageFile.getName() + "," + comboBox_mapSize.getSelectedIndex() + "," + textField_mapMaxHeight.getText());
 
 		} catch (NumberFormatException | IOException nfe) {
 			JOptionPane.showMessageDialog(this, "Error loading file " + nfe.getMessage().toLowerCase(), "Error Loading Heightmap", JOptionPane.ERROR_MESSAGE);
@@ -1978,7 +1950,24 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void actionSaveHeightmap () {
+	void actionLoadHeightmap () {
+		File heightImageFile;
+
+		JFileChooser fc = new JFileChooser();
+		fc.addChoosableFileFilter(new ImageFileView());
+		fc.setAcceptAllFileFilterUsed(false);
+		fc.setCurrentDirectory(new File("./maps/"));
+
+		int returnVal = fc.showDialog(this, "Load Heightmap");
+		if (returnVal != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
+		heightImageFile = fc.getSelectedFile();
+
+		actionLoadHeightmap(heightImageFile);
+	}
+
+	void actionSaveHeightmap () {
 		if (heightMap == null) {
 			JOptionPane.showMessageDialog(this, "Heightmap does not exist - Generate one first", "Error Saving Heightmap", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1987,17 +1976,6 @@ public class MainWindow extends JFrame {
 		startLoading("Saving Heightmap");
 		heightMap.exportHeightImage(mapName);
 		stopLoading();
-	}
-
-	public void newHeightMap(File heightImageFile, int mapSize, int maxHeight) throws IOException {
-
-		BufferedImage heightImage = new BufferedImage(mapSize, mapSize, BufferedImage.TYPE_USHORT_GRAY);
-		heightImage = ImageIO.read(heightImageFile);
-		mapPanel.setMapSize(mapSize);
-		heightMap = new HeightMap(heightImage, mapSize, maxHeight);
-		heightMap.importHeightImage();
-
-		updateMapView();
 	}
 
 	private WurmAPI getAPI() {
@@ -2013,15 +1991,6 @@ public class MainWindow extends JFrame {
 			}
 
 		return api;
-	}
-
-	public void newHeightMap(long seed, int mapSize, double resolution, int iterations, int minEdge, double borderWeight, int maxHeight, boolean moreLand) {
-		heightMap = new HeightMap(seed, mapSize, resolution, iterations, minEdge, borderWeight, maxHeight, moreLand);
-
-		heightMap.generateHeights(progressBar); 
-
-		defaultView = Constants.VIEW_TYPE.HEIGHT;
-		updateMapView();
 	}
 
 
@@ -2147,7 +2116,7 @@ public class MainWindow extends JFrame {
 			actionErodeHeightmap();
 			break;
 		case "DROPDIRT":
-			if (options.length != 7) {
+			if (options.length != 8) {
 				JOptionPane.showMessageDialog(null, "Not enough options for DROPDIRT", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
@@ -2159,6 +2128,7 @@ public class MainWindow extends JFrame {
 			textField_maxDiagSlope.setText(options[4]);
 			textField_maxDirtHeight.setText(options[5]);
 			textField_cliffRatio.setText(options[6]);
+			checkBox_landSlide.setSelected(Boolean.parseBoolean(options[7]));
 			checkbox_biomeRandomSeed.setSelected(false);
 			textField_biomeSeed.setEnabled(true);
 
@@ -2215,7 +2185,7 @@ public class MainWindow extends JFrame {
 				api = null;
 				genHistory = new ArrayList<String>();
 
-				newHeightMap(heightImageFile, (int)comboBox_mapSize.getSelectedItem(), Integer.parseInt(textField_mapMaxHeight.getText()));
+				actionLoadHeightmap(heightImageFile);
 
 				genHistory.add("IMPORTHEIGHTMAP:" + heightImageFile.getName() + 
 						"," + comboBox_mapSize.getSelectedIndex() + "," + textField_mapMaxHeight.getText());
@@ -2373,6 +2343,7 @@ public class MainWindow extends JFrame {
 
 		}
 	}
+
 
 	public void updateMapCoords (int x, int y, boolean show) {
 		if (show && tileMap != null) {
