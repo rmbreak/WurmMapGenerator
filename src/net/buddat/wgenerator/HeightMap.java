@@ -230,8 +230,8 @@ public class HeightMap {
 	}
 
 	void erodeArea(int x, int y, int size, int minSlope, int maxSlope, int sedimentMax) {
-		for (int i = x; i < size; i++) {
-			for (int j = y; j < size; j++) {
+		for (int i = Math.max(0,x); i < Math.min(mapSize,x+size); i++) {
+			for (int j = Math.max(0, y); j < Math.min(mapSize,y+size); j++) {
 				double neighbours[] = new double[4];
 				double currentTile = heightArray[i][j];
 
@@ -323,12 +323,15 @@ public class HeightMap {
 		if (slope <= 0)
 			slope = 1;
 		int size = baseWidth-1;
+//		boolean keepDigging = false;
 		while (getHeight(ox, oy) > water) {
-			double dig = slope*singleDirt/2.0;
+			double dig = slope*singleDirt;
 			for (int x = ox-size; x <= ox+size; x++) {
 				for (int y = oy-size; y <= oy+size; y++) {
-					if (x < 0 || x >= mapSize || y < 0 || y >= mapSize || getHeight(x,y) < water )
+					if (x < 0 || x >= mapSize || y < 0 || y >= mapSize ) {
+//						stopDigging = true;
 						continue;
+					}
 					if (Math.sqrt(Math.pow(x-ox, 2)+Math.pow(y-oy, 2)) <= size)
 						setHeight(x,y,getHeight(x,y)-dig,false);
 				}
@@ -336,7 +339,7 @@ public class HeightMap {
 			size++;
 		}
 		for (int i=0; i<size; i++) {
-			erodeArea(ox,oy,size,0,slope,slope);
+			erodeArea(ox-size,oy-size,size*2+1,0,slope,slope);
 		}
 
 	}
