@@ -6,9 +6,9 @@ package net.buddat.wgenerator.util;
  * Class containing all default settings for a new map generation.
  */
 public class Constants {
-	
+
+	public static final String version = "2.5.3";
 	public static final String WINDOW_TITLE = "WGenerator - Map Generator for Wurm Unlimited";
-	public static final int WINDOW_SIZE = 768;
 	
 	public static final int MAP_SIZE = 2048;
 	public static final float MAP_HEIGHT = 4096f;
@@ -31,7 +31,7 @@ public class Constants {
 
 	public static final int RIVER_DEPTH = 40;
 	public static final int RIVER_WIDTH = 6;
-	public static final int RIVER_SLOPE = 12;
+	public static final int RIVER_SLOPE = 4;
 	
 	public static final int EROSION_ITERATIONS = 30;
 	public static final int ROCK_WEIGHT = 3800;

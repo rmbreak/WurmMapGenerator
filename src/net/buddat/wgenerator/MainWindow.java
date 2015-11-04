@@ -50,7 +50,6 @@ public class MainWindow extends JFrame {
 
 	private static final long serialVersionUID = -407206109473532425L;
 
-	private static final String version = "2.5.2";
 	private WurmAPI api;
 	private HeightMap heightMap;
 	private TileMap tileMap;
@@ -172,7 +171,7 @@ public class MainWindow extends JFrame {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public MainWindow() {
-		setTitle("Wurm Map Generator - v"+version);
+		setTitle("Wurm Map Generator - v"+Constants.version);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 951, 650);
 		contentPane = new JPanel();
@@ -532,7 +531,7 @@ public class MainWindow extends JFrame {
 		erosionPanel.setLayout(gl_erosionPanel);
 
 		JPanel dropDirtPanel = new JPanel();
-		optionsPane.addTab("Drop Dirt", null, dropDirtPanel, null);
+		optionsPane.addTab("Dirt / Water", null, dropDirtPanel, null);
 		optionsPane.setEnabledAt(2, true);
 
 		JPanel panel_9 = new JPanel();
@@ -1126,7 +1125,7 @@ public class MainWindow extends JFrame {
 		orePanel.setLayout(gl_orePanel);
 
 		JPanel actionPanel = new JPanel();
-		optionsPane.addTab("Actions/Export", null, actionPanel, null);
+		optionsPane.addTab("Actions / Export", null, actionPanel, null);
 		optionsPane.setEnabledAt(5, true);
 
 		JPanel panel_24 = new JPanel();
@@ -1561,7 +1560,7 @@ public class MainWindow extends JFrame {
 			updateMapView();
 
 			genHistory.add("DROPDIRT:" + textField_biomeSeed.getText() + "," + textField_waterHeight.getText() + "," + textField_dirtPerTile.getText() + "," +
-					textField_maxDirtSlope.getText() + "," + textField_maxDiagSlope.getText() + "," + textField_maxDirtHeight.getText());
+					textField_maxDirtSlope.getText() + "," + textField_maxDiagSlope.getText() + "," + textField_maxDirtHeight.getText() + "," + Double.parseDouble(textField_cliffRatio.getText()));
 		} catch (NumberFormatException nfe) {
 			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Dropping Dirt", JOptionPane.ERROR_MESSAGE);
 		} finally {
@@ -1594,7 +1593,6 @@ public class MainWindow extends JFrame {
 			stopLoading();
 		}
 	}
-
 
 	public void actionGenerateRivers () {
 		if (tileMap == null) {
@@ -2149,7 +2147,7 @@ public class MainWindow extends JFrame {
 			actionErodeHeightmap();
 			break;
 		case "DROPDIRT":
-			if (options.length != 6) {
+			if (options.length != 7) {
 				JOptionPane.showMessageDialog(null, "Not enough options for DROPDIRT", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
@@ -2160,6 +2158,7 @@ public class MainWindow extends JFrame {
 			textField_maxDirtSlope.setText(options[3]);
 			textField_maxDiagSlope.setText(options[4]);
 			textField_maxDirtHeight.setText(options[5]);
+			textField_cliffRatio.setText(options[6]);
 			checkbox_biomeRandomSeed.setSelected(false);
 			textField_biomeSeed.setEnabled(true);
 

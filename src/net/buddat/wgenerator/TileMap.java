@@ -79,12 +79,12 @@ public class TileMap {
 							continue;
 						}
 
-						if (heightMap.getHeight(x, y) + dirtMap[x][y]*singleDirt > maxHeight) {
+						if (getTileHeight(x,y) > maxHeight) {
 							continue;
 						}
 
-						if (heightMap.getHeight(x, y) + dirtMap[x][y] > taperHeight) {
-							if ((maxHeight - heightMap.getHeight(x, y) - dirtMap[x][y]) * heightMap.getMaxHeight() < dirtCount/2) {
+						if (getTileHeight(x,y) > taperHeight) {
+							if (getTileHeight(x,y)/singleDirt + dirtCount/2 > maxDirtHeight) {
 								continue;
 							}
 						}
@@ -122,13 +122,9 @@ public class TileMap {
 
 
 	private int findDropAmount(int x, int y, double maxSlope, double maxDiagSlope, int dirtCount, double cliffRatio) {
-		double slope  = (heightMap.maxDiff(x, y) / singleDirt * cliffRatio);
-		double slopeMax = (maxSlope + maxDiagSlope) / 2.0;
-
-		int dirtToDrop = (int)(dirtCount - ((dirtCount / slopeMax) * slope));
-		if (dirtToDrop < 0)
-			dirtToDrop = 0;
-		
+		double slope  = (heightMap.maxDiff(x, y)) / singleDirt * cliffRatio;
+		double slopeMax = (maxSlope +maxDiagSlope) / 2.0;
+		int dirtToDrop = Math.max(0,(int)(dirtCount - ((dirtCount / slopeMax) * slope)));
 		return dirtToDrop;
 	}
 

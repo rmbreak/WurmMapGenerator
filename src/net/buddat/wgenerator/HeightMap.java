@@ -31,9 +31,9 @@ public class HeightMap {
 	private int borderCutoff;
 	private float borderNormalize;
 	private double singleDirt;
-	
+
 	private BufferedImage heightImage;
-	
+
 	public HeightMap(long seed, int mapSize, double resolution, int iterations, int minimumEdge, double borderWeight, int maxHeight, boolean moreLand) {
 		this.noiseSeed = seed;
 		this.mapSize = mapSize;
@@ -42,14 +42,14 @@ public class HeightMap {
 		this.minimumEdge = minimumEdge;
 		this.maxHeight = maxHeight;
 		this.moreLand = moreLand;
-		
+
 		this.heightArray = new double[mapSize][mapSize];
 		this.borderCutoff = (int) (mapSize / borderWeight);
 		this.borderNormalize = (float) (1.0f / borderCutoff);
-		
+
 		this.singleDirt = 1.0 / maxHeight;
 	}
-	
+
 	public HeightMap(BufferedImage heightImage, int mapSize, int maxHeight) {
 		this.noiseSeed = 0;
 		this.mapSize = mapSize;
@@ -61,12 +61,12 @@ public class HeightMap {
 		this.heightImage = heightImage;
 
 		this.heightArray = new double[mapSize][mapSize];
-		this.borderCutoff = (int) (mapSize / 1);
+		this.borderCutoff = mapSize;
 		this.borderNormalize = (float) (1.0f / borderCutoff);
 
 		this.singleDirt = 1.0 / maxHeight;
 	}
-	
+
 
 	void importHeightImage() {
 		if (heightImage.getHeight() != heightImage.getWidth())
@@ -128,7 +128,7 @@ public class HeightMap {
 			return;
 		}
 	}
-	
+
 
 	double maxDiff(int x, int y) {
 		double neighbours[] = new double[4];
@@ -148,7 +148,7 @@ public class HeightMap {
 		}
 		return maxDiff;
 	}
-	
+
 	/**
 	 *  Generates a full heightmap with the current instance's set values.
 	 *  Clamps the heightmap heights for the last iteration only.
@@ -156,33 +156,33 @@ public class HeightMap {
 	void generateHeights(JProgressBar progress) {
 		log("HeightMap seed set to: " + noiseSeed);
 		SimplexNoise.genGrad(noiseSeed);
-		
+
 		long startTime = System.currentTimeMillis();
 		for (int i = 0; i < iterations; i++) {
 			int progressValue = (int)((float)i/iterations*100f); 
 			long predict = (int)((System.currentTimeMillis()-startTime)/1000.0*(100.0/progressValue-1));
-            progress.setValue(progressValue);
-            progress.setString(progress.getString().substring(0, progress.getString().indexOf("("))+"("+predict+" secs)");
-            
+			progress.setValue(progressValue);
+			progress.setString(progress.getString().substring(0, progress.getString().indexOf("("))+"("+predict+" secs)");
+
 			double iRes = resolution / Math.pow(2, i - 1);
 			double str = Math.pow(2, i - 1) * 2.0;
-			
+
 			for (int x = 0; x < mapSize; x++) {
 				for (int y = 0; y < mapSize; y++) {
 					setHeight(x, y, getHeight(x, y) + SimplexNoise.noise(x / iRes, y / iRes) / str, (i == iterations - 1));
 				}
 			}
 		}
-		
+
 		log("HeightMap Generation (" + mapSize + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
-		
+
 		normalizeHeights();
 	}
-	
-	
+
+
 	private void normalizeHeights() {
 		long startTime = System.currentTimeMillis();
-		
+
 		double maxHeight = 0.0f;
 		for (int i = 0; i < mapSize; i++) {
 			for (int j = 0; j < mapSize; j++) {
@@ -191,14 +191,14 @@ public class HeightMap {
 				}
 			}
 		}
-		
+
 		double normalize = 1.0f / maxHeight;
 		for (int i = 0; i < mapSize; i++) {
 			for (int j = 0; j < mapSize; j++) {
 				setHeight(i, j, getHeight(i, j) * normalize, false);
 			}
 		}
-		
+
 		double normalizeLow = 1.0 / 0.5;
 		double normalizeHigh = 2.0f / 0.5;
 		for (int i = 0; i < mapSize; i++) {
@@ -211,63 +211,66 @@ public class HeightMap {
 				}
 			}
 		}
-		
+
 		log("HeightMap Normalization (" + mapSize + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
-	
+
+
 	void erode(int iterations, int minSlope, int maxSlope, int sedimentMax, JProgressBar progress) {
 		long startTime = System.currentTimeMillis();
-		
+
 		for (int iter = 0; iter < iterations; iter++) {
-            
 			int progressValue = (int)((float)iter/iterations*100f); 
 			long predict = (int)((System.currentTimeMillis()-startTime)/1000.0*(100.0/progressValue-1));
-            progress.setValue(progressValue);
-            progress.setString(progress.getString().substring(0, progress.getString().indexOf("("))+"("+predict+" secs)");
-            
-			for (int i = 0; i < mapSize; i++) {
-				for (int j = 0; j < mapSize; j++) {
-					double neighbours[] = new double[4];
-					double currentTile = heightArray[i][j];
-					
-					neighbours[0] = heightArray[clamp(i - 1, 0, mapSize - 1)][j];
-					neighbours[1] = heightArray[i][clamp(j - 1, 0, mapSize - 1)];
-					neighbours[2] = heightArray[clamp(i + 1, 0, mapSize - 1)][j];
-					neighbours[3] = heightArray[i][clamp(j + 1, 0, mapSize - 1)];
-					
-					int lowest = 0;
-					double maxDiff = 0.0;
-					for (int k = 0; k < 3; k++) {
-						double diff = currentTile - neighbours[k];
-						if (diff > maxDiff) {
-							maxDiff = diff;
-							lowest = k;
-						}
+			progress.setValue(progressValue);
+			progress.setString(progress.getString().substring(0, progress.getString().indexOf("("))+"("+predict+" secs)");
+
+			erodeArea(0,0,mapSize,minSlope,maxSlope,sedimentMax);
+		}
+		log("HeightMap Erosion (" + iterations + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+	}
+
+	void erodeArea(int x, int y, int size, int minSlope, int maxSlope, int sedimentMax) {
+		for (int i = x; i < size; i++) {
+			for (int j = y; j < size; j++) {
+				double neighbours[] = new double[4];
+				double currentTile = heightArray[i][j];
+
+				neighbours[0] = heightArray[clamp(i - 1, 0, mapSize - 1)][j];
+				neighbours[1] = heightArray[i][clamp(j - 1, 0, mapSize - 1)];
+				neighbours[2] = heightArray[clamp(i + 1, 0, mapSize - 1)][j];
+				neighbours[3] = heightArray[i][clamp(j + 1, 0, mapSize - 1)];
+
+				int lowest = 0;
+				double maxDiff = 0.0;
+				for (int k = 0; k < 3; k++) {
+					double diff = currentTile - neighbours[k];
+					if (diff > maxDiff) {
+						maxDiff = diff;
+						lowest = k;
 					}
-					
-					double sediment = 0.0;
-					if (maxDiff > minSlope * singleDirt && maxDiff < maxSlope * singleDirt) {
-						sediment = (sedimentMax * singleDirt) * maxDiff;
-						currentTile -= sediment;
-						neighbours[lowest] += sediment;
-					}
-					
-					setHeight(i, j, currentTile, false);
-					setHeight(clamp(i - 1, 0, mapSize - 1), j, neighbours[0], false);
-					setHeight(i, clamp(j - 1, 0, mapSize - 1), neighbours[1], false);
-					setHeight(clamp(i + 1, 0, mapSize - 1), j, neighbours[2], false);
-					setHeight(i, clamp(j + 1, 0, mapSize - 1), neighbours[3], false);
 				}
+
+				double sediment = 0.0;
+				if (maxDiff > minSlope * singleDirt && maxDiff < maxSlope * singleDirt) {
+					sediment = (sedimentMax * singleDirt) * maxDiff;
+					currentTile -= sediment;
+					neighbours[lowest] += sediment;
+				}
+
+				setHeight(i, j, currentTile, false);
+				setHeight(clamp(i - 1, 0, mapSize - 1), j, neighbours[0], false);
+				setHeight(i, clamp(j - 1, 0, mapSize - 1), neighbours[1], false);
+				setHeight(clamp(i + 1, 0, mapSize - 1), j, neighbours[2], false);
+				setHeight(i, clamp(j + 1, 0, mapSize - 1), neighbours[3], false);
 			}
 		}
-		
-		log("HeightMap Erosion (" + iterations + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 
 	double getHeight(int x, int y) {
 		return heightArray[x][y];
 	}
-	
+
 	/**
 	 * @param x Location x
 	 * @param y Location y
@@ -280,13 +283,13 @@ public class HeightMap {
 			newHeight = (moreLand ? -1d : 0);
 		if (newHeight > 1d)
 			newHeight = 1d;
-		
+
 		heightArray[x][y] = newHeight;
-		
+
 		if (clamp) {
 			if (moreLand)
 				heightArray[x][y] = (heightArray[x][y] + 1) * 0.5d;
-			
+
 			if (x <= borderCutoff + minimumEdge || y <= borderCutoff + minimumEdge) {
 				if (x < y)
 					heightArray[x][y] *= Math.max(0, ((Math.min(x, mapSize - y) - minimumEdge)) * borderNormalize);
@@ -296,28 +299,28 @@ public class HeightMap {
 				heightArray[x][y] *= Math.max(0, ((Math.min(mapSize - x, mapSize - y) - minimumEdge)) * borderNormalize);
 			}
 		}
-		
+
 		return heightArray[x][y];
 	}
 
-	
+
 	int getMaxHeight() {
 		return maxHeight;
 	}
 
-	
+
 	int getMapSize() {
 		return mapSize;
 	}
-	
+
 	double getSingleDirt() {
 		return singleDirt;
 	}
-	
+
 	static int clamp(int val, int min, int max) {
-	    return Math.max(min, Math.min(max, val));
+		return Math.max(min, Math.min(max, val));
 	}
-	
+
 	void createPond(int ox, int oy, double water, int baseWidth, int slope) {
 		if (water <= 0)
 			water = 0;
@@ -325,7 +328,7 @@ public class HeightMap {
 			slope = 1;
 		int size = baseWidth-1;
 		while (getHeight(ox, oy) > water) {
-			double dig = slope*singleDirt;
+			double dig = slope*singleDirt/2.0;
 			for (int x = ox-size; x <= ox+size; x++) {
 				for (int y = oy-size; y <= oy+size; y++) {
 					if (x < 0 || x >= mapSize || y < 0 || y >= mapSize || getHeight(x,y) < water )
@@ -336,9 +339,12 @@ public class HeightMap {
 			}
 			size++;
 		}
-		
+		for (int i=0; i<size; i++) {
+			erodeArea(ox,oy,size,0,slope,slope);
+		}
+
 	}
-	
+
 	private static void log (String s) {
 		System.out.println(s);
 	}
