@@ -7,11 +7,11 @@ public class Constants {
 
 	public static final String version = "2.6";
 	public static final String WINDOW_TITLE = "WGenerator - Map Generator for Wurm Unlimited";
-	
+
 	public static final int MAP_SIZE = 2048;
 	public static final int MAP_HEIGHT = 4096;
 	public static final int RESOLUTION = MAP_SIZE / 8;
-	
+
 	public static final int HEIGHTMAP_ITERATIONS = 10;
 	public static final int MIN_EDGE = 64;
 	public static final int BORDER_WEIGHT = 6;
@@ -21,7 +21,7 @@ public class Constants {
 	public static final int EROSION_MIN_SLOPE = 30;
 	public static final int EROSION_MAX_SLOPE = 300;
 	public static final int EROSION_MAX_SEDIMENT = 100;
-	
+
 	public static final int DIRT_DROP_COUNT = 40;
 	public static final int MAX_DIRT_SLOPE = 40;
 	public static final int MAX_DIRT_DIAG_SLOPE = 56;
@@ -33,7 +33,7 @@ public class Constants {
 	public static final int RIVER_DEPTH = 40;
 	public static final int RIVER_WIDTH = 2;
 	public static final int RIVER_SLOPE = 4;
-	
+
 	public static final int GRASS_ITERATIONS = 50;
 	public static final int BIOME_RATE = 60;
 	public static final int BIOME_MAX_SLOPE = 20;
@@ -44,13 +44,14 @@ public class Constants {
 	public static final int BIOME_MAX_HEIGHT = 50;
 	public static final int BIOME_RANDOM_MIN = 50;
 	public static final int BIOME_RANDOM_MAX = 75;
-	
+
 	public static final double ORE_IRON = 1.0, ORE_GOLD = 0.05, ORE_SILVER = 0.1, ORE_ZINC = 0.15, 
 			ORE_COPPER = 0.2, ORE_LEAD = 0.2, ORE_TIN = 0.2, ORE_ADDY = 0.0, ORE_GLIMMER = 0.0, ORE_MARBLE = 0.2, ORE_SLATE = 0.2;
-	
+
 	public static final int GRID_SIZE = 8;
 	public static final int BIOME_SEED_LIMIT_MULTIPLIER = 10000;
-	
+
 	public static enum VIEW_TYPE {ISO,TOPO,CAVE,HEIGHT};
-	
+	public static String CONFIG_DIRECTORY = "./config/";
+
 }

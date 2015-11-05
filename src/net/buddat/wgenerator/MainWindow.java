@@ -22,8 +22,7 @@ import javax.imageio.ImageIO;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
 public class MainWindow extends JFrame {
@@ -132,43 +131,44 @@ public class MainWindow extends JFrame {
 	private JTextField textField_normalizeRatio;
 	private JButton btnUndoRiver;
 
-	private static String[][] BiomeOptionValue = {       //Count,Size,MaxSlope,RateN,RateS,RateE,RateW,MinHeight,Maxheight,GrowtRandom,GrowMin,GrowMax,AroundWater,Density  
-            {"1500","5","15","70","70","70","70","450","520","true","50","80","false","1"},  //TILE_CLAY
-            {"100","3","40","70","70","70","70","450","4000","true","50","80","false","1"},  //TILE_DIRT
-            {"10","2","10","70","70","70","70","550","1500","true","50","80","false","1"},  //TILE_DIRT_PACKED
-            {"50","10","40","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_GRASS
-            {"10","2","30","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_GRAVEL
-            {"100","5","20","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_KELP
-            {"5","1","140","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_LAVA
-            {"100","5","20","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_MARSH
-            {"100","3","20","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_MOSS
-            {"100","3","20","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_MYCELIUM
-            {"50","5","20","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_PEAT
-            {"100","5","20","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_REED
-            {"1000","100","30","70","70","70","70","450","550","true","50","80","false","1"},  //TILE_SAND
-            {"10","50","30","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_STEPPE
-            {"200","1","30","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_TAR
-            {"10","50","30","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_TUNDRA
-            {"250","2","20","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_TREE_APPLE
-            {"30","20","40","40","40","40","40","500","4000","true","50","80","false","1"},  //TILE_TREE_BIRCH
-            {"30","20","20","40","40","40","40","500","4000","true","50","80","false","1"},  //TILE_TREE_CEDAR
-            {"250","2","20","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_TREE_CHERRY
-            {"5","100","30","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_TREE_CHESTNUT
-            {"30","20","50","40","40","40","40","500","4000","true","50","80","false","1"},  //TILE_TREE_FIR
-            {"250","2","20","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_TREE_LEMON
-            {"30","20","20","40","40","40","40","500","4000","true","50","80","false","1"},  //TILE_TREE_LINDEN
-            {"30","20","30","40","40","40","40","500","4000","true","50","80","false","1"},  //TILE_TREE_MAPLE
-            {"250","1","20","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_TREE_OAK
-            {"30","20","30","40","40","40","40","500","4000","true","50","80","false","1"},  //TILE_TREE_OLIVE
-            {"30","20","50","40","40","40","40","500","4000","true","50","80","false","1"},  //TILE_TREE_PINE
-            {"30","20","20","40","40","40","40","500","4000","true","50","80","false","1"},  //TILE_TREE_WALNUT
-            {"250","1","20","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_TREE_WILLOW
-            {"500","1","40","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_BUSH_CAMELLIA
-            {"50","10","20","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_BUSH_GRAPE
-            {"500","1","30","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_BUSH_LAVENDER
-            {"500","1","30","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_BUSH_OLEANDER
-            {"500","1","30","70","70","70","70","500","4000","true","50","80","false","1"},  //TILE_BUSH_ROSE
-            {"500","1","50","70","70","70","70","500","4000","true","50","80","false","1"}}; //TILE_BUSH_THORN
+	private static String[][] biomeOptionValue = {       
+			//Count,Size,MaxSlope,RateN,RateS,RateE,RateW,MinHeight,Maxheight,GrowtRandom,GrowMin,GrowMax,AroundWater,Density  
+			{"500","5","20","70","70","70","70","20","20","true","50","80","true","1"},  //TILE_CLAY
+			{"100","3","40","70","70","70","70","50","4000","true","50","80","true","2"},  //TILE_DIRT
+			{"10","2","10","70","70","70","70","50","1000","true","50","80","true","1"},  //TILE_DIRT_PACKED
+			{"50","10","40","70","70","70","70","0","4000","true","50","80","true","2"},  //TILE_GRASS
+			{"10","2","30","70","70","70","70","0","4000","true","50","80","true","2"},  //TILE_GRAVEL
+			{"100","10","20","70","70","70","70","30","0","true","50","80","true","2"},  //TILE_KELP
+			{"5","1","140","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_LAVA
+			{"100","5","20","70","70","70","70","30","2","true","50","80","true","1"},  //TILE_MARSH
+			{"100","3","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_MOSS
+			{"100","3","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_MYCELIUM
+			{"50","5","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_PEAT
+			{"100","10","20","70","70","70","70","30","0","true","50","80","true","2"},  //TILE_REED
+			{"1000","100","30","70","70","70","70","50","50","true","50","80","true","1"},  //TILE_SAND
+			{"10","50","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_STEPPE
+			{"200","1","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TAR
+			{"10","50","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TUNDRA
+			{"250","2","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TREE_APPLE
+			{"30","20","40","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_BIRCH
+			{"30","20","20","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_CEDAR
+			{"250","2","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TREE_CHERRY
+			{"5","100","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TREE_CHESTNUT
+			{"30","20","50","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_FIR
+			{"250","2","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TREE_LEMON
+			{"30","20","20","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_LINDEN
+			{"30","20","30","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_MAPLE
+			{"250","1","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TREE_OAK
+			{"30","20","30","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_OLIVE
+			{"30","20","50","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_PINE
+			{"30","20","20","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_WALNUT
+			{"250","1","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TREE_WILLOW
+			{"500","1","40","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_CAMELLIA
+			{"50","10","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_GRAPE
+			{"500","1","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_LAVENDER
+			{"500","1","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_OLEANDER
+			{"500","1","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_ROSE
+			{"500","1","50","70","70","70","70","0","4000","true","50","80","true","1"}}; //TILE_BUSH_THORN
 
 
 	public static void main(String[] args) {
@@ -215,46 +215,46 @@ public class MainWindow extends JFrame {
 		JPanel mapCoordsPanel = new JPanel();
 
 		mainPanel = new JPanel();
-		
+
 		JPanel memoryPanel = new JPanel();
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
-			gl_contentPane.createParallelGroup(Alignment.TRAILING)
+				gl_contentPane.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-						.addComponent(mainPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(progressBar, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 641, Short.MAX_VALUE)
-						.addComponent(mapCoordsPanel, GroupLayout.DEFAULT_SIZE, 641, Short.MAX_VALUE)
-						.addComponent(viewPanel, GroupLayout.DEFAULT_SIZE, 641, Short.MAX_VALUE))
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING, false)
-						.addComponent(memoryPanel, GroupLayout.PREFERRED_SIZE, 315, GroupLayout.PREFERRED_SIZE)
-						.addComponent(optionsPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addContainerGap())
-		);
+						.addContainerGap()
+						.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+								.addComponent(mainPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(progressBar, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 641, Short.MAX_VALUE)
+								.addComponent(mapCoordsPanel, GroupLayout.DEFAULT_SIZE, 641, Short.MAX_VALUE)
+								.addComponent(viewPanel, GroupLayout.DEFAULT_SIZE, 641, Short.MAX_VALUE))
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING, false)
+								.addComponent(memoryPanel, GroupLayout.PREFERRED_SIZE, 315, GroupLayout.PREFERRED_SIZE)
+								.addComponent(optionsPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addContainerGap())
+				);
 		gl_contentPane.setVerticalGroup(
-			gl_contentPane.createParallelGroup(Alignment.TRAILING)
+				gl_contentPane.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addGap(6)
-					.addComponent(optionsPane, GroupLayout.DEFAULT_SIZE, 671, Short.MAX_VALUE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(memoryPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addGap(6)
+						.addComponent(optionsPane, GroupLayout.DEFAULT_SIZE, 671, Short.MAX_VALUE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addComponent(memoryPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(mapCoordsPanel, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(mainPanel, GroupLayout.DEFAULT_SIZE, 603, Short.MAX_VALUE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(viewPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-		);
+						.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addComponent(mapCoordsPanel, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addComponent(mainPanel, GroupLayout.DEFAULT_SIZE, 603, Short.MAX_VALUE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addComponent(viewPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+				);
 		memoryPanel.setLayout(new GridLayout(0, 2, 5, 0));
-		
+
 		JLabel lblMemoryUsage = new JLabel("Memory Usage:");
 		lblMemoryUsage.setHorizontalAlignment(SwingConstants.RIGHT);
 		memoryPanel.add(lblMemoryUsage);
-		
+
 		lblMemory = new JLabel("xx% of xxgb");
 		lblMemory.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		memoryPanel.add(lblMemory);
@@ -402,7 +402,7 @@ public class MainWindow extends JFrame {
 
 		JLabel lblMaxHeight = new JLabel("Max Height");
 		labelPanel.add(lblMaxHeight);
-		
+
 		JLabel lblNormalizeRatio = new JLabel("Normalize Ratio");
 		labelPanel.add(lblNormalizeRatio);
 
@@ -445,7 +445,7 @@ public class MainWindow extends JFrame {
 		textField_mapMaxHeight = new JTextField("" + Constants.MAP_HEIGHT);
 		inputPanel.add(textField_mapMaxHeight);
 		textField_mapMaxHeight.setColumns(10);
-		
+
 		textField_normalizeRatio = new JTextField("" + Constants.NORMALIZE_RATIO);
 		inputPanel.add(textField_normalizeRatio);
 		textField_normalizeRatio.setColumns(10);
@@ -626,7 +626,7 @@ public class MainWindow extends JFrame {
 		checkbox_autoDropDirt.setToolTipText("Drop dirt after generating rivers");
 		checkbox_autoDropDirt.setSelected(true);
 		panel_11.add(checkbox_autoDropDirt);
-		
+
 		JLabel label_7 = new JLabel("");
 		panel_11.add(label_7);
 
@@ -708,7 +708,7 @@ public class MainWindow extends JFrame {
 				mapPanel.clearRiverSeeds();
 			}
 		});
-		
+
 		btnUndoRiver = new JButton("Undo River");
 		panel_12.add(btnUndoRiver);
 		panel_12.add(btnResetRivers);
@@ -946,29 +946,27 @@ public class MainWindow extends JFrame {
 				Tile.TILE_BUSH_ROSE, Tile.TILE_BUSH_THORN
 		});
 		panel_27.add(comboBox_biomeType);
-//		comboBox_biomeType.setSelectedIndex(12);
 		comboBox_biomeType.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
+				textField_seedCount.setText(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][0]);              
+				textField_biomeSize.setText(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][1]);              
+				textField_biomeMaxSlope.setText(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][2]);              
+				textField_growthN.setText(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][3]);              
+				textField_growthS.setText(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][4]);              
+				textField_growthE.setText(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][5]);              
+				textField_growthW.setText(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][6]);              
+				textField_biomeMinHeight.setText(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][7]);              
+				textField_biomeMaxHeight.setText(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][8]);  
 
-                        textField_seedCount.setText(BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][0]);              
-                        textField_biomeSize.setText(BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][1]);              
-                        textField_biomeMaxSlope.setText(BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][2]);              
-                        textField_growthN.setText(BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][3]);              
-                        textField_growthS.setText(BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][4]);              
-                        textField_growthE.setText(BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][5]);              
-                        textField_growthW.setText(BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][6]);              
-                        textField_biomeMinHeight.setText(BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][7]);              
-                        textField_biomeMaxHeight.setText(BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][8]);  
+				checkbox_growthRandom.setSelected(!Boolean.parseBoolean(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][9]));
+				checkbox_growthRandom.doClick();
 
-                        checkbox_growthRandom.setSelected(!Boolean.parseBoolean(BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][9]));
-                        checkbox_growthRandom.doClick();
+				textField_growthMin.setText(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][10]);              
+				textField_growthMax.setText(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][11]);  
 
-                        textField_growthMin.setText(BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][10]);              
-                        textField_growthMax.setText(BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][11]);  
-
-                        chckbxAroundWater.setSelected(Boolean.parseBoolean(BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][12]));
-                        textField_biomeDensity.setText(BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][13]);  
-                    }
+				chckbxAroundWater.setSelected(Boolean.parseBoolean(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][12]));
+				textField_biomeDensity.setText(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][13]);  
+			}
 		});                
 		JPanel panel_18 = new JPanel();
 
@@ -1206,33 +1204,6 @@ public class MainWindow extends JFrame {
 		textField_mapName.setColumns(10);
 
 		btnUpdateMapName = new JButton("Update Map Name");
-		btnUpdateMapName.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if (heightMap == null) {
-					JOptionPane.showMessageDialog(null, "Heightmap does not exist - Generate one first", "Error Saving Map Api", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				if (tileMap == null) {
-					JOptionPane.showMessageDialog(null, "Tile map does not exist - Generate one first", "Error Saving Map Api", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				new Thread() {
-					@Override
-					public void run() {
-						mapName = textField_mapName.getText();
-						if(mapName.equals("")) {
-							textField_mapName.setText("empty");
-							mapName = "empty";
-						}
-						if (!apiClosed) {
-							getAPI().close();
-						}
-						apiClosed = true;
-						updateAPIMap();
-					}
-				}.start();
-			}
-		});
 		panel_26.add(btnUpdateMapName);
 
 		JLabel label_1 = new JLabel("");
@@ -1265,6 +1236,18 @@ public class MainWindow extends JFrame {
 			}
 		});
 		panel_26.add(btnClearActions);
+		
+		JLabel label_9 = new JLabel("");
+		panel_26.add(label_9);
+		
+		JButton btnExportBiomes = new JButton("Export Biomes");
+		btnExportBiomes.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				actionSaveBiomeValues();
+			}
+		});
+		btnExportBiomes.setToolTipText("Save biome input values to config file");
+		panel_26.add(btnExportBiomes);
 		GroupLayout gl_actionPanel = new GroupLayout(actionPanel);
 		gl_actionPanel.setHorizontalGroup(
 				gl_actionPanel.createParallelGroup(Alignment.LEADING)
@@ -1282,30 +1265,7 @@ public class MainWindow extends JFrame {
 				);
 		actionPanel.setLayout(gl_actionPanel);
 		contentPane.setLayout(gl_contentPane);
-                
-                try {
-                    FileReader fr = new FileReader("BiomeValues.txt");
-                    BufferedReader br = new BufferedReader(fr); 
 
-                    String s; 
-
- //                   if (br!=null){
-                        for (int bt=0;bt<36; bt++){
-                            s = br.readLine();
-                            if (s!=null){
-                              String[] parts = s.split(",");
-                              for (int bv = 0; bv < 14; bv++)
-                                BiomeOptionValue[bt][bv]=parts[bv];
-                            } 
-                        }
-                        fr.close();
-                        comboBox_biomeType.setSelectedIndex(12);
- //                   }
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-                
 		init();
 	}
 
@@ -1317,10 +1277,58 @@ public class MainWindow extends JFrame {
 		progress = new ProgressHandler(progressBar,lblMemory);
 		progress.update(100);
 		System.setErr(new PrintStream(new StreamCapturer(System.err,this)));
+
+		// Loads biome input values from config file
+		try {
+	        (new File(Constants.CONFIG_DIRECTORY)).mkdirs();
+			FileReader fr = new FileReader(Constants.CONFIG_DIRECTORY+"biome_values.txt");
+			BufferedReader br = new BufferedReader(fr); 
+			String s;
+
+			for (int bt = 0; bt < biomeOptionValue.length; bt++) {
+				s = br.readLine();
+				if (s!=null) {
+					String[] parts = s.split(",");
+					for (int bv = 0; bv < 14; bv++) {
+						biomeOptionValue[bt][bv]=parts[bv];
+					}
+				} 
+			}
+			fr.close();
+		}
+		catch (IOException e) {} //File doesn't exist
+		comboBox_biomeType.setSelectedIndex(12);
 	}
 
 	private void setupButtonActions() {
 
+		btnUpdateMapName.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (heightMap == null) {
+					JOptionPane.showMessageDialog(null, "Heightmap does not exist - Generate one first", "Error Saving Map Api", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				if (tileMap == null) {
+					JOptionPane.showMessageDialog(null, "Tile map does not exist - Generate one first", "Error Saving Map Api", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				new Thread() {
+					@Override
+					public void run() {
+						mapName = textField_mapName.getText();
+						if(mapName.equals("")) {
+							textField_mapName.setText("empty");
+							mapName = "empty";
+						}
+						if (!apiClosed) {
+							getAPI().close();
+						}
+						apiClosed = true;
+						updateAPIMap();
+					}
+				}.start();
+			}
+		});
 		btnViewMap.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				cl_mainPanel.show(mainPanel,"MAP");
@@ -1759,22 +1767,23 @@ public class MainWindow extends JFrame {
 
 		startLoading("Seeding Biome");
 		try {
-                                BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][0]=textField_seedCount.getText();              
-                                BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][1]=textField_biomeSize.getText();              
-                                BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][2]=textField_biomeMaxSlope.getText();              
-                                BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][3]=textField_growthN.getText();              
-                                BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][4]=textField_growthS.getText();              
-                                BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][5]=textField_growthE.getText();              
-                                BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][6]=textField_growthW.getText();              
-                                BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][7]=textField_biomeMinHeight.getText();              
-                                BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][8]=textField_biomeMaxHeight.getText();    
-                                BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][9]=Boolean.toString(checkbox_growthRandom.isSelected());
-                                BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][10]=textField_growthMin.getText();
-                                BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][11]=textField_growthMax.getText();
-                                BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][12]=Boolean.toString(chckbxAroundWater.isSelected());
-                                BiomeOptionValue[comboBox_biomeType.getSelectedIndex()][13]=textField_biomeDensity.getText();    
+			// Save the edited fields back into the biome input table
+			biomeOptionValue[comboBox_biomeType.getSelectedIndex()][0] = textField_seedCount.getText();              
+			biomeOptionValue[comboBox_biomeType.getSelectedIndex()][1] = textField_biomeSize.getText();              
+			biomeOptionValue[comboBox_biomeType.getSelectedIndex()][2] = textField_biomeMaxSlope.getText();              
+			biomeOptionValue[comboBox_biomeType.getSelectedIndex()][3] = textField_growthN.getText();              
+			biomeOptionValue[comboBox_biomeType.getSelectedIndex()][4] = textField_growthS.getText();              
+			biomeOptionValue[comboBox_biomeType.getSelectedIndex()][5] = textField_growthE.getText();              
+			biomeOptionValue[comboBox_biomeType.getSelectedIndex()][6] = textField_growthW.getText();              
+			biomeOptionValue[comboBox_biomeType.getSelectedIndex()][7] = textField_biomeMinHeight.getText();              
+			biomeOptionValue[comboBox_biomeType.getSelectedIndex()][8] = textField_biomeMaxHeight.getText();    
+			biomeOptionValue[comboBox_biomeType.getSelectedIndex()][9] = Boolean.toString(checkbox_growthRandom.isSelected());
+			biomeOptionValue[comboBox_biomeType.getSelectedIndex()][10] = textField_growthMin.getText();
+			biomeOptionValue[comboBox_biomeType.getSelectedIndex()][11] = textField_growthMax.getText();
+			biomeOptionValue[comboBox_biomeType.getSelectedIndex()][12] = Boolean.toString(chckbxAroundWater.isSelected());
+			biomeOptionValue[comboBox_biomeType.getSelectedIndex()][13] = textField_biomeDensity.getText();    
 
-                                                               
+
 			int[] rates = new int[4];
 			if (checkbox_growthRandom.isSelected()) {
 				int min = Integer.parseInt(textField_growthMin.getText());
@@ -2016,28 +2025,28 @@ public class MainWindow extends JFrame {
 			getAPI().getMapData().saveChanges();
 			getAPI().close();
 			apiClosed = true;
-                        
-                          String biotxt;
-                        try {
-                            FileWriter fw = new FileWriter("BiomeValues.txt");
-                            for (int bt=0;bt<36; bt++){
-                                for (int bv = 0; bv < 14; bv++) {
-                                    biotxt=BiomeOptionValue[bt][bv];
-                                    fw.write(biotxt); 
-                                    if (bv<13)
-                                        fw.write(","); 
-                                }
-                                 fw.write("\r\n"); 
-                            }
-                            fw.close();
-                        }
-                        catch (IOException ex){
-                            System.err.println("Saving BiomeValues.txt failed: "+ex.toString());
-                        }                      
-                        
+			
 		} finally {
 			stopLoading();
 		}
+	}
+	
+	void actionSaveBiomeValues () {
+		try {
+			FileWriter fw = new FileWriter(Constants.CONFIG_DIRECTORY+"biome_values.txt");
+			for (int bt = 0; bt < biomeOptionValue.length; bt++) {
+				for (int bv = 0; bv < biomeOptionValue[0].length; bv++) {
+					fw.write(biomeOptionValue[bt][bv]); 
+					if (bv<13)
+						fw.write(","); 
+				}
+				fw.write("\r\n"); 
+			}
+			fw.close();
+		}
+		catch (IOException ex) {
+			ex.printStackTrace();
+		}    
 	}
 
 	void actionSaveActions () {
@@ -2146,7 +2155,7 @@ public class MainWindow extends JFrame {
 
 		actionLoadHeightmap(heightImageFile);
 	}
-	
+
 	void actionSaveHeightmap (String fileName) {
 		if (heightMap == null) {
 			JOptionPane.showMessageDialog(this, "Heightmap does not exist - Generate one first", "Error Saving Heightmap", JOptionPane.ERROR_MESSAGE);
@@ -2540,7 +2549,7 @@ public class MainWindow extends JFrame {
 		textArea_Errors.append(err);
 		btnViewErrors.setVisible(true);
 	}
-	
+
 	public static void log (String s) { 
 		System.out.println(s);
 	}
