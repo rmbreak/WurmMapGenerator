@@ -15,7 +15,7 @@ public class ProgressHandler {
 	private void setMemoryUsage() {
 		double totalMemory = (int)((Runtime.getRuntime().maxMemory())/1024.0/1024/1024*100)/100.0;
 		int usedMemory = (int)(((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory())*100/Runtime.getRuntime().maxMemory())); 
-		lblMemory.setText("Mem: "+usedMemory+"% used of "+totalMemory+"gb");
+		lblMemory.setText(usedMemory+"% used of "+totalMemory+"gb");
 	}
 	
 	public void update(int value) {

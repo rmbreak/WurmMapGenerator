@@ -9,7 +9,6 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
-import net.buddat.wgenerator.util.Constants;
 import net.buddat.wgenerator.util.ProgressHandler;
 import net.buddat.wgenerator.util.SimplexNoise;
 
@@ -26,24 +25,27 @@ public class HeightMap {
 	private boolean moreLand;
 	private int minimumEdge;
 	private int maxHeight;
+	private int normalizeRatio;
 	private int borderCutoff;
 	private double borderNormalize;
 	private double singleDirt;
 
 	private BufferedImage heightImage;
 
-	public HeightMap(long seed, int mapSize, double resolution, int iterations, int minimumEdge, double borderWeight, int maxHeight, boolean moreLand) {
+	public HeightMap(long seed, int mapSize, double resolution, int iterations, int minimumEdge, int borderWeight, int maxHeight, int normalizeRatio, boolean moreLand) {
 		this.noiseSeed = seed;
 		this.mapSize = mapSize;
 		this.resolution = resolution;
 		this.iterations = iterations;
 		this.minimumEdge = minimumEdge;
 		this.maxHeight = maxHeight;
+		this.normalizeRatio = normalizeRatio;
 		this.moreLand = moreLand;
 
 		this.heightArray = new double[mapSize][mapSize];
-		this.borderCutoff = (int) (mapSize / borderWeight);
-		this.borderNormalize = (float) (1.0f / borderCutoff);
+		this.borderCutoff = (int) (mapSize / Math.abs(borderWeight));
+		this.borderNormalize = (float) (1.0 / borderCutoff);
+		System.out.println(borderCutoff+"  "+borderNormalize+"  "+minimumEdge);
 
 		this.singleDirt = 1.0 / maxHeight;
 	}
@@ -59,11 +61,11 @@ public class HeightMap {
 		this.heightImage = heightImage;
 
 		this.heightArray = new double[mapSize][mapSize];
-		this.borderCutoff = mapSize;
+		this.borderCutoff = 1;
 		this.borderNormalize = (float) (1.0f / borderCutoff);
 
 		this.singleDirt = 1.0 / maxHeight;
-		
+
 		importHeightImage();
 	}
 
@@ -103,8 +105,8 @@ public class HeightMap {
 		}
 	}
 
-	void exportHeightImage(String txtName) {
-		File outfile = new File("./maps/" + txtName +"/heightmap.png");
+	void exportHeightImage(String txtName, String fileName) {
+		File imageFile = new File("./maps/" + txtName + "/" + fileName);
 		BufferedImage bufferedImage = new BufferedImage(mapSize, mapSize, BufferedImage.TYPE_USHORT_GRAY);
 		WritableRaster wr = (WritableRaster) bufferedImage.getRaster();
 
@@ -119,10 +121,9 @@ public class HeightMap {
 
 		bufferedImage.setData(wr);
 		try {
-			if (!outfile.exists())
-				outfile.mkdirs();
-
-			ImageIO.write(bufferedImage, "png", outfile);
+			if (!imageFile.exists())
+				imageFile.mkdirs();
+			ImageIO.write(bufferedImage, "png", imageFile);
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, "Unable to create heightmap file.", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -199,8 +200,8 @@ public class HeightMap {
 		}
 
 		//Converts the bottom half into the bottom 1/3, and the top half into the top 2/3
-		double normalizeLow = Constants.NORMALIZE_RATIO/50.0;	//2.0/3.0;
-		double normalizeHigh = 2.0-normalizeLow;				//4.0/3.0;
+		double normalizeLow = normalizeRatio/50.0;
+		double normalizeHigh = 2.0-normalizeLow;
 		for (int i = 0; i < mapSize; i++) {
 			for (int j = 0; j < mapSize; j++) {
 				if (getHeight(i, j) < 0.5) {
@@ -323,13 +324,11 @@ public class HeightMap {
 		if (slope <= 0)
 			slope = 1;
 		int size = baseWidth-1;
-//		boolean keepDigging = false;
 		while (getHeight(ox, oy) > water) {
 			double dig = slope*singleDirt;
 			for (int x = ox-size; x <= ox+size; x++) {
 				for (int y = oy-size; y <= oy+size; y++) {
-					if (x < 0 || x >= mapSize || y < 0 || y >= mapSize ) {
-//						stopDigging = true;
+					if (x < 0 || x >= mapSize || y < 0 || y >= mapSize || getHeight(x,y) < water) {
 						continue;
 					}
 					if (Math.sqrt(Math.pow(x-ox, 2)+Math.pow(y-oy, 2)) <= size)

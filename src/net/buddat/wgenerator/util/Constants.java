@@ -9,12 +9,12 @@ public class Constants {
 	public static final String WINDOW_TITLE = "WGenerator - Map Generator for Wurm Unlimited";
 	
 	public static final int MAP_SIZE = 2048;
-	public static final float MAP_HEIGHT = 4096f;
-	public static final double RESOLUTION = MAP_SIZE / 8;
+	public static final int MAP_HEIGHT = 4096;
+	public static final int RESOLUTION = MAP_SIZE / 8;
 	
 	public static final int HEIGHTMAP_ITERATIONS = 10;
 	public static final int MIN_EDGE = 64;
-	public static final double BORDER_WEIGHT = 6.0;
+	public static final int BORDER_WEIGHT = 6;
 	public static final int NORMALIZE_RATIO = 33;
 
 	public static final int EROSION_ITERATIONS = 30;
@@ -31,7 +31,7 @@ public class Constants {
 	public static final boolean MORE_LAND = true;
 
 	public static final int RIVER_DEPTH = 40;
-	public static final int RIVER_WIDTH = 6;
+	public static final int RIVER_WIDTH = 2;
 	public static final int RIVER_SLOPE = 4;
 	
 	public static final int GRASS_ITERATIONS = 50;

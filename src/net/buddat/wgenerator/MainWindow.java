@@ -3,7 +3,6 @@ package net.buddat.wgenerator;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.plaf.basic.BasicProgressBarUI;
 
 import com.wurmonline.mesh.FoliageAge;
 import com.wurmonline.mesh.GrassData.GrowthTreeStage;
@@ -130,11 +129,15 @@ public class MainWindow extends JFrame {
 	private JTextField textField_riverSlope;
 	private JButton btnResetRivers;
 	private JCheckBox checkbox_autoDropDirt;
+	private JTextField textField_normalizeRatio;
+	private JButton btnUndoRiver;
 
 
 	public static void main(String[] args) {
 		try {
 			UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+			UIDefaults defaults = UIManager.getLookAndFeelDefaults();
+			defaults.put("nimbusOrange",new Color(50,205,50));
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -158,21 +161,14 @@ public class MainWindow extends JFrame {
 		setBounds(100, 100, 1000, 750);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setLocationRelativeTo(null);
 		setContentPane(contentPane);
 
 		JTabbedPane optionsPane = new JTabbedPane(JTabbedPane.TOP);
 
 		progressBar = new JProgressBar();
-		Font loadingFont = new Font("Helvetica", Font.PLAIN, 16);
-		progressBar.setFont(loadingFont);
 		progressBar.setStringPainted(true);
-		progressBar.setUI(new BasicProgressBarUI() {
-			protected Color getSelectionBackground() { return Color.black; }
-			protected Color getSelectionForeground() { return Color.black; }
-		});
 		progressBar.setString("");
-		progressBar.setBackground(new Color(250,100,100));
-		progressBar.setForeground(new Color(50, 205, 50));
 		progressBar.setEnabled(true);
 		progressBar.setValue(100);
 
@@ -181,37 +177,50 @@ public class MainWindow extends JFrame {
 		JPanel mapCoordsPanel = new JPanel();
 
 		mainPanel = new JPanel();
+		
+		JPanel memoryPanel = new JPanel();
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
-				gl_contentPane.createParallelGroup(Alignment.TRAILING)
+			gl_contentPane.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-						.addContainerGap()
-						.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-								.addComponent(progressBar, GroupLayout.DEFAULT_SIZE, 913, Short.MAX_VALUE)
-								.addGroup(gl_contentPane.createSequentialGroup()
-										.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-												.addComponent(mainPanel, GroupLayout.DEFAULT_SIZE, 592, Short.MAX_VALUE)
-												.addComponent(mapCoordsPanel, GroupLayout.DEFAULT_SIZE, 592, Short.MAX_VALUE)
-												.addComponent(viewPanel, GroupLayout.DEFAULT_SIZE, 592, Short.MAX_VALUE))
-										.addPreferredGap(ComponentPlacement.RELATED)
-										.addComponent(optionsPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-						.addContainerGap())
-				);
+					.addContainerGap()
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+						.addComponent(mainPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(progressBar, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 641, Short.MAX_VALUE)
+						.addComponent(mapCoordsPanel, GroupLayout.DEFAULT_SIZE, 641, Short.MAX_VALUE)
+						.addComponent(viewPanel, GroupLayout.DEFAULT_SIZE, 641, Short.MAX_VALUE))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING, false)
+						.addComponent(memoryPanel, GroupLayout.PREFERRED_SIZE, 315, GroupLayout.PREFERRED_SIZE)
+						.addComponent(optionsPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap())
+		);
 		gl_contentPane.setVerticalGroup(
-				gl_contentPane.createParallelGroup(Alignment.LEADING)
+			gl_contentPane.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-						.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.RELATED)
-						.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-								.addGroup(gl_contentPane.createSequentialGroup()
-										.addComponent(mapCoordsPanel, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
-										.addPreferredGap(ComponentPlacement.RELATED)
-										.addComponent(mainPanel, GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
-										.addPreferredGap(ComponentPlacement.RELATED)
-										.addComponent(viewPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-								.addComponent(optionsPane, GroupLayout.DEFAULT_SIZE, 580, Short.MAX_VALUE))
-						.addGap(0))
-				);
+					.addGap(6)
+					.addComponent(optionsPane, GroupLayout.DEFAULT_SIZE, 671, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(memoryPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+				.addGroup(gl_contentPane.createSequentialGroup()
+					.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(mapCoordsPanel, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(mainPanel, GroupLayout.DEFAULT_SIZE, 603, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(viewPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+		);
+		memoryPanel.setLayout(new GridLayout(0, 2, 5, 0));
+		
+		JLabel lblMemoryUsage = new JLabel("Memory Usage:");
+		lblMemoryUsage.setHorizontalAlignment(SwingConstants.RIGHT);
+		memoryPanel.add(lblMemoryUsage);
+		
+		lblMemory = new JLabel("xx% of xxgb");
+		lblMemory.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		memoryPanel.add(lblMemory);
+		lblMemory.setHorizontalAlignment(SwingConstants.CENTER);
 		cl_mainPanel = new CardLayout(0,0);
 		mainPanel.setLayout(cl_mainPanel);
 
@@ -294,10 +303,6 @@ public class MainWindow extends JFrame {
 				);
 		panel_25.setLayout(gl_panel_25);
 		mapCoordsPanel.setLayout(gl_mapCoordsPanel);
-		
-		lblMemory = new JLabel("Mem:");
-		lblMemory.setHorizontalAlignment(SwingConstants.LEFT);
-		viewPanel.add(lblMemory);
 
 		btnViewMap = new JButton("View Map");
 		viewPanel.add(btnViewMap);
@@ -359,6 +364,9 @@ public class MainWindow extends JFrame {
 
 		JLabel lblMaxHeight = new JLabel("Max Height");
 		labelPanel.add(lblMaxHeight);
+		
+		JLabel lblNormalizeRatio = new JLabel("Normalize Ratio");
+		labelPanel.add(lblNormalizeRatio);
 
 		JLabel label = new JLabel("");
 		labelPanel.add(label);
@@ -384,21 +392,25 @@ public class MainWindow extends JFrame {
 		inputPanel.add(textField_mapResolution);
 		textField_mapResolution.setColumns(10);
 
-		textField_mapIterations = new JTextField("" + (int) Constants.HEIGHTMAP_ITERATIONS);
+		textField_mapIterations = new JTextField("" + Constants.HEIGHTMAP_ITERATIONS);
 		inputPanel.add(textField_mapIterations);
 		textField_mapIterations.setColumns(10);
 
-		textField_mapMinEdge = new JTextField("" + (int) Constants.MIN_EDGE);
+		textField_mapMinEdge = new JTextField("" + Constants.MIN_EDGE);
 		inputPanel.add(textField_mapMinEdge);
 		textField_mapMinEdge.setColumns(10);
 
-		textField_mapBorderWeight = new JTextField("" + (int) Constants.BORDER_WEIGHT);
+		textField_mapBorderWeight = new JTextField("" + Constants.BORDER_WEIGHT);
 		inputPanel.add(textField_mapBorderWeight);
 		textField_mapBorderWeight.setColumns(10);
 
-		textField_mapMaxHeight = new JTextField("" + (int) Constants.MAP_HEIGHT);
+		textField_mapMaxHeight = new JTextField("" + Constants.MAP_HEIGHT);
 		inputPanel.add(textField_mapMaxHeight);
 		textField_mapMaxHeight.setColumns(10);
+		
+		textField_normalizeRatio = new JTextField("" + Constants.NORMALIZE_RATIO);
+		inputPanel.add(textField_normalizeRatio);
+		textField_normalizeRatio.setColumns(10);
 
 		checkbox_moreLand = new JCheckBox("More Land", Constants.MORE_LAND);
 		inputPanel.add(checkbox_moreLand);
@@ -576,6 +588,9 @@ public class MainWindow extends JFrame {
 		checkbox_autoDropDirt.setToolTipText("Drop dirt after generating rivers");
 		checkbox_autoDropDirt.setSelected(true);
 		panel_11.add(checkbox_autoDropDirt);
+		
+		JLabel label_7 = new JLabel("");
+		panel_11.add(label_7);
 
 		JLabel lblRiverDepth = new JLabel("River depth");
 		lblRiverDepth.setToolTipText("Deepest part of the river");
@@ -648,13 +663,16 @@ public class MainWindow extends JFrame {
 		btnGenerateRivers.setToolTipText("Alters the heightmap");
 		panel_12.add(btnGenerateRivers);
 
-		btnResetRivers = new JButton("Reset Rivers");
+		btnResetRivers = new JButton("Reset Painting");
 		btnResetRivers.setToolTipText("Clear the currently drawn rivers");
 		btnResetRivers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				mapPanel.clearRiverSeeds();
 			}
 		});
+		
+		btnUndoRiver = new JButton("Undo River");
+		panel_12.add(btnUndoRiver);
 		panel_12.add(btnResetRivers);
 
 		textField_riverDepth = new JTextField("" + Constants.RIVER_DEPTH);
@@ -1215,6 +1233,7 @@ public class MainWindow extends JFrame {
 		setRockTotal();
 		updateMapCoords(0,0,false);
 		progress = new ProgressHandler(progressBar,lblMemory);
+		progress.update(100);
 		System.setErr(new PrintStream(new StreamCapturer(System.err,this)));
 	}
 
@@ -1332,6 +1351,18 @@ public class MainWindow extends JFrame {
 				}.start();
 			}
 		});
+		btnUndoRiver.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionUndoRiver();
+					}
+				}.start();
+			}
+		});
 		btnAddBiome.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!actionReady())
@@ -1435,7 +1466,7 @@ public class MainWindow extends JFrame {
 				new Thread() {
 					@Override
 					public void run() {
-						actionSaveHeightmap();
+						actionSaveHeightmap("heightmap.png");
 					}
 				}.start();
 			}
@@ -1483,17 +1514,17 @@ public class MainWindow extends JFrame {
 
 			heightMap = new HeightMap(textField_mapSeed.getText().hashCode(), (int) comboBox_mapSize.getSelectedItem(), 
 					Double.parseDouble(textField_mapResolution.getText()), Integer.parseInt(textField_mapIterations.getText()), 
-					Integer.parseInt(textField_mapMinEdge.getText()), Double.parseDouble(textField_mapBorderWeight.getText()), 
-					Integer.parseInt(textField_mapMaxHeight.getText()), checkbox_moreLand.isSelected());
+					Integer.parseInt(textField_mapMinEdge.getText()), Integer.parseInt(textField_mapBorderWeight.getText()), 
+					Integer.parseInt(textField_mapMaxHeight.getText()), Integer.parseInt(textField_normalizeRatio.getText()), checkbox_moreLand.isSelected());
 
-			heightMap.generateHeights(progress); 
+			heightMap.generateHeights(progress);
 
 			defaultView = Constants.VIEW_TYPE.HEIGHT;
 			updateMapView();
 
 			genHistory.add("HEIGHTMAP:" + textField_mapSeed.getText() + "," + comboBox_mapSize.getSelectedIndex() + "," + textField_mapResolution.getText() + "," +
 					textField_mapIterations.getText() + "," + textField_mapMinEdge.getText() + "," + textField_mapBorderWeight.getText() + "," +
-					textField_mapMaxHeight.getText() + "," + checkbox_moreLand.isSelected());
+					textField_mapMaxHeight.getText() + "," + textField_normalizeRatio.getText() + "," + checkbox_moreLand.isSelected());
 		} catch (NumberFormatException nfe) {
 			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Generating HeightMap", JOptionPane.ERROR_MESSAGE);
 		} finally {
@@ -1585,12 +1616,13 @@ public class MainWindow extends JFrame {
 
 	void actionGenerateRivers () {
 		if (tileMap == null) {
-			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Adding Biome", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Generating River", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
 		startLoading("Generating Rivers");
 		try {
+			actionSaveHeightmap("river_heightmap.png");
 			double water = (Integer.parseInt(textField_waterHeight.getText())-Integer.parseInt(textField_dirtPerTile.getText())-
 					Integer.parseInt(textField_riverDepth.getText()))/(double)Integer.parseInt(textField_mapMaxHeight.getText());
 			for (Point p:mapPanel.getRiverSeeds()) {
@@ -1606,7 +1638,32 @@ public class MainWindow extends JFrame {
 			}
 
 		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Dropping Dirt", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Generating River", JOptionPane.ERROR_MESSAGE);
+		} finally {
+			stopLoading();
+		}
+	}
+
+	void actionUndoRiver () {
+		if (tileMap == null) {
+			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Undoing River", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		startLoading("Undoing River");
+		try {
+			Constants.VIEW_TYPE oldView = defaultView;
+			File heightImageFile = new File("./maps/" + mapName +"/river_heightmap.png");
+			defaultView = Constants.VIEW_TYPE.HEIGHT;
+			actionLoadHeightmap(heightImageFile);
+
+			if (checkbox_autoDropDirt.isSelected()) {
+				defaultView = oldView;
+				actionDropDirt();
+			}
+
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Undoing River", JOptionPane.ERROR_MESSAGE);
 		} finally {
 			stopLoading();
 		}
@@ -1893,7 +1950,7 @@ public class MainWindow extends JFrame {
 
 			bw.close();
 
-			actionSaveHeightmap();
+			actionSaveHeightmap("heightmap.png");
 		} catch (IOException ex) {
 			System.err.println("Saving actions failed: "+ex.toString());
 		} finally {
@@ -1972,15 +2029,15 @@ public class MainWindow extends JFrame {
 
 		actionLoadHeightmap(heightImageFile);
 	}
-
-	void actionSaveHeightmap () {
+	
+	void actionSaveHeightmap (String fileName) {
 		if (heightMap == null) {
 			JOptionPane.showMessageDialog(this, "Heightmap does not exist - Generate one first", "Error Saving Heightmap", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
 		startLoading("Saving Heightmap");
-		heightMap.exportHeightImage(mapName);
+		heightMap.exportHeightImage(mapName, fileName);
 		stopLoading();
 	}
 
@@ -2088,7 +2145,7 @@ public class MainWindow extends JFrame {
 		String[] options = parts[1].split(",");
 		switch (parts[0]) {
 		case "HEIGHTMAP":
-			if (options.length != 8) {
+			if (options.length != 9) {
 				JOptionPane.showMessageDialog(null, "Not enough options for HEIGHTMAP", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
@@ -2101,7 +2158,8 @@ public class MainWindow extends JFrame {
 				textField_mapMinEdge.setText(options[4]);
 				textField_mapBorderWeight.setText(options[5]);
 				textField_mapMaxHeight.setText(options[6]);
-				checkbox_moreLand.setSelected(Boolean.parseBoolean(options[7]));
+				textField_normalizeRatio.setText(options[7]);
+				checkbox_moreLand.setSelected(Boolean.parseBoolean(options[8]));
 				checkbox_mapRandomSeed.setSelected(false);
 				textField_mapSeed.setEnabled(true);
 
@@ -2369,5 +2427,4 @@ public class MainWindow extends JFrame {
 	public static void log (String s) { 
 		System.out.println(s);
 	}
-
 }
