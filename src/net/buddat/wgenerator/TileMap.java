@@ -189,12 +189,12 @@ public class TileMap {
 			nextList.add(new Point(biomeRandom.nextInt(heightMap.getMapSize()),biomeRandom.nextInt(heightMap.getMapSize())));
 			totalSize = 1;
 
-			int[] randomRate = new int[]{};
+			int[] randomRate = new int[4];
 			if (randomGrowth) {
-				randomRate = new int[]{(biomeRandom.nextInt(growthRate[1]-growthRate[0])+growthRate[0]),
-						(biomeRandom.nextInt(growthRate[1]-growthRate[0])+growthRate[0]),
-						(biomeRandom.nextInt(growthRate[1]-growthRate[0])+growthRate[0]),
-						(biomeRandom.nextInt(growthRate[1]-growthRate[0])+growthRate[0])};
+				randomRate[0] = (biomeRandom.nextInt(growthRate[1]-growthRate[0])+growthRate[0]);
+				randomRate[1] = (biomeRandom.nextInt(growthRate[1]-growthRate[0])+growthRate[0]);
+				randomRate[2] = (biomeRandom.nextInt(growthRate[1]-growthRate[0])+growthRate[0]);
+				randomRate[3] = (biomeRandom.nextInt(growthRate[1]-growthRate[0])+growthRate[0]);
 			}
 
 			for (int g = 0; g < growthIterations/density; g++) {

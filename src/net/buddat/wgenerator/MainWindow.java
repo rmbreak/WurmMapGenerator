@@ -169,6 +169,8 @@ public class MainWindow extends JFrame {
 			{"500","1","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_OLEANDER
 			{"500","1","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_ROSE
 			{"500","1","50","70","70","70","70","0","4000","true","50","80","true","1"}}; //TILE_BUSH_THORN
+	private JButton btnLoadBiomes;
+	private JButton btnExportBiomes;
 
 
 	public static void main(String[] args) {
@@ -1240,14 +1242,20 @@ public class MainWindow extends JFrame {
 		JLabel label_9 = new JLabel("");
 		panel_26.add(label_9);
 		
-		JButton btnExportBiomes = new JButton("Export Biomes");
-		btnExportBiomes.addActionListener(new ActionListener() {
+		btnExportBiomes = new JButton("Export Biomes");
+		
+		JButton btnSaveGlobalBiomes = new JButton("Save Global Biomes");
+		btnSaveGlobalBiomes.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				actionSaveBiomeValues();
+				actionSaveGlobalBiomeValues();
 			}
 		});
+		panel_26.add(btnSaveGlobalBiomes);
 		btnExportBiomes.setToolTipText("Save biome input values to config file");
 		panel_26.add(btnExportBiomes);
+		
+		btnLoadBiomes = new JButton("Load Biomes");
+		panel_26.add(btnLoadBiomes);
 		GroupLayout gl_actionPanel = new GroupLayout(actionPanel);
 		gl_actionPanel.setHorizontalGroup(
 				gl_actionPanel.createParallelGroup(Alignment.LEADING)
@@ -1569,6 +1577,30 @@ public class MainWindow extends JFrame {
 					@Override
 					public void run() {
 						actionLoadHeightmap();
+					}
+				}.start();
+			}
+		});
+		btnExportBiomes.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionSaveBiomeValues();;
+					}
+				}.start();
+			}
+		});
+		btnLoadBiomes.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionLoadBiomeValues();;
 					}
 				}.start();
 			}
@@ -2021,17 +2053,13 @@ public class MainWindow extends JFrame {
 		startLoading("Saving Map");
 		try {
 			updateAPIMap();
-
 			getAPI().getMapData().saveChanges();
-			getAPI().close();
-			apiClosed = true;
-			
 		} finally {
 			stopLoading();
 		}
 	}
-	
-	void actionSaveBiomeValues () {
+
+	void actionSaveGlobalBiomeValues () {
 		try {
 			FileWriter fw = new FileWriter(Constants.CONFIG_DIRECTORY+"biome_values.txt");
 			for (int bt = 0; bt < biomeOptionValue.length; bt++) {
@@ -2048,6 +2076,92 @@ public class MainWindow extends JFrame {
 			ex.printStackTrace();
 		}    
 	}
+	void actionSaveBiomeValues () {
+		startLoading("Saving Biome Values");
+		try {
+			JFileChooser fc = new JFileChooser();
+			fc.setCurrentDirectory(new File(Constants.CONFIG_DIRECTORY));
+			fc.setSelectedFile(new File("biome_values.txt"));
+			fc.setFileFilter(new TextFileView());
+			fc.setAcceptAllFileFilterUsed(false);
+			int returnVal = fc.showSaveDialog(this);
+			if (returnVal != JFileChooser.APPROVE_OPTION) {
+				return;
+			}
+
+			File BiomeValueFile = fc.getSelectedFile();
+			BiomeValueFile.createNewFile();
+
+			BufferedWriter bw = new BufferedWriter(new FileWriter(BiomeValueFile));
+
+			String biotxt;
+			try {
+				FileWriter fw = new FileWriter(BiomeValueFile);
+				for (int bt=0;bt<36; bt++){
+					for (int bv = 0; bv < 14; bv++) {
+						biotxt=biomeOptionValue[bt][bv];
+						fw.write(biotxt);
+						if (bv<13)
+							fw.write(",");
+					}
+					fw.write("\r\n");
+				}
+				fw.close();
+			}
+			catch (IOException ex){
+				System.err.println("Saving BiomeValues.txt failed: "+ex.toString());
+			}
+
+			bw.close();
+
+
+		} catch (IOException ex) {
+			System.err.println("Saving Biome values failed: "+ex.toString());
+		} finally {
+			stopLoading();
+		}
+	}
+
+	public void actionLoadBiomeValues () {
+		startLoading("Loading Biome Values");
+		try {
+			File BiomeValueFile;
+
+			JFileChooser fc = new JFileChooser();
+			fc.setCurrentDirectory(new File(Constants.CONFIG_DIRECTORY));
+			fc.setFileFilter(new TextFileView());
+			fc.setAcceptAllFileFilterUsed(false);
+
+			int returnVal = fc.showDialog(null, "Load Biome Values");
+
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				BiomeValueFile = fc.getSelectedFile();
+				textField_mapName.setText(BiomeValueFile.getParentFile().getName());
+				actionsFileDirectory = BiomeValueFile.getParentFile().getAbsolutePath();
+
+				FileReader fr = new FileReader(BiomeValueFile);
+				BufferedReader br = new BufferedReader(fr);
+
+				String s;
+
+				for (int bt = 0; bt < 36; bt++) {
+					s = br.readLine();
+					if (s!=null) {
+						String[] parts = s.split(",");
+						for (int bv = 0; bv < 14; bv++) {
+							biomeOptionValue[bt][bv]=parts[bv];
+						}
+					}
+				}
+				fr.close();
+				comboBox_biomeType.setSelectedIndex(12);
+			}
+		} catch (IOException ex) {
+			System.err.println("Loading Biome Values failed: "+ex.toString());
+		} finally {
+			stopLoading();
+		}
+	}
 
 	void actionSaveActions () {
 		if (tileMap == null) {
@@ -2060,7 +2174,7 @@ public class MainWindow extends JFrame {
 			JFileChooser fc = new JFileChooser();
 			fc.setCurrentDirectory(new File("./maps/" + mapName));
 			fc.setSelectedFile(new File("map_actions.act"));
-			fc.setFileFilter(new TextFileView());
+			fc.setFileFilter(new ActionFileView());
 			fc.setAcceptAllFileFilterUsed(false);
 			int returnVal = fc.showSaveDialog(this);
 			if (returnVal != JFileChooser.APPROVE_OPTION) {
@@ -2091,7 +2205,7 @@ public class MainWindow extends JFrame {
 			File actionsFile;
 
 			JFileChooser fc = new JFileChooser();
-			fc.addChoosableFileFilter(new TextFileView());
+			fc.addChoosableFileFilter(new ActionFileView());
 			fc.setAcceptAllFileFilterUsed(false);
 			fc.setCurrentDirectory(new File("./maps/"));
 
@@ -2114,6 +2228,9 @@ public class MainWindow extends JFrame {
 			System.err.println("Loading actions failed: "+ex.toString());
 		} finally {
 			stopLoading();
+			//Reset interface
+			checkbox_growthRandom.doClick();
+			checkbox_growthRandom.doClick();
 		}
 	}
 
@@ -2405,8 +2522,7 @@ public class MainWindow extends JFrame {
 					textField_growthS.setText(options[i++]);
 					textField_growthE.setText(options[i++]);
 					textField_growthW.setText(options[i++]);
-					checkbox_growthRandom.setSelected(!Boolean.parseBoolean(options[i++]));
-					checkbox_growthRandom.doClick();
+					checkbox_growthRandom.setSelected(Boolean.parseBoolean(options[i++]));
 					textField_growthMin.setText(options[i++]);
 					textField_growthMax.setText(options[i++]);
 					textField_biomeMinHeight.setText(options[i++]);
@@ -2434,8 +2550,7 @@ public class MainWindow extends JFrame {
 					textField_growthS.setText(options[i++]);
 					textField_growthE.setText(options[i++]);
 					textField_growthW.setText(options[i++]);
-					checkbox_growthRandom.setSelected(!Boolean.parseBoolean(options[i++]));
-					checkbox_growthRandom.doClick();
+					checkbox_growthRandom.setSelected(Boolean.parseBoolean(options[i++]));
 					textField_growthMin.setText(options[i++]);
 					textField_growthMax.setText(options[i++]);
 					textField_biomeMinHeight.setText(options[i++]);
@@ -2453,7 +2568,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	private class TextFileView extends FileFilter {
+	private class ActionFileView extends FileFilter {
 
 		public boolean accept(File f) {
 			if (f.isDirectory()) {
@@ -2482,6 +2597,38 @@ public class MainWindow extends JFrame {
 		@Override
 		public String getDescription() {
 			return "Action Files (.act)";
+		}
+	}
+
+	private class TextFileView extends FileFilter {
+
+		public boolean accept(File f) {
+			if (f.isDirectory()) {
+				return true;
+			}
+
+			String extension = getExtension(f);
+			if (extension != null)
+				if (extension.equals("txt"))
+					return true;
+
+			return false;
+		}
+
+		private String getExtension(File f) {
+			String ext = null;
+			String s = f.getName();
+			int i = s.lastIndexOf('.');
+
+			if (i > 0 &&  i < s.length() - 1) {
+				ext = s.substring(i+1).toLowerCase();
+			}
+			return ext;
+		}
+
+		@Override
+		public String getDescription() {
+			return "Biome Files (.txt)";
 		}
 	}
 
