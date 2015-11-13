@@ -2069,10 +2069,10 @@ public class MainWindow extends JFrame {
 					final Tile tile = api.getMapData().getSurfaceTile(x, y);
 					final Color color;
 					if (tile != null) {
-						color = tile.getColor();
+						color = TileMap.getTileColor(tile);
 					}
 					else {
-						color = Tile.TILE_DIRT.getColor();
+						color = TileMap.getTileColor(Tile.TILE_DIRT);
 					}
 					array[(x + y * mapSize)*3+0] = color.getRed();
 					array[(x + y * mapSize)*3+1] = color.getGreen();

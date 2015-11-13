@@ -45,7 +45,6 @@ public class HeightMap {
 		this.heightArray = new double[mapSize][mapSize];
 		this.borderCutoff = (int) (mapSize / Math.abs(borderWeight));
 		this.borderNormalize = (float) (1.0 / borderCutoff);
-		System.out.println(borderCutoff+"  "+borderNormalize+"  "+minimumEdge);
 
 		this.singleDirt = 1.0 / maxHeight;
 	}

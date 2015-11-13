@@ -1,5 +1,6 @@
 package net.buddat.wgenerator;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -312,8 +313,9 @@ public class TileMap {
 	}
 
 	Tile getType(int x, int y) {
-		if (typeMap[x][y] == null)
+		if (typeMap[x][y] == null) {
 			return Tile.TILE_ROCK;
+		}
 
 		return typeMap[x][y];
 	}
@@ -485,11 +487,92 @@ public class TileMap {
 			if (tile == null) {
 				continue;
 			}
-			if (r == tile.getColor().getRed() && g == tile.getColor().getGreen() && b == tile.getColor().getBlue()) {
+			Color c = getTileColor(tile);
+			if (r == c.getRed() && g == c.getGreen() && b == c.getBlue()) {
 				return tile;
 			}
 		}
 		return Tile.TILE_DIRT;
+	}
+	
+	public static Color getTileColor(Tile tile) {
+		switch(tile) {
+		case TILE_CLAY:
+			return new Color(113,124,118);
+		case TILE_DIRT:
+			return new Color(75,63,47);
+		case TILE_DIRT_PACKED:
+			return new Color(74,62,46);
+		case TILE_GRASS:
+			return new Color(54,101,3);
+		case TILE_GRAVEL:
+			return new Color(79,74,64);
+		case TILE_KELP:
+			return new Color(54,101,3);
+		case TILE_LAVA:
+			return new Color(215,51,30);
+		case TILE_MARSH:
+			return new Color(43,101,72);
+		case TILE_MOSS:
+			return new Color(106,142,56);
+		case TILE_PEAT:
+			return new Color(54,39,32);
+		case TILE_REED:
+			return new Color(53,100,2);
+		case TILE_ROCK:
+			return new Color(114,110,107);
+		case TILE_SAND:
+			return new Color(160,147,109);
+		case TILE_STEPPE:
+			return new Color(114,117,67);
+		case TILE_TAR:
+			return new Color(18,21,40);
+		case TILE_TUNDRA:
+			return new Color(118,135,109);
+		case TILE_TREE_APPLE:
+			return new Color(41,58,4);
+		case TILE_TREE_BIRCH:
+			return new Color(41,58,3);
+		case TILE_TREE_CEDAR:
+			return new Color(41,58,2);
+		case TILE_TREE_CHERRY:
+			return new Color(41,58,5);
+		case TILE_TREE_CHESTNUT:
+			return new Color(41,58,6);
+		case TILE_TREE_FIR:
+			return new Color(41,58,7);
+		case TILE_TREE_LEMON:
+			return new Color(41,58,8);
+		case TILE_TREE_LINDEN:
+			return new Color(41,58,9);
+		case TILE_TREE_MAPLE:
+			return new Color(41,58,10);
+		case TILE_TREE_OAK:
+			return new Color(41,58,11);
+		case TILE_TREE_OLIVE:
+			return new Color(41,58,12);
+		case TILE_TREE_PINE:
+			return new Color(41,58,12);
+		case TILE_TREE_WALNUT:
+			return new Color(41,58,14);
+		case TILE_TREE_WILLOW:
+			return new Color(41,58,15);
+		case TILE_BUSH_CAMELLIA:
+			return new Color(41,58,16);
+		case TILE_BUSH_GRAPE:
+			return new Color(41,58,17);
+		case TILE_BUSH_LAVENDER:
+			return new Color(41,58,18);
+		case TILE_BUSH_OLEANDER:
+			return new Color(41,58,19);
+		case TILE_BUSH_ROSE:
+			return new Color(41,58,20);
+		case TILE_BUSH_THORN:
+			return new Color(41,58,21);
+		default:
+			return new Color(0,0,0);
+		
+		}
 	}
 	
 	
