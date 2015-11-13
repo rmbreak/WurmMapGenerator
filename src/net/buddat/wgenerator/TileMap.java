@@ -471,7 +471,10 @@ public class TileMap {
 					int r = buffer.getElem((x+y*mapSize)*3+2);
 					int g = buffer.getElem((x+y*mapSize)*3+1);
 					int b = buffer.getElem((x+y*mapSize)*3+0);
-					setType(x,y,getTileType(r,g,b));
+					Tile tileType= getTileType(r,g,b);
+					if (tileType != null) {
+						setType(x,y,tileType);
+					}
 				}
 			}
 			
@@ -487,12 +490,14 @@ public class TileMap {
 			if (tile == null) {
 				continue;
 			}
-			Color c = getTileColor(tile);
-			if (r == c.getRed() && g == c.getGreen() && b == c.getBlue()) {
+			Color color = getTileColor(tile);
+			if (color == null) {
+				continue;
+			} else if (r == color.getRed() && g == color.getGreen() && b == color.getBlue()) {
 				return tile;
 			}
 		}
-		return Tile.TILE_DIRT;
+		return null;
 	}
 	
 	public static Color getTileColor(Tile tile) {
@@ -570,7 +575,7 @@ public class TileMap {
 		case TILE_BUSH_THORN:
 			return new Color(41,58,21);
 		default:
-			return new Color(0,0,0);
+			return null;
 		
 		}
 	}
