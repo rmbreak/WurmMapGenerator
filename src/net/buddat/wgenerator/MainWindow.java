@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 
 public class MainWindow extends JFrame {
 
@@ -107,7 +108,6 @@ public class MainWindow extends JFrame {
 	private JButton btnViewTopo;
 	private JButton btnViewMap;
 	private JTextField textField_cliffRatio;
-	private JButton btnSaveHeightmap;
 	private JButton btnLoadHeightmap;
 	private JTextField textField_erodeMaxSlope;
 	private JCheckBox checkBox_landSlide;
@@ -171,6 +171,7 @@ public class MainWindow extends JFrame {
 			{"500","1","50","70","70","70","70","0","4000","true","50","80","true","1"}}; //TILE_BUSH_THORN
 	private JButton btnLoadBiomes;
 	private JButton btnExportBiomes;
+	private JButton btnImportBiomes;
 
 
 	public static void main(String[] args) {
@@ -939,6 +940,9 @@ public class MainWindow extends JFrame {
 
 		JPanel panel_27 = new JPanel();
 		panel_8.add(panel_27, BorderLayout.NORTH);
+		
+		btnImportBiomes = new JButton("Import");
+		panel_27.add(btnImportBiomes);
 
 		comboBox_biomeType = new JComboBox(new Tile[] { Tile.TILE_CLAY, Tile.TILE_DIRT, Tile.TILE_DIRT_PACKED, Tile.TILE_GRASS, Tile.TILE_GRAVEL, Tile.TILE_KELP,
 				Tile.TILE_LAVA, Tile.TILE_MARSH, Tile.TILE_MOSS, Tile.TILE_MYCELIUM, Tile.TILE_PEAT, Tile.TILE_REED, Tile.TILE_SAND, Tile.TILE_STEPPE, 
@@ -971,13 +975,20 @@ public class MainWindow extends JFrame {
 			}
 		});                
 		JPanel panel_18 = new JPanel();
+		panel_18.setLayout(new GridLayout(0, 1, 0, 0));
+		
+		JPanel panel_31 = new JPanel();
+		panel_18.add(panel_31);
 
 		btnAddBiome = new JButton("Add Biome");
-		panel_18.add(btnAddBiome);
+		panel_31.add(btnAddBiome);
 
 		btnUndoLastBiome = new JButton("Undo Last");
+		panel_31.add(btnUndoLastBiome);
 		btnUndoLastBiome.setToolTipText("Can only go back 1 action");
-		panel_18.add(btnUndoLastBiome);
+		
+				btnResetBiomes = new JButton("Reset All");
+				panel_31.add(btnResetBiomes);
 		GroupLayout gl_biomePanel = new GroupLayout(biomePanel);
 		gl_biomePanel.setHorizontalGroup(
 				gl_biomePanel.createParallelGroup(Alignment.LEADING)
@@ -997,9 +1008,6 @@ public class MainWindow extends JFrame {
 						.addComponent(panel_14, GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
 						.addContainerGap())
 				);
-
-		btnResetBiomes = new JButton("Reset All");
-		panel_18.add(btnResetBiomes);
 		biomePanel.setLayout(gl_biomePanel);
 
 		JPanel orePanel = new JPanel();
@@ -1219,9 +1227,6 @@ public class MainWindow extends JFrame {
 
 		btnSaveActions = new JButton("Save Actions");
 
-		btnSaveHeightmap = new JButton("Save Heightmap");
-		panel_26.add(btnSaveHeightmap);
-
 		JLabel label_2 = new JLabel("");
 		panel_26.add(label_2);
 		panel_26.add(btnSaveActions);
@@ -1239,22 +1244,26 @@ public class MainWindow extends JFrame {
 		});
 		panel_26.add(btnClearActions);
 		
-		JLabel label_9 = new JLabel("");
-		panel_26.add(label_9);
+		btnExportBiomes = new JButton("Export Biome Values");
 		
-		btnExportBiomes = new JButton("Export Biomes");
-		
-		JButton btnSaveGlobalBiomes = new JButton("Save Global Biomes");
+		JButton btnSaveGlobalBiomes = new JButton("Save Global Values");
+		btnSaveGlobalBiomes.setToolTipText("Values auto loaded at startup");
 		btnSaveGlobalBiomes.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				actionSaveGlobalBiomeValues();
 			}
 		});
+		
+		JLabel label_9 = new JLabel("");
+		panel_26.add(label_9);
+		
+		JSeparator separator_2 = new JSeparator();
+		panel_26.add(separator_2);
 		panel_26.add(btnSaveGlobalBiomes);
 		btnExportBiomes.setToolTipText("Save biome input values to config file");
 		panel_26.add(btnExportBiomes);
 		
-		btnLoadBiomes = new JButton("Load Biomes");
+		btnLoadBiomes = new JButton("Load Biome Values");
 		panel_26.add(btnLoadBiomes);
 		GroupLayout gl_actionPanel = new GroupLayout(actionPanel);
 		gl_actionPanel.setHorizontalGroup(
@@ -1557,18 +1566,6 @@ public class MainWindow extends JFrame {
 				}.start();
 			}
 		});
-		btnSaveHeightmap.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (!actionReady())
-					return;
-				new Thread() {
-					@Override
-					public void run() {
-						actionSaveHeightmap("heightmap.png");
-					}
-				}.start();
-			}
-		});
 		btnLoadHeightmap.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!actionReady())
@@ -1577,6 +1574,18 @@ public class MainWindow extends JFrame {
 					@Override
 					public void run() {
 						actionLoadHeightmap();
+					}
+				}.start();
+			}
+		});
+		btnImportBiomes.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionLoadBiomes();
 					}
 				}.start();
 			}
@@ -1744,7 +1753,7 @@ public class MainWindow extends JFrame {
 
 		startLoading("Generating Rivers");
 		try {
-			actionSaveHeightmap("river_heightmap.png");
+			heightMap.exportHeightImage(mapName, "river_heightmap.png");
 			double water = (Integer.parseInt(textField_waterHeight.getText())-Integer.parseInt(textField_dirtPerTile.getText())-
 					Integer.parseInt(textField_riverDepth.getText()))/(double)Integer.parseInt(textField_mapMaxHeight.getText());
 			for (Point p:mapPanel.getRiverSeeds()) {
@@ -2033,14 +2042,54 @@ public class MainWindow extends JFrame {
 		try {
 			updateAPIMap();
 			MapData map = getAPI().getMapData();
-
 			ImageIO.write(map.createMapDump(), "png", new File("./maps/" + mapName + "/map.png"));
 			ImageIO.write(map.createTopographicDump(true, (short) 250), "png", new File("./maps/" + mapName + "/topography.png"));
 			ImageIO.write(map.createCaveDump(true), "png", new File("./maps/" + mapName + "/cave.png"));
+
+			heightMap.exportHeightImage(mapName, "heightmap.png");
+			saveBiomesImage();
+			
 		} catch (IOException ex) {
-			System.err.println("Saving images failed: "+ex.toString());
+			ex.printStackTrace();
 		} finally {
 			stopLoading();
+		}
+	}
+
+	private void saveBiomesImage () {
+		try {
+			int mapSize = heightMap.getMapSize();
+			File imageFile = new File("./maps/" + mapName + "/" + "biomes.png");
+			BufferedImage bufferedImage = new BufferedImage(mapSize, mapSize, BufferedImage.TYPE_INT_RGB);
+			WritableRaster wr = (WritableRaster) bufferedImage.getRaster();
+
+			int[] array = new int[mapSize * mapSize * 3];
+			for (int x = 0; x < mapSize; x++) {
+				for (int y = 0; y < mapSize; y++) {
+					final Tile tile = api.getMapData().getSurfaceTile(x, y);
+					final Color color;
+					if (tile != null) {
+						color = tile.getColor();
+					}
+					else {
+						color = Tile.TILE_DIRT.getColor();
+					}
+					array[(x + y * mapSize)*3+0] = color.getRed();
+					array[(x + y * mapSize)*3+1] = color.getGreen();
+					array[(x + y * mapSize)*3+2] = color.getBlue();
+				}
+			}
+
+			wr.setPixels(0, 0, mapSize, mapSize, array);
+
+			bufferedImage.setData(wr);
+
+			if (!imageFile.exists()) {
+				imageFile.mkdirs();
+			}
+			ImageIO.write(bufferedImage, "png", imageFile);
+		} catch (IOException ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -2076,6 +2125,7 @@ public class MainWindow extends JFrame {
 			ex.printStackTrace();
 		}    
 	}
+	
 	void actionSaveBiomeValues () {
 		startLoading("Saving Biome Values");
 		try {
@@ -2190,7 +2240,7 @@ public class MainWindow extends JFrame {
 
 			bw.close();
 
-			actionSaveHeightmap("heightmap.png");
+			heightMap.exportHeightImage(mapName, "heightmap.png");
 		} catch (IOException ex) {
 			System.err.println("Saving actions failed: "+ex.toString());
 		} finally {
@@ -2257,7 +2307,7 @@ public class MainWindow extends JFrame {
 	}
 
 	void actionLoadHeightmap () {
-		File heightImageFile;
+		File imageFile;
 
 		JFileChooser fc = new JFileChooser();
 		fc.addChoosableFileFilter(new ImageFileView());
@@ -2268,21 +2318,47 @@ public class MainWindow extends JFrame {
 		if (returnVal != JFileChooser.APPROVE_OPTION) {
 			return;
 		}
-		heightImageFile = fc.getSelectedFile();
+		imageFile = fc.getSelectedFile();
 
-		actionLoadHeightmap(heightImageFile);
+		actionLoadHeightmap(imageFile);
 	}
 
-	void actionSaveHeightmap (String fileName) {
-		if (heightMap == null) {
-			JOptionPane.showMessageDialog(this, "Heightmap does not exist - Generate one first", "Error Saving Heightmap", JOptionPane.ERROR_MESSAGE);
+	void actionLoadBiomes () {
+		if (tileMap == null) {
+			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Loading Biomes", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
+		startLoading("Loading Biomes");
+		try {
+			int mapSize = (int)comboBox_mapSize.getSelectedItem();
 
-		startLoading("Saving Heightmap");
-		heightMap.exportHeightImage(mapName, fileName);
-		stopLoading();
+			File imageFile;
+
+			JFileChooser fc = new JFileChooser();
+			fc.addChoosableFileFilter(new ImageFileView());
+			fc.setAcceptAllFileFilterUsed(false);
+			fc.setCurrentDirectory(new File("./maps/"));
+
+			int returnVal = fc.showDialog(this, "Load Biomes");
+			if (returnVal != JFileChooser.APPROVE_OPTION) {
+				return;
+			}
+			imageFile = fc.getSelectedFile();
+			BufferedImage biomesImage = new BufferedImage(mapSize, mapSize, BufferedImage.TYPE_INT_RGB);
+			biomesImage = ImageIO.read(imageFile);
+
+			tileMap.importBiomeImage(biomesImage);
+	
+			updateMapView();
+	
+		} catch (NumberFormatException | IOException nfe) {
+			JOptionPane.showMessageDialog(this, "Error loading file " + nfe.getMessage().toLowerCase(), "Error Loading Biomes", JOptionPane.ERROR_MESSAGE);
+		} finally {
+			stopLoading();
+		}
+	
 	}
+	
 
 	private WurmAPI getAPI() {
 		if (apiClosed)
@@ -2660,7 +2736,7 @@ public class MainWindow extends JFrame {
 
 		@Override
 		public String getDescription() {
-			return "Heightmap Image (.png)";
+			return "Image File (.png)";
 		}
 	}
 

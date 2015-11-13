@@ -5,7 +5,7 @@ package net.buddat.wgenerator.util;
  */
 public class Constants {
 
-	public static final String version = "2.6.2";
+	public static final String version = "2.7";
 	public static final String WINDOW_TITLE = "WGenerator - Map Generator for Wurm Unlimited";
 
 	public static final int MAP_SIZE = 2048;
@@ -49,7 +49,7 @@ public class Constants {
 			ORE_COPPER = 0.2, ORE_LEAD = 0.2, ORE_TIN = 0.2, ORE_ADDY = 0.0, ORE_GLIMMER = 0.0, ORE_MARBLE = 0.2, ORE_SLATE = 0.2;
 
 	public static final int GRID_SIZE = 8;
-	public static final int BIOME_SEED_LIMIT_MULTIPLIER = 10000;
+	public static final int BIOME_SEED_LIMIT_MULTIPLIER = 1000;
 
 	public static enum VIEW_TYPE {ISO,TOPO,CAVE,HEIGHT};
 	public static String CONFIG_DIRECTORY = "./config/";

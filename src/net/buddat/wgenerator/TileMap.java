@@ -1,9 +1,13 @@
 package net.buddat.wgenerator;
 
 import java.awt.Point;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+
+import javax.swing.JOptionPane;
 
 import com.wurmonline.mesh.Tiles.Tile;
 
@@ -242,11 +246,12 @@ public class TileMap {
 	private ArrayList<Point> growBiome(ArrayList<Point> fromList, Tile type, int density, int[] growthRate, int maxBiomeSlope, int minHeight, int maxHeight) {
 		ArrayList<Point> nextList = new ArrayList<Point>();
 
-		int dirMod = (type.isTree() ? biomeRandom.nextInt(6) + 2*density : (type.isBush() ? biomeRandom.nextInt(3) + 2*density : biomeRandom.nextInt(density)+1));
+		int dirMod;
 		int mapSize = heightMap.getMapSize();
 
 		for (Point p : fromList) {
-
+			
+			dirMod = (type.isTree() ? biomeRandom.nextInt(4*density) + 3 : (type.isBush() ? biomeRandom.nextInt(2*density) + 2 : biomeRandom.nextInt(density)+1));
 			if (biomeRandom.nextInt(100) < growthRate[0]) { //North
 				Point nT = new Point((int) p.getX(), HeightMap.clamp((int) (p.getY() - dirMod), 0, mapSize - 1));
 				if (setBiome(p, nT, maxBiomeSlope * dirMod, type, minHeight, maxHeight))
@@ -410,10 +415,6 @@ public class TileMap {
 		biomeRandom = new Random(newSeed);
 	}
 
-//	private double getWaterHeight() {
-//		return waterHeight;
-//	}
-
 	void setWaterHeight(int newHeight) {
 		this.waterHeight = newHeight * singleDirt;
 	}
@@ -445,4 +446,51 @@ public class TileMap {
 			return new Point(x, y);
 		}
 	}
+
+	void importBiomeImage(BufferedImage biomesImage) {
+		if (biomesImage.getHeight() != biomesImage.getWidth())
+		{
+			JOptionPane.showMessageDialog(null, "The image must be square!", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		if (biomesImage.getHeight() != heightMap.getMapSize() || biomesImage.getWidth() != heightMap.getMapSize()) {
+			JOptionPane.showMessageDialog(null, "The image size does not match your map size! "+biomesImage.getHeight(), "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		long startTime = System.currentTimeMillis();
+		int mapSize = heightMap.getMapSize();
+		try {
+			DataBufferByte buffer = (DataBufferByte) biomesImage.getRaster().getDataBuffer();
+
+			for (int x = 0; x < mapSize; x++) {
+				for (int y = 0; y < mapSize; y++) {
+					int r = buffer.getElem((x+y*mapSize)*3+2);
+					int g = buffer.getElem((x+y*mapSize)*3+1);
+					int b = buffer.getElem((x+y*mapSize)*3+0);
+					setType(x,y,getTileType(r,g,b));
+				}
+			}
+			
+			MainWindow.log("Biomes Import (" + mapSize + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "The map must be a 24-bit color image.", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	public static Tile getTileType(int r, int g, int b) {
+		for(Tile tile:Tile.getTiles()) {
+			if (tile == null) {
+				continue;
+			}
+			if (r == tile.getColor().getRed() && g == tile.getColor().getGreen() && b == tile.getColor().getBlue()) {
+				return tile;
+			}
+		}
+		return Tile.TILE_DIRT;
+	}
+	
+	
 }

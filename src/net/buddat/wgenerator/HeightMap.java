@@ -98,10 +98,9 @@ public class HeightMap {
 				}
 			}
 
-			MainWindow.log("HeightMap Generation (" + mapSize + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
+			MainWindow.log("HeightMap Import (" + mapSize + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "The map must be 16-bit grayscale.", "Error", JOptionPane.ERROR_MESSAGE);
-			return;
 		}
 	}
 
