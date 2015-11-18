@@ -5,6 +5,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 
 import com.wurmonline.mesh.FoliageAge;
+import com.wurmonline.mesh.GrassData.FlowerType;
+import com.wurmonline.mesh.GrassData.GrowthStage;
 import com.wurmonline.mesh.GrassData.GrowthTreeStage;
 import com.wurmonline.mesh.Tiles.Tile;
 import com.wurmonline.wurmapi.api.MapData;
@@ -168,7 +170,10 @@ public class MainWindow extends JFrame {
 			{"500","1","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_LAVENDER
 			{"500","1","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_OLEANDER
 			{"500","1","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_ROSE
-			{"500","1","50","70","70","70","70","0","4000","true","50","80","true","1"}}; //TILE_BUSH_THORN
+			{"500","1","50","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_THORN
+			{"30","20","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TREE
+			{"500","1","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH
+			{"10","20","50","70","70","70","70","0","4000","true","50","80","true","1"}}; //TILE_SNOW
 	private JButton btnLoadBiomes;
 	private JButton btnExportBiomes;
 	private JButton btnImportBiomes;
@@ -944,12 +949,22 @@ public class MainWindow extends JFrame {
 		btnImportBiomes = new JButton("Import");
 		panel_27.add(btnImportBiomes);
 
+//		ArrayList<Tile> tiles = new ArrayList<Tile>();
+//		for (Tile tile:Tile.getTiles()) {
+//			if (tile == null) {
+//				continue;
+//			}
+//			if (TileMap.getTileColor(tile) != null) {
+//				tiles.add(tile);
+//			}
+//		}
+//		comboBox_biomeType = new JComboBox(tiles.toArray());
 		comboBox_biomeType = new JComboBox(new Tile[] { Tile.TILE_CLAY, Tile.TILE_DIRT, Tile.TILE_DIRT_PACKED, Tile.TILE_GRASS, Tile.TILE_GRAVEL, Tile.TILE_KELP,
 				Tile.TILE_LAVA, Tile.TILE_MARSH, Tile.TILE_MOSS, Tile.TILE_MYCELIUM, Tile.TILE_PEAT, Tile.TILE_REED, Tile.TILE_SAND, Tile.TILE_STEPPE, 
 				Tile.TILE_TAR, Tile.TILE_TUNDRA, Tile.TILE_TREE_APPLE, Tile.TILE_TREE_BIRCH, Tile.TILE_TREE_CEDAR, Tile.TILE_TREE_CHERRY, Tile.TILE_TREE_CHESTNUT, 
 				Tile.TILE_TREE_FIR, Tile.TILE_TREE_LEMON, Tile.TILE_TREE_LINDEN, Tile.TILE_TREE_MAPLE, Tile.TILE_TREE_OAK, Tile.TILE_TREE_OLIVE, Tile.TILE_TREE_PINE,
 				Tile.TILE_TREE_WALNUT, Tile.TILE_TREE_WILLOW, Tile.TILE_BUSH_CAMELLIA, Tile.TILE_BUSH_GRAPE, Tile.TILE_BUSH_LAVENDER, Tile.TILE_BUSH_OLEANDER,
-				Tile.TILE_BUSH_ROSE, Tile.TILE_BUSH_THORN
+				Tile.TILE_BUSH_ROSE, Tile.TILE_BUSH_THORN, Tile.TILE_TREE, Tile.TILE_BUSH, Tile.TILE_SNOW
 		});
 		panel_27.add(comboBox_biomeType);
 		comboBox_biomeType.addActionListener(new ActionListener() {
@@ -1307,7 +1322,7 @@ public class MainWindow extends JFrame {
 				if (s!=null) {
 					String[] parts = s.split(",");
 					for (int bv = 0; bv < 14; bv++) {
-						biomeOptionValue[bt][bv]=parts[bv];
+						biomeOptionValue[bt][bv] = parts[bv];
 					}
 				} 
 			}
@@ -2069,7 +2084,11 @@ public class MainWindow extends JFrame {
 					final Tile tile = api.getMapData().getSurfaceTile(x, y);
 					final Color color;
 					if (tile != null) {
-						color = TileMap.getTileColor(tile);
+						if (tile == Tile.TILE_GRASS && tileMap.getFlowerType(x, y) != 0) {
+							color = new Color(220,250,tileMap.getFlowerType(x, y)+50);
+						} else {
+							color = TileMap.getTileColor(tile);
+						}
 					}
 					else {
 						color = TileMap.getTileColor(Tile.TILE_DIRT);
@@ -2431,6 +2450,7 @@ public class MainWindow extends JFrame {
 							for(int y = j - 1; y <= j + 1; y++) {
 								if(x > 0 && y > 0 && x < heightMap.getMapSize() && y <heightMap.getMapSize()) {
 									map.setSurfaceTile(x, y, tileMap.getType(i, j));
+									map.setGrass(x, y, GrowthStage.MEDIUM, FlowerType.fromInt(tileMap.getFlowerType(x, y)));
 								}
 							}
 						}
