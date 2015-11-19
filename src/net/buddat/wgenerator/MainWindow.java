@@ -135,48 +135,51 @@ public class MainWindow extends JFrame {
 
 	private static String[][] biomeOptionValue = {       
 			//Count,Size,MaxSlope,RateN,RateS,RateE,RateW,MinHeight,Maxheight,GrowtRandom,GrowMin,GrowMax,AroundWater,Density  
-			{"500","5","20","70","70","70","70","20","20","true","50","80","true","1"},  //TILE_CLAY
-			{"100","3","40","70","70","70","70","50","4000","true","50","80","true","2"},  //TILE_DIRT
-			{"10","2","10","70","70","70","70","50","1000","true","50","80","true","1"},  //TILE_DIRT_PACKED
-			{"50","10","40","70","70","70","70","0","4000","true","50","80","true","2"},  //TILE_GRASS
-			{"10","2","30","70","70","70","70","0","4000","true","50","80","true","2"},  //TILE_GRAVEL
-			{"100","10","20","70","70","70","70","30","0","true","50","80","true","2"},  //TILE_KELP
-			{"5","1","140","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_LAVA
-			{"100","5","20","70","70","70","70","30","2","true","50","80","true","1"},  //TILE_MARSH
-			{"100","3","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_MOSS
-			{"100","3","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_MYCELIUM
-			{"50","5","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_PEAT
-			{"100","10","20","70","70","70","70","30","0","true","50","80","true","2"},  //TILE_REED
-			{"1000","100","30","70","70","70","70","50","50","true","50","80","true","1"},  //TILE_SAND
-			{"10","50","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_STEPPE
-			{"200","1","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TAR
-			{"10","50","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TUNDRA
-			{"250","2","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TREE_APPLE
-			{"30","20","40","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_BIRCH
-			{"30","20","20","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_CEDAR
-			{"250","2","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TREE_CHERRY
-			{"5","100","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TREE_CHESTNUT
-			{"30","20","50","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_FIR
-			{"250","2","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TREE_LEMON
-			{"30","20","20","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_LINDEN
-			{"30","20","30","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_MAPLE
-			{"250","1","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TREE_OAK
-			{"30","20","30","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_OLIVE
-			{"30","20","50","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_PINE
-			{"30","20","20","40","40","40","40","0","4000","true","50","80","true","1"},  //TILE_TREE_WALNUT
-			{"250","1","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TREE_WILLOW
-			{"500","1","40","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_CAMELLIA
-			{"50","10","20","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_GRAPE
-			{"500","1","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_LAVENDER
-			{"500","1","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_OLEANDER
-			{"500","1","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_ROSE
-			{"500","1","50","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH_THORN
-			{"30","20","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_TREE
-			{"500","1","30","70","70","70","70","0","4000","true","50","80","true","1"},  //TILE_BUSH
-			{"10","20","50","70","70","70","70","0","4000","true","50","80","true","1"}}; //TILE_SNOW
+			{"500","5","20","70","70","70","70","20","20","true","30","70","true","1"},  //TILE_CLAY
+			{"100","3","40","70","70","70","70","50","4000","true","30","70","true","2"},  //TILE_DIRT
+			{"10","2","10","70","70","70","70","50","1000","true","30","70","true","1"},  //TILE_DIRT_PACKED
+			{"100","10","40","70","70","70","70","0","4000","true","30","70","true","2"},  //TILE_GRASS
+			{"10","2","30","70","70","70","70","0","4000","true","30","70","true","2"},  //TILE_GRAVEL
+			{"100","10","20","70","70","70","70","30","0","true","30","70","true","2"},  //TILE_KELP
+			{"5","1","140","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_LAVA
+			{"100","5","20","70","70","70","70","30","2","true","30","70","true","1"},  //TILE_MARSH
+			{"100","3","20","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_MOSS
+			{"100","3","20","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_MYCELIUM
+			{"50","5","20","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_PEAT
+			{"100","10","20","70","70","70","70","30","0","true","30","70","true","2"},  //TILE_REED
+			{"200","100","30","70","70","70","70","50","50","true","30","70","true","1"},  //TILE_SAND
+			{"10","50","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_STEPPE
+			{"200","1","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_TAR
+			{"10","50","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_TUNDRA
+			{"250","2","20","70","70","70","70","0","4000","true","30","70","true","2"},  //TILE_TREE_APPLE
+			{"30","20","40","40","40","40","40","0","4000","true","30","70","true","1"},  //TILE_TREE_BIRCH
+			{"30","20","20","40","40","40","40","0","4000","true","30","70","true","3"},  //TILE_TREE_CEDAR
+			{"250","2","20","70","70","70","70","0","4000","true","30","70","true","2"},  //TILE_TREE_CHERRY
+			{"5","100","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_TREE_CHESTNUT
+			{"30","20","50","40","40","40","40","0","4000","true","30","70","true","1"},  //TILE_TREE_FIR
+			{"250","2","20","70","70","70","70","0","4000","true","30","70","true","2"},  //TILE_TREE_LEMON
+			{"30","20","20","40","40","40","40","0","4000","true","30","70","true","1"},  //TILE_TREE_LINDEN
+			{"30","20","30","40","40","40","40","0","4000","true","30","70","true","1"},  //TILE_TREE_MAPLE
+			{"250","1","20","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_TREE_OAK
+			{"30","20","30","40","40","40","40","0","4000","true","30","70","true","2"},  //TILE_TREE_OLIVE
+			{"30","20","50","40","40","40","40","0","4000","true","30","70","true","3"},  //TILE_TREE_PINE
+			{"30","20","20","40","40","40","40","0","4000","true","30","70","true","1"},  //TILE_TREE_WALNUT
+			{"250","1","20","70","70","70","70","0","4000","true","30","70","true","2"},  //TILE_TREE_WILLOW
+			{"500","1","40","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_CAMELLIA
+			{"50","10","20","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_GRAPE
+			{"500","1","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_LAVENDER
+			{"500","1","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_OLEANDER
+			{"500","1","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_ROSE
+			{"500","1","50","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_THORN
+			{"30","20","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_TREE
+			{"500","1","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH
+			{"10","20","50","70","70","70","70","0","4000","true","30","70","true","1"}}; //TILE_SNOW
 	private JButton btnLoadBiomes;
 	private JButton btnExportBiomes;
 	private JButton btnImportBiomes;
+	private JTextField textField_FlowerPercent;
+	private JComboBox<String> comboBox_FlowerType;
+	private JButton btnViewBiomes;
 
 
 	public static void main(String[] args) {
@@ -355,6 +358,9 @@ public class MainWindow extends JFrame {
 
 		btnViewTopo = new JButton("View Topo");
 		viewPanel.add(btnViewTopo);
+
+		btnViewBiomes = new JButton("View Biomes");
+		viewPanel.add(btnViewBiomes);
 
 		btnViewCave = new JButton("View Cave");
 		viewPanel.add(btnViewCave);
@@ -830,6 +836,12 @@ public class MainWindow extends JFrame {
 		lblRandomMax.setToolTipText("Upper limit of random growth");
 		panel_16.add(lblRandomMax);
 
+		JLabel lblFlowerType = new JLabel("Flower Type");
+		panel_16.add(lblFlowerType);
+
+		JLabel lblFlowerPercent = new JLabel("Flower Percent");
+		panel_16.add(lblFlowerPercent);
+
 		JPanel panel_17 = new JPanel();
 		panel_15.add(panel_17);
 		panel_17.setLayout(new GridLayout(0, 1, 0, 2));
@@ -942,23 +954,30 @@ public class MainWindow extends JFrame {
 		panel_17.add(textField_growthMax);
 		textField_growthMax.setColumns(10);
 
+		comboBox_FlowerType = new JComboBox(new String[]{"Random","None","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"});
+		panel_17.add(comboBox_FlowerType);
+
+		textField_FlowerPercent = new JTextField("" + Constants.BIOME_FLOWER_PERCENT);
+		panel_17.add(textField_FlowerPercent);
+		textField_FlowerPercent.setColumns(10);
+
 
 		JPanel panel_27 = new JPanel();
 		panel_8.add(panel_27, BorderLayout.NORTH);
-		
+
 		btnImportBiomes = new JButton("Import");
 		panel_27.add(btnImportBiomes);
 
-//		ArrayList<Tile> tiles = new ArrayList<Tile>();
-//		for (Tile tile:Tile.getTiles()) {
-//			if (tile == null) {
-//				continue;
-//			}
-//			if (TileMap.getTileColor(tile) != null) {
-//				tiles.add(tile);
-//			}
-//		}
-//		comboBox_biomeType = new JComboBox(tiles.toArray());
+		//		ArrayList<Tile> tiles = new ArrayList<Tile>();
+		//		for (Tile tile:Tile.getTiles()) {
+		//			if (tile == null) {
+		//				continue;
+		//			}
+		//			if (TileMap.getTileColor(tile) != null) {
+		//				tiles.add(tile);
+		//			}
+		//		}
+		//		comboBox_biomeType = new JComboBox(tiles.toArray());
 		comboBox_biomeType = new JComboBox(new Tile[] { Tile.TILE_CLAY, Tile.TILE_DIRT, Tile.TILE_DIRT_PACKED, Tile.TILE_GRASS, Tile.TILE_GRAVEL, Tile.TILE_KELP,
 				Tile.TILE_LAVA, Tile.TILE_MARSH, Tile.TILE_MOSS, Tile.TILE_MYCELIUM, Tile.TILE_PEAT, Tile.TILE_REED, Tile.TILE_SAND, Tile.TILE_STEPPE, 
 				Tile.TILE_TAR, Tile.TILE_TUNDRA, Tile.TILE_TREE_APPLE, Tile.TILE_TREE_BIRCH, Tile.TILE_TREE_CEDAR, Tile.TILE_TREE_CHERRY, Tile.TILE_TREE_CHESTNUT, 
@@ -986,12 +1005,20 @@ public class MainWindow extends JFrame {
 				textField_growthMax.setText(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][11]);  
 
 				chckbxAroundWater.setSelected(Boolean.parseBoolean(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][12]));
-				textField_biomeDensity.setText(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][13]);  
+				textField_biomeDensity.setText(biomeOptionValue[comboBox_biomeType.getSelectedIndex()][13]);
+
+				if (comboBox_biomeType.getSelectedItem() == Tile.TILE_GRASS) {
+					comboBox_FlowerType.setEnabled(true);
+					textField_FlowerPercent.setEnabled(true);
+				} else {
+					comboBox_FlowerType.setEnabled(false);
+					textField_FlowerPercent.setEnabled(false);
+				}
 			}
 		});                
 		JPanel panel_18 = new JPanel();
 		panel_18.setLayout(new GridLayout(0, 1, 0, 0));
-		
+
 		JPanel panel_31 = new JPanel();
 		panel_18.add(panel_31);
 
@@ -1001,9 +1028,9 @@ public class MainWindow extends JFrame {
 		btnUndoLastBiome = new JButton("Undo Last");
 		panel_31.add(btnUndoLastBiome);
 		btnUndoLastBiome.setToolTipText("Can only go back 1 action");
-		
-				btnResetBiomes = new JButton("Reset All");
-				panel_31.add(btnResetBiomes);
+
+		btnResetBiomes = new JButton("Reset All");
+		panel_31.add(btnResetBiomes);
 		GroupLayout gl_biomePanel = new GroupLayout(biomePanel);
 		gl_biomePanel.setHorizontalGroup(
 				gl_biomePanel.createParallelGroup(Alignment.LEADING)
@@ -1258,9 +1285,9 @@ public class MainWindow extends JFrame {
 			}
 		});
 		panel_26.add(btnClearActions);
-		
+
 		btnExportBiomes = new JButton("Export Biome Values");
-		
+
 		JButton btnSaveGlobalBiomes = new JButton("Save Global Values");
 		btnSaveGlobalBiomes.setToolTipText("Values auto loaded at startup");
 		btnSaveGlobalBiomes.addActionListener(new ActionListener() {
@@ -1268,16 +1295,16 @@ public class MainWindow extends JFrame {
 				actionSaveGlobalBiomeValues();
 			}
 		});
-		
+
 		JLabel label_9 = new JLabel("");
 		panel_26.add(label_9);
-		
+
 		JSeparator separator_2 = new JSeparator();
 		panel_26.add(separator_2);
 		panel_26.add(btnSaveGlobalBiomes);
 		btnExportBiomes.setToolTipText("Save biome input values to config file");
 		panel_26.add(btnExportBiomes);
-		
+
 		btnLoadBiomes = new JButton("Load Biome Values");
 		panel_26.add(btnLoadBiomes);
 		GroupLayout gl_actionPanel = new GroupLayout(actionPanel);
@@ -1312,7 +1339,7 @@ public class MainWindow extends JFrame {
 
 		// Loads biome input values from config file
 		try {
-	        (new File(Constants.CONFIG_DIRECTORY)).mkdirs();
+			(new File(Constants.CONFIG_DIRECTORY)).mkdirs();
 			FileReader fr = new FileReader(Constants.CONFIG_DIRECTORY+"biome_values.txt");
 			BufferedReader br = new BufferedReader(fr); 
 			String s;
@@ -1383,6 +1410,19 @@ public class MainWindow extends JFrame {
 					@Override
 					public void run() {
 						actionViewTopo();
+					}
+				}.start();
+			}
+		});
+		btnViewBiomes.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				cl_mainPanel.show(mainPanel,"MAP");
+				if (!actionReady())
+					return;
+				new Thread() {
+					@Override
+					public void run() {
+						actionViewBiomes();
 					}
 				}.start();
 			}
@@ -1875,22 +1915,26 @@ public class MainWindow extends JFrame {
 
 			if (origin == null) {
 				tileMap.plantBiome(Integer.parseInt(textField_seedCount.getText()), Integer.parseInt(textField_biomeSize.getText()), Integer.parseInt(textField_biomeDensity.getText()), 
-						rates, checkbox_growthRandom.isSelected(), Integer.parseInt(textField_biomeMaxSlope.getText()), minHeight, maxHeight, (Tile) comboBox_biomeType.getSelectedItem(), progress);
+						rates, checkbox_growthRandom.isSelected(), Integer.parseInt(textField_biomeMaxSlope.getText()), minHeight, maxHeight, (Tile) comboBox_biomeType.getSelectedItem(),
+						comboBox_FlowerType.getSelectedIndex(), Integer.parseInt(textField_FlowerPercent.getText()), progress);
 
 				genHistory.add("SEEDBIOME("+comboBox_biomeType.getSelectedItem()+"):" + comboBox_biomeType.getSelectedIndex() + "," + textField_seedCount.getText() + 
 						"," + textField_biomeSize.getText() + "," + textField_biomeDensity.getText() + "," + textField_biomeMaxSlope.getText() + "," +
 						textField_growthN.getText()+","+textField_growthS.getText()+","+textField_growthE.getText()+","+textField_growthW.getText()+"," +
 						checkbox_growthRandom.isSelected() +","+ textField_growthMin.getText()+","+textField_growthMax.getText() +","+
-						textField_biomeMinHeight.getText() + "," + textField_biomeMaxHeight.getText() + "," + chckbxAroundWater.isSelected());
+						textField_biomeMinHeight.getText() + "," + textField_biomeMaxHeight.getText() + "," + chckbxAroundWater.isSelected() + "," +
+						comboBox_FlowerType.getSelectedIndex() + "," + textField_FlowerPercent.getText());
 			} else {
 				tileMap.plantBiomeAt(origin.x, origin.y, Integer.parseInt(textField_biomeSize.getText()), Integer.parseInt(textField_biomeDensity.getText()), 
-						rates, checkbox_growthRandom.isSelected(), Integer.parseInt(textField_biomeMaxSlope.getText()), minHeight, maxHeight, (Tile) comboBox_biomeType.getSelectedItem(), progress);
+						rates, checkbox_growthRandom.isSelected(), Integer.parseInt(textField_biomeMaxSlope.getText()), minHeight, maxHeight, (Tile) comboBox_biomeType.getSelectedItem(),
+						comboBox_FlowerType.getSelectedIndex(), Integer.parseInt(textField_FlowerPercent.getText()), progress);
 
 				genHistory.add("PAINTBIOME("+comboBox_biomeType.getSelectedItem()+"):" + comboBox_biomeType.getSelectedIndex() + "," + origin.x + "," + origin.y + 
 						"," + textField_biomeSize.getText() + "," + textField_biomeDensity.getText() + "," + textField_biomeMaxSlope.getText() + "," +
 						textField_growthN.getText()+","+textField_growthS.getText()+","+textField_growthE.getText()+","+textField_growthW.getText()+"," +
 						checkbox_growthRandom.isSelected() +","+ textField_growthMin.getText()+","+textField_growthMax.getText() +","+
-						textField_biomeMinHeight.getText() + "," + textField_biomeMaxHeight.getText() + "," + chckbxAroundWater.isSelected());
+						textField_biomeMinHeight.getText() + "," + textField_biomeMaxHeight.getText() + "," + chckbxAroundWater.isSelected() + "," +
+						comboBox_FlowerType.getSelectedIndex() + "," + textField_FlowerPercent.getText());
 			}
 
 			updateMapView();
@@ -2012,6 +2056,21 @@ public class MainWindow extends JFrame {
 		}
 	}
 
+	void actionViewBiomes () {
+		if (tileMap == null) {
+			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Showing Map", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		startLoading("Loading");
+		try {
+			defaultView = Constants.VIEW_TYPE.BIOMES;
+			updateMapView();
+		} finally {
+			stopLoading();
+		}
+	}
+
 	void actionViewCave () {
 		if (tileMap == null) {
 			JOptionPane.showMessageDialog(null, "TileMap does not exist - Add Dirt first", "Error Showing Map", JOptionPane.ERROR_MESSAGE);
@@ -2063,7 +2122,7 @@ public class MainWindow extends JFrame {
 
 			heightMap.exportHeightImage(mapName, "heightmap.png");
 			saveBiomesImage();
-			
+
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} finally {
@@ -2073,36 +2132,9 @@ public class MainWindow extends JFrame {
 
 	private void saveBiomesImage () {
 		try {
-			int mapSize = heightMap.getMapSize();
+			BufferedImage bufferedImage = getBiomeImage();
+
 			File imageFile = new File("./maps/" + mapName + "/" + "biomes.png");
-			BufferedImage bufferedImage = new BufferedImage(mapSize, mapSize, BufferedImage.TYPE_INT_RGB);
-			WritableRaster wr = (WritableRaster) bufferedImage.getRaster();
-
-			int[] array = new int[mapSize * mapSize * 3];
-			for (int x = 0; x < mapSize; x++) {
-				for (int y = 0; y < mapSize; y++) {
-					final Tile tile = api.getMapData().getSurfaceTile(x, y);
-					final Color color;
-					if (tile != null) {
-						if (tile == Tile.TILE_GRASS && tileMap.getFlowerType(x, y) != 0) {
-							color = new Color(220,250,tileMap.getFlowerType(x, y)+50);
-						} else {
-							color = TileMap.getTileColor(tile);
-						}
-					}
-					else {
-						color = TileMap.getTileColor(Tile.TILE_DIRT);
-					}
-					array[(x + y * mapSize)*3+0] = color.getRed();
-					array[(x + y * mapSize)*3+1] = color.getGreen();
-					array[(x + y * mapSize)*3+2] = color.getBlue();
-				}
-			}
-
-			wr.setPixels(0, 0, mapSize, mapSize, array);
-
-			bufferedImage.setData(wr);
-
 			if (!imageFile.exists()) {
 				imageFile.mkdirs();
 			}
@@ -2144,7 +2176,7 @@ public class MainWindow extends JFrame {
 			ex.printStackTrace();
 		}    
 	}
-	
+
 	void actionSaveBiomeValues () {
 		startLoading("Saving Biome Values");
 		try {
@@ -2367,17 +2399,17 @@ public class MainWindow extends JFrame {
 			biomesImage = ImageIO.read(imageFile);
 
 			tileMap.importBiomeImage(biomesImage);
-	
+
 			updateMapView();
-	
+
 		} catch (NumberFormatException | IOException nfe) {
 			JOptionPane.showMessageDialog(this, "Error loading file " + nfe.getMessage().toLowerCase(), "Error Loading Biomes", JOptionPane.ERROR_MESSAGE);
 		} finally {
 			stopLoading();
 		}
-	
+
 	}
-	
+
 
 	private WurmAPI getAPI() {
 		if (apiClosed)
@@ -2416,6 +2448,8 @@ public class MainWindow extends JFrame {
 				mapPanel.setMapImage(getAPI().getMapData().createCaveDump(true));
 			else if (defaultView == Constants.VIEW_TYPE.ISO)
 				mapPanel.setMapImage(getAPI().getMapData().createMapDump());
+			else if (defaultView == Constants.VIEW_TYPE.BIOMES)
+				mapPanel.setMapImage(getBiomeImage());
 		}
 
 		mapPanel.updateScale();
@@ -2602,11 +2636,10 @@ public class MainWindow extends JFrame {
 
 		default:
 			if(parts[0].startsWith("SEEDBIOME")) {
-				if (options.length != 15) {
+				if (options.length != 17) {
 					JOptionPane.showMessageDialog(null, "Not enough options for SEEDBIOME", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-
 				try {
 					int i = 0;
 					comboBox_biomeType.setSelectedIndex(Integer.parseInt(options[i++]));
@@ -2624,13 +2657,15 @@ public class MainWindow extends JFrame {
 					textField_biomeMinHeight.setText(options[i++]);
 					textField_biomeMaxHeight.setText(options[i++]);
 					chckbxAroundWater.setSelected(Boolean.parseBoolean(options[i++]));
+					comboBox_FlowerType.setSelectedIndex(Integer.parseInt(options[i++]));
+					textField_FlowerPercent.setText(options[i++]);
 
 					actionSeedBiome(null);
 				} catch (Exception nfe) {
 					JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 				}
 			} else if(parts[0].startsWith("PAINTBIOME")) {
-				if (options.length != 16) {
+				if (options.length != 18) {
 					JOptionPane.showMessageDialog(null, "Not enough options for SEEDBIOME", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
@@ -2652,6 +2687,8 @@ public class MainWindow extends JFrame {
 					textField_biomeMinHeight.setText(options[i++]);
 					textField_biomeMaxHeight.setText(options[i++]);
 					chckbxAroundWater.setSelected(Boolean.parseBoolean(options[i++]));
+					comboBox_FlowerType.setSelectedIndex(Integer.parseInt(options[i++]));
+					textField_FlowerPercent.setText(options[i++]);
 
 					actionSeedBiome(origin);
 				} catch (Exception nfe) {
@@ -2778,6 +2815,37 @@ public class MainWindow extends JFrame {
 		}
 	}
 
+	private BufferedImage getBiomeImage() {
+		int mapSize = heightMap.getMapSize();
+		BufferedImage bufferedImage = new BufferedImage(mapSize, mapSize, BufferedImage.TYPE_INT_RGB);
+		WritableRaster wr = (WritableRaster) bufferedImage.getRaster();
+
+		int[] array = new int[mapSize * mapSize * 3];
+		for (int x = 0; x < mapSize; x++) {
+			for (int y = 0; y < mapSize; y++) {
+				final Tile tile = api.getMapData().getSurfaceTile(x, y);
+				final Color color;
+				if (tile != null) {
+					if (tile == Tile.TILE_GRASS && tileMap.getFlowerType(x, y) != 0) {
+						color = new Color(220,250,tileMap.getFlowerType(x, y)+50);
+					} else {
+						color = TileMap.getTileColor(tile);
+					}
+				}
+				else {
+					color = TileMap.getTileColor(Tile.TILE_DIRT);
+				}
+				array[(x + y * mapSize)*3+0] = color.getRed();
+				array[(x + y * mapSize)*3+1] = color.getGreen();
+				array[(x + y * mapSize)*3+2] = color.getBlue();
+			}
+		}
+
+		wr.setPixels(0, 0, mapSize, mapSize, array);
+
+		bufferedImage.setData(wr);
+		return bufferedImage;
+	}
 
 	public void updateMapCoords (int x, int y, boolean show) {
 		if (show && tileMap != null) {

@@ -183,7 +183,7 @@ public class TileMap {
 			setType(p, lastBiomeChanges.get(p));
 	}
 
-	void plantBiome(int seedCount, int growthIterations, int density, int[] growthRate, boolean randomGrowth, int maxBiomeSlope, int minHeight, int maxHeight, Tile type, ProgressHandler progress) {
+	void plantBiome(int seedCount, int growthIterations, int density, int[] growthRate, boolean randomGrowth, int maxBiomeSlope, int minHeight, int maxHeight, Tile type, int flowerType, int flowerPercent, ProgressHandler progress) {
 		long startTime = System.currentTimeMillis();
 
 		lastBiomeChanges.clear();
@@ -207,7 +207,7 @@ public class TileMap {
 			}
 
 			for (int g = 0; g < growthIterations/density; g++) {
-				nextList = growBiome(nextList, type, density, randomGrowth? randomRate:growthRate, maxBiomeSlope, minHeight, maxHeight);
+				nextList = growBiome(nextList, type, density, randomGrowth? randomRate:growthRate, maxBiomeSlope, minHeight, maxHeight, flowerType, flowerPercent);
 				totalSize += nextList.size();
 			}
 
@@ -223,7 +223,7 @@ public class TileMap {
 		MainWindow.log("Biome Seeding (" + type.tilename + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 
-	void plantBiomeAt(int x, int y, int growthIterations, int density, int[] growthRate, boolean randomGrowth, int maxBiomeSlope, int minHeight, int maxHeight, Tile type, ProgressHandler progress) {
+	void plantBiomeAt(int x, int y, int growthIterations, int density, int[] growthRate, boolean randomGrowth, int maxBiomeSlope, int minHeight, int maxHeight, Tile type, int flowerType, int flowerPercent, ProgressHandler progress) {
 		long startTime = System.currentTimeMillis();
 
 		ArrayList<Point> nextList = new ArrayList<Point>();
@@ -242,42 +242,43 @@ public class TileMap {
 
 		for (int i = 0; i < growthIterations/density; i++) {
 			progress.update((int)((float)i/growthIterations/density*99f));
-			nextList = growBiome(nextList, type, density, randomGrowth? randomRate:growthRate, maxBiomeSlope, minHeight, maxHeight);
+			nextList = growBiome(nextList, type, density, randomGrowth? randomRate:growthRate, maxBiomeSlope, minHeight, maxHeight, flowerType, flowerPercent);
 		}
 
 		MainWindow.log("Biome Seeding (" + type.tilename + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
 
-	private ArrayList<Point> growBiome(ArrayList<Point> fromList, Tile type, int density, int[] growthRate, int maxBiomeSlope, int minHeight, int maxHeight) {
+	private ArrayList<Point> growBiome(ArrayList<Point> fromList, Tile type, int density, int[] growthRate, int maxBiomeSlope, int minHeight, int maxHeight, int flowerType, int flowerPercent) {
 		ArrayList<Point> nextList = new ArrayList<Point>();
 
 		int dirMod;
 		int mapSize = heightMap.getMapSize();
+		HashMap<Point,Boolean> routeMap = new HashMap<Point,Boolean>();
 
 		for (Point p : fromList) {
-			
 			dirMod = (type.isTree() ? biomeRandom.nextInt(4*density) + 3 : (type.isBush() ? biomeRandom.nextInt(2*density) + 2 : biomeRandom.nextInt(density)+1));
+
 			if (biomeRandom.nextInt(100) < growthRate[0]) { //North
-				Point nT = new Point((int) p.getX(), HeightMap.clamp((int) (p.getY() - dirMod), 0, mapSize - 1));
-				if (setBiome(p, nT, maxBiomeSlope * dirMod, type, minHeight, maxHeight))
+				Point nT = new Point(p.x, HeightMap.clamp((int) (p.getY() - dirMod), 0, mapSize - 1));
+				if (setBiome(routeMap, p, nT, maxBiomeSlope * dirMod, type, minHeight, maxHeight, flowerType, flowerPercent))
 					nextList.add(nT);
 			}
 
 			if (biomeRandom.nextInt(100) < growthRate[1]) { //South
-				Point nT = new Point((int) p.getX(), HeightMap.clamp((int) (p.getY() + dirMod), 0, mapSize - 1));
-				if (setBiome(p, nT, maxBiomeSlope * dirMod, type, minHeight, maxHeight))
+				Point nT = new Point(p.x, HeightMap.clamp((int) (p.getY() + dirMod), 0, mapSize - 1));
+				if (setBiome(routeMap, p, nT, maxBiomeSlope * dirMod, type, minHeight, maxHeight, flowerType, flowerPercent))
 					nextList.add(nT);
 			}
 
 			if (biomeRandom.nextInt(100) < growthRate[2]) { //East
-				Point nT = new Point(HeightMap.clamp((int) (p.getX() + dirMod), 0, mapSize - 1), (int) p.getY());
-				if (setBiome(p, nT, maxBiomeSlope * dirMod, type, minHeight, maxHeight))
+				Point nT = new Point(HeightMap.clamp((int) (p.getX() + dirMod), 0, mapSize - 1), p.y);
+				if (setBiome(routeMap, p, nT, maxBiomeSlope * dirMod, type, minHeight, maxHeight, flowerType, flowerPercent))
 					nextList.add(nT);
 			}
 
 			if (biomeRandom.nextInt(100) < growthRate[3]) { //West
-				Point nT = new Point(HeightMap.clamp((int) (p.getX() - dirMod), 0, mapSize - 1), (int) p.getY());
-				if (setBiome(p, nT, maxBiomeSlope * dirMod, type, minHeight, maxHeight))
+				Point nT = new Point(HeightMap.clamp((int) (p.getX() - dirMod), 0, mapSize - 1), p.y);
+				if (setBiome(routeMap, p, nT, maxBiomeSlope * dirMod, type, minHeight, maxHeight, flowerType, flowerPercent))
 					nextList.add(nT);
 			}
 		}
@@ -285,32 +286,40 @@ public class TileMap {
 		return nextList;
 	}
 
-	private boolean setBiome(Point from, Point to, int maxBiomeSlope, Tile type, int minHeight, int maxHeight) {
-		if (getType((int) to.getX(), (int) to.getY()) == Tile.TILE_ROCK) {
+	private boolean setBiome(HashMap<Point,Boolean> routeMap, Point from, Point to, int maxBiomeSlope, Tile type, int minHeight, int maxHeight, int flowerType, int flowerPercent) {
+		if (routeMap.get(to) != null) {
 			return false;
 		}
-
+		if (getType(to.x, to.y) == Tile.TILE_ROCK) {
+			return false;
+		}
 		if (from != null) {
 			if (getDifference(from, to) > (singleDirt * maxBiomeSlope)) {
 				return false;
 			}
 		}
-
-		if (getTileHeight((int) to.getX(), (int) to.getY()) < (singleDirt * minHeight)) {
+		if (getTileHeight(to.x, to.y) < (singleDirt * minHeight)) {
+			return false;
+		}
+		if (getTileHeight(to.x, to.y) > (singleDirt * maxHeight)) {
 			return false;
 		}
 
-		if (getTileHeight((int) to.getX(), (int) to.getY()) > (singleDirt * maxHeight)) {
-			return false;
-		}
-
-		Tile originalTileType = getType((int) to.getX(), (int) to.getY());
-		if (originalTileType != type) {
-			if((!type.isTree() && !type.isBush()) || originalTileType == Tile.TILE_GRASS) {
-				lastBiomeChanges.put(to, getType(to));
-				setType(to, type);
-				return true;
+		Tile originalTileType = getType(to.x, to.y);
+		if ((!type.isTree() && !type.isBush()) || originalTileType == Tile.TILE_GRASS) {
+			lastBiomeChanges.put(to, getType(to));
+			setType(to, type);
+			if (type == Tile.TILE_GRASS && biomeRandom.nextInt(100) < flowerPercent) {
+				if (flowerType == 0) {
+					setFlowerType(to.x,to.y,biomeRandom.nextInt(15)+1);
+				} else {
+					setFlowerType(to.x,to.y,flowerType-1);
+				}
+			} else {
+				setFlowerType(to.x,to.y,0);
 			}
+			routeMap.put(to, true);
+			return true;
 		}
 
 		return false;
@@ -323,25 +332,25 @@ public class TileMap {
 
 		return typeMap[x][y];
 	}
-	
+
 	short getFlowerType(int x, int y) {
 		return flowerMap[x][y];
 	}
 
 	private Tile getType(Point p) {
-		return getType((int) p.getX(), (int) p.getY());
+		return getType(p.x, p.y);
 	}
 
 	private void setType(int x, int y, Tile newType) {
 		typeMap[x][y] = newType;
 	}
-	
-	private void setFlowerType(int x, int y, short newType) {
-		flowerMap[x][y] = newType;
+
+	private void setFlowerType(int x, int y, int newType) {
+		flowerMap[x][y] = (short)newType;
 	}
 
 	private void setType(Point p, Tile newType) {
-		setType((int) p.getX(), (int) p.getY(), newType);
+		setType(p.x, p.y, newType);
 	}
 
 	Tile getOreType(int x, int y) {
@@ -421,7 +430,7 @@ public class TileMap {
 	}
 
 	private double getDifference(Point p, Point p2) {
-		return getDifference((int) p.getX(), (int) p.getY(), (int) p2.getX(), (int) p2.getY());
+		return getDifference(p.x, p.y, p2.x, p2.y);
 	}
 
 	void setBiomeSeed(int newSeed) {
@@ -486,7 +495,7 @@ public class TileMap {
 					Tile tileType= getTileType(r,g,b);
 					if (tileType != null) {
 						setType(x,y,tileType);
-						
+
 						if (tileType == Tile.TILE_GRASS) {
 							if (r == 220 && g == 250 && b-50 >= 0 && b-50 < 16) {
 								setFlowerType(x,y,(short)(b-50));
@@ -495,18 +504,18 @@ public class TileMap {
 					}
 				}
 			}
-			
+
 			MainWindow.log("Biomes Import (" + mapSize + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 		} catch (Exception e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "The map must be a 24-bit color image.", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
+
 	public static Tile getTileType(int r, int g, int b) {
 		return colorMap.get(new Color(r,g,b));
 	}
-	
+
 	public static Color getTileColor(Tile tile) {
 		if (tile == Tile.TILE_GRASS) {
 			return new Color(54,101,3);
@@ -518,7 +527,7 @@ public class TileMap {
 		}
 		return new Color(0,0,0);
 	}
-	
+
 	private static void setupTileColorMap() {
 		colorMap = new HashMap<Color,Tile>();
 		colorMap.put(new Color(113,124,118), Tile.TILE_CLAY);
@@ -572,10 +581,10 @@ public class TileMap {
 		colorMap.put(new Color(92,83,77), Tile.TILE_COBBLESTONE_NE);
 		colorMap.put(new Color(92,83,78), Tile.TILE_COBBLESTONE_SW);
 		colorMap.put(new Color(92,83,79), Tile.TILE_COBBLESTONE_SE);
-		
+
 		for (int i = 1; i < 16; i++) {
 			colorMap.put(new Color(220,250,50+i),Tile.TILE_GRASS);
 		}
 	}
-	
+
 }
