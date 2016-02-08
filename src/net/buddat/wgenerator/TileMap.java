@@ -581,6 +581,7 @@ public class TileMap {
 		colorMap.put(new Color(92,83,77), Tile.TILE_COBBLESTONE_NE);
 		colorMap.put(new Color(92,83,78), Tile.TILE_COBBLESTONE_SW);
 		colorMap.put(new Color(92,83,79), Tile.TILE_COBBLESTONE_SE);
+		colorMap.put(new Color(71,2,51), Tile.TILE_MYCELIUM);
 
 		for (int i = 1; i < 16; i++) {
 			colorMap.put(new Color(220,250,50+i),Tile.TILE_GRASS);
