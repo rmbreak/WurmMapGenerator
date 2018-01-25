@@ -9,6 +9,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
+import net.buddat.wgenerator.util.Constants;
 import net.buddat.wgenerator.util.ProgressHandler;
 import net.buddat.wgenerator.util.SimplexNoise;
 
@@ -151,8 +152,9 @@ public class HeightMap {
 	/**
 	 *  Generates a full heightmap with the current instance's set values.
 	 *  Clamps the heightmap heights for the last iteration only.
+	 * @throws InterruptedException 
 	 */
-	void generateHeights(ProgressHandler progress) {
+	void generateHeights(ProgressHandler progress) throws InterruptedException {
 		MainWindow.log("HeightMap seed set to: " + noiseSeed);
 		SimplexNoise.genGrad(noiseSeed);
 
@@ -164,17 +166,53 @@ public class HeightMap {
 
 			double iRes = resolution / Math.pow(2, i - 1);
 			double str = Math.pow(2, i - 1) * 2.0;
-
-			for (int x = 0; x < mapSize; x++) {
-				for (int y = 0; y < mapSize; y++) {
-					setHeight(x, y, getHeight(x, y) + SimplexNoise.noise(x / iRes, y / iRes) / str, (i == iterations - 1));
-				}
+			boolean clamp = (i == iterations - 1);
+			
+			// Splits the map into equal vertical chunks for multithreading
+			int chunkSize = mapSize / Constants.CPU_CORES;
+			Thread [] threads = new Thread[Constants.CPU_CORES];
+			
+			for(int core=0; core<Constants.CPU_CORES; core++) {
+				int start = core * chunkSize;
+				int end = start + Math.min(chunkSize, mapSize-chunkSize);
+				threads[core] = new GenHeightWorker(start,end,iRes,str,clamp);
+				threads[core].start();
 			}
+			
+			for(Thread thread : threads) {
+				thread.join();
+			}
+			
 		}
 
 		MainWindow.log("HeightMap Generation (" + mapSize + ") completed in " + (System.currentTimeMillis() - startTime) + "ms.");
 
 		normalizeHeights();
+	}
+	
+	private class GenHeightWorker extends Thread {
+		
+		private int start;
+		private int end;
+		private double iRes;
+		private double str;
+		private boolean clamp;
+		
+		public GenHeightWorker(int start, int end, double iRes, double str, boolean clamp) {
+			this.start = start;
+			this.end = end;
+			this.iRes = iRes;
+			this.str = str;
+			this.clamp = clamp;
+		}
+		
+		public void run() {
+			for (int x = start; x < end; x++) {
+				for (int y = 0; y < mapSize; y++) {
+					setHeight(x, y, getHeight(x,y) + SimplexNoise.noise(x / iRes, y / iRes) / str, clamp);
+				}
+			}
+		}
 	}
 
 

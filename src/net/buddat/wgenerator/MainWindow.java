@@ -1748,6 +1748,8 @@ public class MainWindow extends JFrame {
 					textField_mapMaxHeight.getText() + "," + textField_normalizeRatio.getText() + "," + checkbox_moreLand.isSelected());
 		} catch (NumberFormatException nfe) {
 			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Generating HeightMap", JOptionPane.ERROR_MESSAGE);
+		} catch (InterruptedException ie) {
+			JOptionPane.showMessageDialog(null, "Multithreading interrupted " + ie.getMessage().toLowerCase(), "Error Generating HeightMap", JOptionPane.ERROR_MESSAGE);
 		} finally {
 			stopLoading();
 		}

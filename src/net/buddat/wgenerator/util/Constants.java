@@ -54,5 +54,6 @@ public class Constants {
 
 	public static enum VIEW_TYPE {ISO,TOPO,CAVE,HEIGHT,BIOMES};
 	public static String CONFIG_DIRECTORY = "./config/";
+	public static final int CPU_CORES = Runtime.getRuntime().availableProcessors();
 
 }
