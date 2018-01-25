@@ -165,12 +165,17 @@ public class MainWindow extends JFrame {
 			{"30","20","50","40","40","40","40","0","4000","true","30","70","true","3"},  //TILE_TREE_PINE
 			{"30","20","20","40","40","40","40","0","4000","true","30","70","true","1"},  //TILE_TREE_WALNUT
 			{"250","1","20","70","70","70","70","0","4000","true","30","70","true","2"},  //TILE_TREE_WILLOW
+			{"250","2","20","70","70","70","70","0","4000","true","30","70","true","2"},  //TILE_TREE_ORANGE
 			{"500","1","40","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_CAMELLIA
 			{"50","10","20","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_GRAPE
 			{"500","1","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_LAVENDER
 			{"500","1","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_OLEANDER
 			{"500","1","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_ROSE
 			{"500","1","50","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_THORN
+			{"500","1","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_HAZELNET
+			{"500","1","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_RASPBERRY
+			{"500","1","50","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_BLUEBERRY
+			{"500","1","50","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH_LINGONBERRY
 			{"30","20","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_TREE
 			{"500","1","30","70","70","70","70","0","4000","true","30","70","true","1"},  //TILE_BUSH
 			{"10","20","50","70","70","70","70","0","4000","true","30","70","true","1"}}; //TILE_SNOW
@@ -180,6 +185,8 @@ public class MainWindow extends JFrame {
 	private JTextField textField_FlowerPercent;
 	private JComboBox<String> comboBox_FlowerType;
 	private JButton btnViewBiomes;
+	private JTextField textField_Sandstone;
+	private JTextField textField_Rocksalt;
 
 
 	public static void main(String[] args) {
@@ -205,7 +212,7 @@ public class MainWindow extends JFrame {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public MainWindow() {
-		setTitle("Wurm Map Generator - v"+Constants.version);
+		setTitle(Constants.WINDOW_TITLE+" - v"+Constants.version);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1000, 750);
 		contentPane = new JPanel();
@@ -978,13 +985,17 @@ public class MainWindow extends JFrame {
 		//			}
 		//		}
 		//		comboBox_biomeType = new JComboBox(tiles.toArray());
+		
+		//TODO track new types
 		comboBox_biomeType = new JComboBox(new Tile[] { Tile.TILE_CLAY, Tile.TILE_DIRT, Tile.TILE_DIRT_PACKED, Tile.TILE_GRASS, Tile.TILE_GRAVEL, Tile.TILE_KELP,
 				Tile.TILE_LAVA, Tile.TILE_MARSH, Tile.TILE_MOSS, Tile.TILE_MYCELIUM, Tile.TILE_PEAT, Tile.TILE_REED, Tile.TILE_SAND, Tile.TILE_STEPPE, 
 				Tile.TILE_TAR, Tile.TILE_TUNDRA, Tile.TILE_TREE_APPLE, Tile.TILE_TREE_BIRCH, Tile.TILE_TREE_CEDAR, Tile.TILE_TREE_CHERRY, Tile.TILE_TREE_CHESTNUT, 
 				Tile.TILE_TREE_FIR, Tile.TILE_TREE_LEMON, Tile.TILE_TREE_LINDEN, Tile.TILE_TREE_MAPLE, Tile.TILE_TREE_OAK, Tile.TILE_TREE_OLIVE, Tile.TILE_TREE_PINE,
-				Tile.TILE_TREE_WALNUT, Tile.TILE_TREE_WILLOW, Tile.TILE_BUSH_CAMELLIA, Tile.TILE_BUSH_GRAPE, Tile.TILE_BUSH_LAVENDER, Tile.TILE_BUSH_OLEANDER,
-				Tile.TILE_BUSH_ROSE, Tile.TILE_BUSH_THORN, Tile.TILE_TREE, Tile.TILE_BUSH, Tile.TILE_SNOW
+				Tile.TILE_TREE_WALNUT, Tile.TILE_TREE_WILLOW, Tile.TILE_TREE_ORANGE, Tile.TILE_BUSH_CAMELLIA, Tile.TILE_BUSH_GRAPE, Tile.TILE_BUSH_LAVENDER, Tile.TILE_BUSH_OLEANDER,
+				Tile.TILE_BUSH_ROSE, Tile.TILE_BUSH_THORN, Tile.TILE_BUSH_HAZELNUT, Tile.TILE_BUSH_RASPBERRYE, Tile.TILE_BUSH_BLUEBERRY, Tile.TILE_BUSH_LINGONBERRY,
+				Tile.TILE_TREE, Tile.TILE_BUSH, Tile.TILE_SNOW
 		});
+		
 		panel_27.add(comboBox_biomeType);
 		comboBox_biomeType.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -1092,8 +1103,14 @@ public class MainWindow extends JFrame {
 
 		JLabel lblSlate = new JLabel("Slate");
 		panel_21.add(lblSlate);
+		
+		JLabel lblSandstone = new JLabel("Sandstone");
+		panel_21.add(lblSandstone);
+		
+		JLabel lblRocksalt = new JLabel("Rocksalt");
+		panel_21.add(lblRocksalt);
 
-		JLabel lblAddy = new JLabel("Addy");
+		JLabel lblAddy = new JLabel("Adamantine");
 		panel_21.add(lblAddy);
 
 		JLabel lblGlimmer = new JLabel("Glimmer");
@@ -1188,6 +1205,24 @@ public class MainWindow extends JFrame {
 		textField_Slate.setColumns(4);
 		panel_22.add(textField_Slate);
 
+		textField_Sandstone = new JTextField("" + Constants.ORE_SANDSTONE);
+		textField_Sandstone.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setRockTotal();
+			}
+		});
+		textField_Sandstone.setColumns(4);
+		panel_22.add(textField_Sandstone);
+		
+		textField_Rocksalt = new JTextField("" + Constants.ORE_ROCKSALT);
+		textField_Rocksalt.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setRockTotal();
+			}
+		});
+		textField_Rocksalt.setColumns(4);
+		panel_22.add(textField_Rocksalt);
+		
 		textField_Addy = new JTextField("" + Constants.ORE_ADDY);
 		textField_Addy.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -2007,7 +2042,8 @@ public class MainWindow extends JFrame {
 			double[] rates = { Double.parseDouble(textField_Rock.getText()), Double.parseDouble(textField_Iron.getText()), Double.parseDouble(textField_Gold.getText()),
 					Double.parseDouble(textField_Silver.getText()), Double.parseDouble(textField_Zinc.getText()), Double.parseDouble(textField_Copper.getText()),
 					Double.parseDouble(textField_Lead.getText()), Double.parseDouble(textField_Tin.getText()), Double.parseDouble(textField_Addy.getText()),
-					Double.parseDouble(textField_Glimmer.getText()), Double.parseDouble(textField_Marble.getText()), Double.parseDouble(textField_Slate.getText())					
+					Double.parseDouble(textField_Glimmer.getText()), Double.parseDouble(textField_Marble.getText()), Double.parseDouble(textField_Slate.getText()),
+					Double.parseDouble(textField_Sandstone.getText()), Double.parseDouble(textField_Rocksalt.getText())
 			};
 
 			tileMap.generateOres(rates, progress);
@@ -2018,7 +2054,8 @@ public class MainWindow extends JFrame {
 			genHistory.add("GENORES:" + textField_Rock.getText() + "," + textField_Iron.getText() + "," + textField_Gold.getText() + "," +
 					textField_Silver.getText() + "," + textField_Zinc.getText() + "," + textField_Copper.getText() + "," +
 					textField_Lead.getText() + "," + textField_Tin.getText() + "," + textField_Addy.getText() + "," +
-					textField_Glimmer.getText() + "," + textField_Marble.getText() + "," + textField_Slate.getText());
+					textField_Glimmer.getText() + "," + textField_Marble.getText() + "," + textField_Slate.getText() + "," + 
+					textField_Sandstone.getText() + "," + textField_Rocksalt.getText());
 		} catch (NumberFormatException nfe) {
 			JOptionPane.showMessageDialog(null, "Error parsing number " + nfe.getMessage().toLowerCase(), "Error Generating Ores", JOptionPane.ERROR_MESSAGE);
 		} finally {
@@ -2589,7 +2626,7 @@ public class MainWindow extends JFrame {
 			actionResetBiomes();
 			break;
 		case "GENORES":
-			if (options.length != 12) {
+			if (options.length != 14) {
 				JOptionPane.showMessageDialog(null, "Not enough options for GENORES", "Error Loading Actions", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
@@ -2606,6 +2643,8 @@ public class MainWindow extends JFrame {
 			textField_Glimmer.setText(options[9]);
 			textField_Marble.setText(options[10]);
 			textField_Slate.setText(options[11]);
+			textField_Sandstone.setText(options[12]);
+			textField_Rocksalt.setText(options[13]);
 
 			actionGenerateOres();
 			break;
@@ -2802,7 +2841,8 @@ public class MainWindow extends JFrame {
 			double[] rates = { Double.parseDouble(textField_Iron.getText()), Double.parseDouble(textField_Gold.getText()),
 					Double.parseDouble(textField_Silver.getText()), Double.parseDouble(textField_Zinc.getText()), Double.parseDouble(textField_Copper.getText()),
 					Double.parseDouble(textField_Lead.getText()), Double.parseDouble(textField_Tin.getText()), Double.parseDouble(textField_Addy.getText()),
-					Double.parseDouble(textField_Glimmer.getText()), Double.parseDouble(textField_Marble.getText()), Double.parseDouble(textField_Slate.getText())					
+					Double.parseDouble(textField_Glimmer.getText()), Double.parseDouble(textField_Marble.getText()), Double.parseDouble(textField_Slate.getText()), 
+					Double.parseDouble(textField_Sandstone.getText()), Double.parseDouble(textField_Rocksalt.getText())
 			};
 
 			float total = 0;

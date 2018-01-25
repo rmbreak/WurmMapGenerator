@@ -168,6 +168,10 @@ public class TileMap {
 					setOreType(x, y, Tile.TILE_CAVE_WALL_MARBLE, biomeRandom.nextInt(15000) + 90);
 				else if (rand < (total += rates[11]))
 					setOreType(x, y, Tile.TILE_CAVE_WALL_SLATE, biomeRandom.nextInt(15000) + 90);
+				else if (rand < (total += rates[12]))
+					setOreType(x, y, Tile.TILE_CAVE_WALL_SANDSTONE, biomeRandom.nextInt(15000) + 90);
+				else if (rand < (total += rates[13]))
+					setOreType(x, y, Tile.TILE_CAVE_WALL_ROCKSALT, biomeRandom.nextInt(15000) + 90);
 				else
 					setOreType(x, y, Tile.TILE_CAVE_WALL, biomeRandom.nextInt(20) + 40);
 			}
@@ -561,6 +565,7 @@ public class TileMap {
 		colorMap.put(new Color(41,58,13), Tile.TILE_TREE_PINE);
 		colorMap.put(new Color(41,58,14), Tile.TILE_TREE_WALNUT);
 		colorMap.put(new Color(41,58,15), Tile.TILE_TREE_WILLOW);
+		colorMap.put(new Color(41,58,16), Tile.TILE_TREE_ORANGE);
 		colorMap.put(new Color(58,58,0), Tile.TILE_BUSH);
 		colorMap.put(new Color(58,58,1), Tile.TILE_BUSH_CAMELLIA);
 		colorMap.put(new Color(58,58,2), Tile.TILE_BUSH_GRAPE);
@@ -568,6 +573,10 @@ public class TileMap {
 		colorMap.put(new Color(58,58,4), Tile.TILE_BUSH_OLEANDER);
 		colorMap.put(new Color(58,58,5), Tile.TILE_BUSH_ROSE);
 		colorMap.put(new Color(58,58,6), Tile.TILE_BUSH_THORN);
+		colorMap.put(new Color(58,58,7), Tile.TILE_BUSH_HAZELNUT);
+		colorMap.put(new Color(58,58,8), Tile.TILE_BUSH_RASPBERRYE);
+		colorMap.put(new Color(58,58,9), Tile.TILE_BUSH_BLUEBERRY);
+		colorMap.put(new Color(58,58,10), Tile.TILE_BUSH_LINGONBERRY);
 		colorMap.put(new Color(155,151,148), Tile.TILE_CLIFF);
 		colorMap.put(new Color(255,255,255), Tile.TILE_SNOW);
 		colorMap.put(new Color(114,102,80), Tile.TILE_PLANKS);
@@ -575,12 +584,8 @@ public class TileMap {
 		colorMap.put(new Color(99,99,98), Tile.TILE_SLATE_SLABS);
 		colorMap.put(new Color(99,99,97), Tile.TILE_MARBLE_SLABS);
 		colorMap.put(new Color(92,83,73), Tile.TILE_COBBLESTONE);
-		colorMap.put(new Color(92,83,74), Tile.TILE_COBBLESTONE);
-		colorMap.put(new Color(92,83,75), Tile.TILE_COBBLESTONE);
-		colorMap.put(new Color(92,83,76), Tile.TILE_COBBLESTONE_NW);
-		colorMap.put(new Color(92,83,77), Tile.TILE_COBBLESTONE_NE);
-		colorMap.put(new Color(92,83,78), Tile.TILE_COBBLESTONE_SW);
-		colorMap.put(new Color(92,83,79), Tile.TILE_COBBLESTONE_SE);
+		colorMap.put(new Color(92,83,74), Tile.TILE_COBBLESTONE_ROUGH);
+		colorMap.put(new Color(92,83,75), Tile.TILE_COBBLESTONE_ROUND);
 		colorMap.put(new Color(71,2,51), Tile.TILE_MYCELIUM);
 
 		for (int i = 1; i < 16; i++) {
