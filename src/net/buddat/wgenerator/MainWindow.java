@@ -22,6 +22,7 @@ import java.awt.image.WritableRaster;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -1390,11 +1391,16 @@ public class MainWindow extends JFrame {
     progress.update(100);
     System.setErr(new PrintStream(new StreamCapturer(System.err, this)));
 
-    // Loads biome input values from config file
+
     try {
       (new File(Constants.CONFIG_DIRECTORY)).mkdirs();
-      FileReader fr = new FileReader(Constants.CONFIG_DIRECTORY + "biome_values.txt");
-      BufferedReader br = new BufferedReader(fr);
+    } catch (SecurityException e) {
+      /* No permission to write to directory. */
+    }
+
+    // Loads biome input values from config file
+    try (FileReader fr = new FileReader(Constants.CONFIG_DIRECTORY + "biome_values.txt");
+         BufferedReader br = new BufferedReader(fr)) {
       String s;
 
       for (int bt = 0; bt < biomeOptionValue.length; bt++) {
@@ -1406,9 +1412,10 @@ public class MainWindow extends JFrame {
           }
         }
       }
-      fr.close();
+    } catch (FileNotFoundException e) {
+      /* File not found */
     } catch (IOException e) {
-      /* File doesn't exist. */
+      /* IOException */
     }
     comboBoxBiomeType.setSelectedIndex(12);
   }
@@ -2407,21 +2414,20 @@ public class MainWindow extends JFrame {
         textFieldMapName.setText(biomeValueFile.getParentFile().getName());
         actionsFileDirectory = biomeValueFile.getParentFile().getAbsolutePath();
 
-        FileReader fr = new FileReader(biomeValueFile);
-        BufferedReader br = new BufferedReader(fr);
+        try (FileReader fr = new FileReader(biomeValueFile);
+             BufferedReader br = new BufferedReader(fr)) {
+          String s;
 
-        String s;
-
-        for (int bt = 0; bt < 36; bt++) {
-          s = br.readLine();
-          if (s != null) {
-            String[] parts = s.split(",");
-            for (int bv = 0; bv < 14; bv++) {
-              biomeOptionValue[bt][bv] = parts[bv];
+          for (int bt = 0; bt < 36; bt++) {
+            s = br.readLine();
+            if (s != null) {
+              String[] parts = s.split(",");
+              for (int bv = 0; bv < 14; bv++) {
+                biomeOptionValue[bt][bv] = parts[bv];
+              }
             }
           }
         }
-        fr.close();
         comboBoxBiomeType.setSelectedIndex(12);
       }
     } catch (IOException ex) {
