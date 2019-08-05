@@ -53,15 +53,14 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
+import lombok.extern.slf4j.Slf4j;
 import net.buddat.wgenerator.util.Constants;
 import net.buddat.wgenerator.util.ProgressHandler;
 import net.buddat.wgenerator.util.StreamCapturer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class MainWindow extends JFrame {
 
-  private static Logger logger = LoggerFactory.getLogger(MainWindow.class);
   private static final long serialVersionUID = -407206109473532425L;
 
   private WurmAPI api;
