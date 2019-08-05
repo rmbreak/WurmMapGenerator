@@ -14,7 +14,7 @@ plugins {
 }
 
 checkstyle {
-    toolVersion '8.23'
+    toolVersion '8.18'
     configFile file("config/checkstyle/google_checks.xml")
 }
 
@@ -48,5 +48,5 @@ repositories {
 }
 
 dependencies {
-    compile files('lib/common-1.4.0.1.jar')
+    implementation 'com.github.codeclubab.WurmModServerApi:WurmModServerApi:1.4.0.2'
 }

@@ -45,16 +45,27 @@ public class Constants {
   public static final int BIOME_RANDOM_MIN = 50;
   public static final int BIOME_RANDOM_MAX = 75;
   public static final int BIOME_FLOWER_PERCENT = 30;
-  public static final double ORE_IRON = 1.0, ORE_GOLD = 0.05, ORE_SILVER = 0.1, ORE_ZINC = 0.15, ORE_COPPER = 0.2,
-      ORE_LEAD = 0.2, ORE_TIN = 0.2, ORE_ADDY = 0.0, ORE_GLIMMER = 0.0, ORE_MARBLE = 0.2, ORE_SLATE = 0.2,
-      ORE_SANDSTONE = 0.2, ORE_ROCKSALT = 0.2;
+
+  public static final double ORE_IRON = 1.0;
+  public static final double ORE_GOLD = 0.05;
+  public static final double ORE_SILVER = 0.1;
+  public static final double ORE_ZINC = 0.15;
+  public static final double ORE_COPPER = 0.2;
+  public static final double ORE_LEAD = 0.2;
+  public static final double ORE_TIN = 0.2;
+  public static final double ORE_ADDY = 0.0;
+  public static final double ORE_GLIMMER = 0.0;
+  public static final double ORE_MARBLE = 0.2;
+  public static final double ORE_SLATE = 0.2;
+  public static final double ORE_SANDSTONE = 0.2;
+  public static final double ORE_ROCKSALT = 0.2;
 
   public static final int GRID_SIZE = 8;
   public static final int BIOME_SEED_LIMIT_MULTIPLIER = 10;
 
-  public static enum VIEW_TYPE {
+  public static enum ViewType {
     ISO, TOPO, CAVE, HEIGHT, BIOMES
-  };
+  }
 
   public static String CONFIG_DIRECTORY = "./config/";
   public static final int CPU_CORES = Runtime.getRuntime().availableProcessors();

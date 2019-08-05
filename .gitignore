@@ -1,6 +1,7 @@
 .classpath
 .project
 .settings/
+bin/
 
 # Created by https://www.gitignore.io/api/java,code,gradle
 # Edit at https://www.gitignore.io/?templates=java,code,gradle

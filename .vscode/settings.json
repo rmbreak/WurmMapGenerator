@@ -1,3 +1,6 @@
 {
-    "java.checkstyle.configuration": "/google_checks.xml"
+    "java.checkstyle.configuration": "config/checkstyle/google_checks.xml",
+    "java.completion.importOrder": [],
+    "java.format.settings.url": "config/formatter/eclipse-formatter.xml",
+    "java.configuration.updateBuildConfiguration": "automatic"
 }

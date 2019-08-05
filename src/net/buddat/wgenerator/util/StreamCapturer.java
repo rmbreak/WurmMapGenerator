@@ -3,16 +3,18 @@ package net.buddat.wgenerator.util;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-
 import net.buddat.wgenerator.MainWindow;
 
-/** Retrieves text from the given print stream and logs it to the interface */
+/** Retrieves text from the given print stream and logs it to the interface. */
 public class StreamCapturer extends OutputStream {
 
   private StringBuilder buffer;
   private PrintStream old;
   private MainWindow window;
 
+  /**
+   * Constructs a new instance of a StreamCapturer.
+   */
   public StreamCapturer(PrintStream old, MainWindow window) {
     buffer = new StringBuilder(128);
     this.old = old;
