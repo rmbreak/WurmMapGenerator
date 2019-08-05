@@ -10,11 +10,26 @@ plugins {
     id 'java'
     id 'application'
     id 'checkstyle'
+    id 'findbugs'
 }
 
 checkstyle {
     toolVersion '8.23'
     configFile file("config/checkstyle/google_checks.xml")
+}
+
+findbugs {
+    ignoreFailures = false
+    toolVersion = "3.0.1"
+    sourceSets=[sourceSets.main]
+    effort = "max"
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled false
+        html.enabled true
+    }
 }
 
 mainClassName = 'net.buddat.wgenerator.MainWindow'
