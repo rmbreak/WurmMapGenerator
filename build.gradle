@@ -6,8 +6,16 @@
  * user guide available at https://docs.gradle.org/4.4.1/userguide/tutorial_java_projects.html
  */
 
-apply plugin: 'java'
-apply plugin: 'application'
+plugins {
+    id 'java'
+    id 'application'
+    id 'checkstyle'
+}
+
+checkstyle {
+    toolVersion '8.23'
+    configFile file("config/checkstyle/google_checks.xml")
+}
 
 mainClassName = 'net.buddat.wgenerator.MainWindow'
 
@@ -20,6 +28,7 @@ sourceSets {
 }
 
 repositories {
+    jcenter()
     maven { url 'https://jitpack.io' }
 }
 
