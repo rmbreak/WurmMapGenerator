@@ -264,9 +264,7 @@ public class MapPanel extends JPanel {
   void setMapImage(BufferedImage newImage) {
     final int newSize = newImage.getWidth();
     final int oldSize = mapImage.getWidth();
-    if (mapImage != null) {
-      mapImage.flush();
-    }
+    mapImage.flush();
     mapImage = newImage;
     updateScale();
     checkBounds();

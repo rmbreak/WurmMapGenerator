@@ -27,6 +27,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.imageio.ImageIO;
@@ -1391,8 +1392,8 @@ public class MainWindow extends JFrame {
     updateMapCoords(0, 0, false);
     progress = new ProgressHandler(progressBar, lblMemory);
     progress.update(100);
-    System.setErr(new PrintStream(new StreamCapturer(System.err, this)));
-
+    StreamCapturer sc = new StreamCapturer(System.err, this);
+    System.setErr(new PrintStream(sc, true, StandardCharsets.UTF_8));
 
     try {
       (new File(Constants.CONFIG_DIRECTORY)).mkdirs();
@@ -1401,7 +1402,8 @@ public class MainWindow extends JFrame {
     }
 
     // Loads biome input values from config file
-    try (FileReader fr = new FileReader(Constants.CONFIG_DIRECTORY + "biome_values.txt");
+    String biomeValuesPath = Constants.CONFIG_DIRECTORY + "biome_values.txt";
+    try (FileReader fr = new FileReader(biomeValuesPath, StandardCharsets.UTF_8);
          BufferedReader br = new BufferedReader(fr)) {
       String s;
 
@@ -2340,7 +2342,8 @@ public class MainWindow extends JFrame {
 
   void actionSaveGlobalBiomeValues() {
     try {
-      FileWriter fw = new FileWriter(Constants.CONFIG_DIRECTORY + "biome_values.txt");
+      String biomeValuesPath = Constants.CONFIG_DIRECTORY + "biome_values.txt";
+      FileWriter fw = new FileWriter(biomeValuesPath, StandardCharsets.UTF_8);
       for (int bt = 0; bt < biomeOptionValue.length; bt++) {
         for (int bv = 0; bv < biomeOptionValue[0].length; bv++) {
           fw.write(biomeOptionValue[bt][bv]);
@@ -2375,11 +2378,9 @@ public class MainWindow extends JFrame {
         log.warn("Failed to create biome value file");
       }
 
-      BufferedWriter bw = new BufferedWriter(new FileWriter(biomeValueFile));
-
       String biotxt;
       try {
-        FileWriter fw = new FileWriter(biomeValueFile);
+        FileWriter fw = new FileWriter(biomeValueFile, StandardCharsets.UTF_8);
         for (int bt = 0; bt < 36; bt++) {
           for (int bv = 0; bv < 14; bv++) {
             biotxt = biomeOptionValue[bt][bv];
@@ -2394,9 +2395,6 @@ public class MainWindow extends JFrame {
       } catch (IOException ex) {
         System.err.println("Saving BiomeValues.txt failed: " + ex.toString());
       }
-
-      bw.close();
-
     } catch (IOException ex) {
       System.err.println("Saving Biome values failed: " + ex.toString());
     } finally {
@@ -2422,7 +2420,7 @@ public class MainWindow extends JFrame {
         textFieldMapName.setText(biomeValueFile.getParentFile().getName());
         actionsFileDirectory = biomeValueFile.getParentFile().getAbsolutePath();
 
-        try (FileReader fr = new FileReader(biomeValueFile);
+        try (FileReader fr = new FileReader(biomeValueFile, StandardCharsets.UTF_8);
              BufferedReader br = new BufferedReader(fr)) {
           String s;
 
@@ -2469,7 +2467,7 @@ public class MainWindow extends JFrame {
         log.warn("Overwrote old actionsFile");
       }
 
-      BufferedWriter bw = new BufferedWriter(new FileWriter(actionsFile));
+      BufferedWriter bw = new BufferedWriter(new FileWriter(actionsFile, StandardCharsets.UTF_8));
       for (String s : genHistory) {
         bw.write(s + "\r\n");
       }
@@ -2502,7 +2500,8 @@ public class MainWindow extends JFrame {
         textFieldMapName.setText(actionsFile.getParentFile().getName());
         actionsFileDirectory = actionsFile.getParentFile().getAbsolutePath();
 
-        BufferedReader br = new BufferedReader(new FileReader(actionsFile));
+        FileReader fr = new FileReader(actionsFile, StandardCharsets.UTF_8);
+        BufferedReader br = new BufferedReader(fr);
         String line;
         while ((line = br.readLine()) != null) {
           parseAction(line);
