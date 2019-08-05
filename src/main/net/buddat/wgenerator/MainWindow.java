@@ -2311,7 +2311,10 @@ public class MainWindow extends JFrame {
 
       File imageFile = new File("./maps/" + mapName + "/" + "biomes.png");
       if (!imageFile.exists()) {
-        imageFile.mkdirs();
+        boolean created = imageFile.mkdirs();
+        if (!created) {
+          log.warn("Failed to create imageFile directory");
+        }
       }
       ImageIO.write(bufferedImage, "png", imageFile);
     } catch (IOException ex) {
@@ -2367,7 +2370,10 @@ public class MainWindow extends JFrame {
       }
 
       File biomeValueFile = fc.getSelectedFile();
-      biomeValueFile.createNewFile();
+      boolean created = biomeValueFile.createNewFile();
+      if (!created) {
+        log.warn("Failed to create biome value file");
+      }
 
       BufferedWriter bw = new BufferedWriter(new FileWriter(biomeValueFile));
 
@@ -2459,7 +2465,9 @@ public class MainWindow extends JFrame {
       }
 
       File actionsFile = fc.getSelectedFile();
-      actionsFile.createNewFile();
+      if (!actionsFile.createNewFile()) {
+        log.warn("Overwrote old actionsFile");
+      }
 
       BufferedWriter bw = new BufferedWriter(new FileWriter(actionsFile));
       for (String s : genHistory) {
@@ -3079,9 +3087,5 @@ public class MainWindow extends JFrame {
   public void submitError(String err) {
     textAreaErrors.append(err);
     btnViewErrors.setVisible(true);
-  }
-
-  public static void log(String s) {
-    System.out.println(s);
   }
 }
