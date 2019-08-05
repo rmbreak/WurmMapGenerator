@@ -27,12 +27,6 @@ tasks.withType(SpotBugsTask) {
   }
 }
 
-sourceSets {
-    main {
-        java.srcDirs 'src/main'
-    }
-}
-
 mainClassName = 'net.buddat.wgenerator.MainWindow'
 
 repositories {
