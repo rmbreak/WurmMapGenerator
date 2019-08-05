@@ -243,7 +243,7 @@ public class MainWindow extends JFrame {
   }
 
   /** Construct the Window. */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked"})
   public MainWindow() {
     setTitle(Constants.WINDOW_TITLE + " - v" + Constants.version);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
