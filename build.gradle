@@ -10,7 +10,7 @@ plugins {
     id 'java'
     id 'application'
     id 'checkstyle'
-    id 'findbugs'
+    id "com.github.spotbugs" version "2.0.0"
 }
 
 checkstyle {
@@ -18,29 +18,20 @@ checkstyle {
     configFile file("config/checkstyle/google_checks.xml")
 }
 
-findbugs {
-    ignoreFailures = false
-    toolVersion = "3.0.1"
-    sourceSets=[sourceSets.main]
-    effort = "max"
+tasks.withType(com.github.spotbugs.SpotBugsTask) {
+  reports {
+      xml.enabled false
+      html.enabled true
+  }
 }
 
-tasks.withType(FindBugs) {
-    reports {
-        xml.enabled false
-        html.enabled true
+sourceSets {
+    main {
+        java.srcDirs 'src/main'
     }
 }
 
 mainClassName = 'net.buddat.wgenerator.MainWindow'
-
-sourceSets {
-    main {
-        java {
-            srcDirs 'src/main'
-        }
-    }
-}
 
 repositories {
     jcenter()
@@ -48,7 +39,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.slf4j:slf4j-api:1.7.25'
-    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.12.0'
     implementation 'com.github.codeclubab.WurmModServerApi:WurmModServerApi:1.4.0.2'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.12.0'
+    implementation 'org.slf4j:slf4j-api:1.7.25'
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.9.0'
 }
