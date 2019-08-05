@@ -10,12 +10,15 @@ import javax.swing.JOptionPane;
 import net.buddat.wgenerator.util.Constants;
 import net.buddat.wgenerator.util.ProgressHandler;
 import net.buddat.wgenerator.util.SimplexNoise;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 16 bit grayscale image. All height values for each point will be between 0.0
  * and 1.0
  */
 public class HeightMap {
+  private static Logger logger = LoggerFactory.getLogger(HeightMap.class);
 
   private double[][] heightArray;
   private long noiseSeed;
@@ -127,7 +130,10 @@ public class HeightMap {
     bufferedImage.setData(wr);
     try {
       if (!imageFile.exists()) {
-        imageFile.mkdirs();
+        boolean created = imageFile.mkdirs();
+        if (!created) {
+          logger.error("Failed to create imageFile directory!");
+        }
       }
       ImageIO.write(bufferedImage, "png", imageFile);
     } catch (IOException e) {

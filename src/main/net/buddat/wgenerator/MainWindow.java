@@ -56,9 +56,12 @@ import javax.swing.filechooser.FileFilter;
 import net.buddat.wgenerator.util.Constants;
 import net.buddat.wgenerator.util.ProgressHandler;
 import net.buddat.wgenerator.util.StreamCapturer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MainWindow extends JFrame {
 
+  private static Logger logger = LoggerFactory.getLogger(MainWindow.class);
   private static final long serialVersionUID = -407206109473532425L;
 
   private WurmAPI api;
