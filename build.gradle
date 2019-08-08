@@ -12,12 +12,30 @@ plugins {
     id 'java'
     id 'application'
     id 'checkstyle'
+    id 'pmd'
     id "com.github.spotbugs" version "2.0.0"
 }
 
 checkstyle {
     toolVersion '8.18'
     configFile file("config/checkstyle/google_checks.xml")
+}
+
+pmd {
+    ignoreFailures true
+    pmdTest.enabled false
+}
+
+tasks.withType(Pmd){
+    reports{
+        xml.enabled false
+        html.enabled true
+    }
+}
+
+spotbugs {
+    ignoreFailures true
+    spotbugsTest.enabled false
 }
 
 tasks.withType(SpotBugsTask) {
