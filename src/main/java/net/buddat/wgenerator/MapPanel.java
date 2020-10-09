@@ -23,7 +23,7 @@ public class MapPanel extends JPanel {
 
   private BufferedImage mapImage;
 
-  private MainWindow window;
+  private final MainWindow window;
   private int mapSize;
   private double scale = 0.0f;
   private double minScale = 1.0f;
@@ -38,7 +38,7 @@ public class MapPanel extends JPanel {
   private int gridSize = 1;
   private boolean isBiomePaintingMode = false;
   private boolean isRiverPaintingMode = false;
-  private ArrayList<Point> riverSeeds;
+  private final ArrayList<Point> riverSeeds;
 
   /**
    * Builds and attaches the Map to our window.
@@ -68,8 +68,8 @@ public class MapPanel extends JPanel {
         if (scale <= minScale) {
           scale = minScale;
         }
-        int deltaX = (int) ((getImageWidth() - preW));
-        int deltaY = (int) ((getImageHeight() - preH));
+        int deltaX = (getImageWidth() - preW);
+        int deltaY = (getImageHeight() - preH);
         imageX -= (int) (deltaX * ratioX);
         imageY -= (int) (deltaY * ratioY);
         checkBounds();

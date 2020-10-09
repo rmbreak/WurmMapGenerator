@@ -16,20 +16,20 @@ import net.buddat.wgenerator.util.ProgressHandler;
 @Slf4j
 class TileMap {
   private Random biomeRandom;
-  private HeightMap heightMap;
-  private Tile[][] typeMap;
-  private Tile[][] oreTypeMap;
-  private short[][] oreResourceMap;
-  private short[][] dirtMap;
-  private double singleDirt;
+  private final HeightMap heightMap;
+  private final Tile[][] typeMap;
+  private final Tile[][] oreTypeMap;
+  private final short[][] oreResourceMap;
+  private final short[][] dirtMap;
+  private final double singleDirt;
   private double waterHeight;
   private boolean hasOres;
   private long dirtDropProgress;
   private int biomeSeed;
-  private short[][] flowerMap;
+  private final short[][] flowerMap;
   public static HashMap<Color, Tile> colorMap;
 
-  private HashMap<Point, Tile> lastBiomeChanges;
+  private final HashMap<Point, Tile> lastBiomeChanges;
 
   /**
    * Construct a new TileMap from a HeightMap.
@@ -62,10 +62,10 @@ class TileMap {
     dirtDropProgress = 0;
 
     class Iteration implements Runnable {
-      int sizex;
-      int sizey;
-      int ix;
-      int iy;
+      final int sizex;
+      final int sizey;
+      final int ix;
+      final int iy;
 
       public Iteration(int ix, int iy, int sizex, int sizey) {
         this.ix = ix;

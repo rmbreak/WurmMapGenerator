@@ -18,18 +18,18 @@ import net.buddat.wgenerator.util.SimplexNoise;
  */
 @Slf4j
 public class HeightMap {
-  private double[][] heightArray;
-  private long noiseSeed;
-  private int mapSize;
-  private double resolution;
-  private int iterations;
-  private boolean moreLand;
-  private int minimumEdge;
-  private int maxHeight;
+  private final double[][] heightArray;
+  private final long noiseSeed;
+  private final int mapSize;
+  private final double resolution;
+  private final int iterations;
+  private final boolean moreLand;
+  private final int minimumEdge;
+  private final int maxHeight;
   private int normalizeRatio;
-  private int borderCutoff;
-  private double borderNormalize;
-  private double singleDirt;
+  private final int borderCutoff;
+  private final double borderNormalize;
+  private final double singleDirt;
 
   private BufferedImage heightImage;
 
@@ -46,7 +46,7 @@ public class HeightMap {
     this.moreLand = moreLand;
 
     this.heightArray = new double[mapSize][mapSize];
-    this.borderCutoff = (int) (mapSize / Math.abs(borderWeight));
+    this.borderCutoff = mapSize / Math.abs(borderWeight);
     this.borderNormalize = (float) (1.0 / borderCutoff);
 
     this.singleDirt = 1.0 / maxHeight;
@@ -65,7 +65,7 @@ public class HeightMap {
 
     this.heightArray = new double[mapSize][mapSize];
     this.borderCutoff = 1;
-    this.borderNormalize = (float) (1.0f / borderCutoff);
+    this.borderNormalize = 1.0f / borderCutoff;
 
     this.singleDirt = 1.0 / maxHeight;
 
@@ -114,7 +114,7 @@ public class HeightMap {
     File imageFile = new File("./maps/" + txtName + "/" + fileName);
     BufferedImage bufferedImage = new BufferedImage(mapSize, mapSize,
         BufferedImage.TYPE_USHORT_GRAY);
-    WritableRaster wr = (WritableRaster) bufferedImage.getRaster();
+    WritableRaster wr = bufferedImage.getRaster();
 
     double[] array = new double[mapSize * mapSize];
     for (int x = 0; x < mapSize; x++) {

@@ -8,9 +8,9 @@ import net.buddat.wgenerator.MainWindow;
 /** Retrieves text from the given print stream and logs it to the interface. */
 public class StreamCapturer extends OutputStream {
 
-  private StringBuilder buffer;
-  private PrintStream old;
-  private MainWindow window;
+  private final StringBuilder buffer;
+  private final PrintStream old;
+  private final MainWindow window;
 
   /**
    * Constructs a new instance of a StreamCapturer.

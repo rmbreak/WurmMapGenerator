@@ -69,104 +69,104 @@ public class MainWindow extends JFrame {
   private TileMap tileMap;
   private ArrayList<String> genHistory;
   private boolean apiClosed = true;
-  private MapPanel mapPanel;
+  private final MapPanel mapPanel;
   private String mapName;
   private String actionsFileDirectory;
   private Constants.ViewType defaultView = Constants.ViewType.HEIGHT;
   private ProgressHandler progress;
 
-  private JProgressBar progressBar;
-  private JLabel lblMemory;
-  private JPanel contentPane;
-  private JTextField textFieldMapSeed;
-  private JTextField textFieldMapResolution;
-  private JTextField textFieldMapMinEdge;
-  private JTextField textFieldMapBorderWeight;
-  private JTextField textFieldMapMaxHeight;
-  private JTextField textFieldMapIterations;
-  private JTextField textFieldErodeIterations;
-  private JTextField textFieldErodeMinSlope;
-  private JTextField textFieldErodeSediment;
-  private JTextField textFieldBiomeSeed;
-  private JTextField textFieldDirtPerTile;
-  private JTextField textFieldMaxDiagSlope;
-  private JTextField textFieldMaxDirtHeight;
-  private JTextField textFieldWaterHeight;
-  private JTextField textFieldSeedCount;
-  private JTextField textFieldBiomeSize;
-  private JTextField textFieldBiomeMaxSlope;
-  private JTextField textFieldBiomeMaxHeight;
-  private JTextField textFieldGrowthN;
-  private JTextField textFieldGrowthS;
-  private JTextField textFieldGrowthE;
-  private JTextField textFieldGrowthW;
-  private JTextField textFieldBiomeMinHeight;
-  private JTextField textFieldIron;
-  private JTextField textFieldGold;
-  private JTextField textFieldSilver;
-  private JTextField textFieldZinc;
-  private JTextField textFieldCopper;
-  private JTextField textFieldLead;
-  private JTextField textFieldTin;
-  private JTextField textFieldMarble;
-  private JTextField textFieldSlate;
-  private JTextField textFieldAddy;
-  private JTextField textFieldGlimmer;
-  private JTextField textFieldRock;
-  private JTextField textFieldMaxDirtSlope;
-  private JTextField textFieldMapName;
-  private JComboBox<Integer> comboBoxMapSize;
-  private JCheckBox checkboxBiomeRandomSeed;
-  private JComboBox<Tile> comboBoxBiomeType;
-  private JCheckBox checkboxMoreLand;
-  private JCheckBox checkboxMapRandomSeed;
-  private JButton btnGenerateHeightmap;
-  private JButton btnErodeHeightmap;
-  private JButton btnUpdateWater;
-  private JButton btnDropDirt;
-  private JButton btnGenerateOres;
-  private JButton btnResetBiomes;
-  private JButton btnUndoLastBiome;
-  private JButton btnAddBiome;
-  private JLabel lblWater;
-  private JCheckBox chckbxAroundWater;
-  private JTextField textFieldGrowthMin;
-  private JTextField textFieldGrowthMax;
-  private JCheckBox checkboxGrowthRandom;
-  private JButton btnSaveMapFiles;
-  private JButton btnSaveImageDumps;
-  private JButton btnSaveActions;
-  private JButton btnLoadActions;
-  private JButton btnViewHeight;
-  private JButton btnViewCave;
-  private JButton btnViewTopo;
-  private JButton btnViewMap;
-  private JTextField textFieldCliffRatio;
-  private JButton btnLoadHeightmap;
-  private JTextField textFieldErodeMaxSlope;
-  private JCheckBox checkBoxLandSlide;
-  private JButton btnUpdateMapName;
-  private JLabel lblMapCoords;
-  private JCheckBox chcekboxShowGrid;
-  private JTextField textFieldMapGridSize;
-  private JTextField textFieldBiomeDensity;
-  private JButton btnViewErrors;
-  private JTextArea textAreaErrors;
-  private CardLayout clMainPanel;
-  private JPanel mainPanel;
-  private JCheckBox checkboxPaintMode;
-  private JButton btnGenerateRivers;
-  private JCheckBox checkboxPaintRivers;
-  private JTextField textFieldRiverDepth;
-  private JTextField textFieldRiverWidth;
-  private JTextField textFieldRiverSlope;
-  private JButton btnResetRivers;
-  private JCheckBox checkboxAutoDropDirt;
-  private JTextField textFieldNormalizeRatio;
-  private JButton btnUndoRiver;
+  private final JProgressBar progressBar;
+  private final JLabel lblMemory;
+  private final JPanel contentPane;
+  private final JTextField textFieldMapSeed;
+  private final JTextField textFieldMapResolution;
+  private final JTextField textFieldMapMinEdge;
+  private final JTextField textFieldMapBorderWeight;
+  private final JTextField textFieldMapMaxHeight;
+  private final JTextField textFieldMapIterations;
+  private final JTextField textFieldErodeIterations;
+  private final JTextField textFieldErodeMinSlope;
+  private final JTextField textFieldErodeSediment;
+  private final JTextField textFieldBiomeSeed;
+  private final JTextField textFieldDirtPerTile;
+  private final JTextField textFieldMaxDiagSlope;
+  private final JTextField textFieldMaxDirtHeight;
+  private final JTextField textFieldWaterHeight;
+  private final JTextField textFieldSeedCount;
+  private final JTextField textFieldBiomeSize;
+  private final JTextField textFieldBiomeMaxSlope;
+  private final JTextField textFieldBiomeMaxHeight;
+  private final JTextField textFieldGrowthN;
+  private final JTextField textFieldGrowthS;
+  private final JTextField textFieldGrowthE;
+  private final JTextField textFieldGrowthW;
+  private final JTextField textFieldBiomeMinHeight;
+  private final JTextField textFieldIron;
+  private final JTextField textFieldGold;
+  private final JTextField textFieldSilver;
+  private final JTextField textFieldZinc;
+  private final JTextField textFieldCopper;
+  private final JTextField textFieldLead;
+  private final JTextField textFieldTin;
+  private final JTextField textFieldMarble;
+  private final JTextField textFieldSlate;
+  private final JTextField textFieldAddy;
+  private final JTextField textFieldGlimmer;
+  private final JTextField textFieldRock;
+  private final JTextField textFieldMaxDirtSlope;
+  private final JTextField textFieldMapName;
+  private final JComboBox<Integer> comboBoxMapSize;
+  private final JCheckBox checkboxBiomeRandomSeed;
+  private final JComboBox<Tile> comboBoxBiomeType;
+  private final JCheckBox checkboxMoreLand;
+  private final JCheckBox checkboxMapRandomSeed;
+  private final JButton btnGenerateHeightmap;
+  private final JButton btnErodeHeightmap;
+  private final JButton btnUpdateWater;
+  private final JButton btnDropDirt;
+  private final JButton btnGenerateOres;
+  private final JButton btnResetBiomes;
+  private final JButton btnUndoLastBiome;
+  private final JButton btnAddBiome;
+  private final JLabel lblWater;
+  private final JCheckBox chckbxAroundWater;
+  private final JTextField textFieldGrowthMin;
+  private final JTextField textFieldGrowthMax;
+  private final JCheckBox checkboxGrowthRandom;
+  private final JButton btnSaveMapFiles;
+  private final JButton btnSaveImageDumps;
+  private final JButton btnSaveActions;
+  private final JButton btnLoadActions;
+  private final JButton btnViewHeight;
+  private final JButton btnViewCave;
+  private final JButton btnViewTopo;
+  private final JButton btnViewMap;
+  private final JTextField textFieldCliffRatio;
+  private final JButton btnLoadHeightmap;
+  private final JTextField textFieldErodeMaxSlope;
+  private final JCheckBox checkBoxLandSlide;
+  private final JButton btnUpdateMapName;
+  private final JLabel lblMapCoords;
+  private final JCheckBox chcekboxShowGrid;
+  private final JTextField textFieldMapGridSize;
+  private final JTextField textFieldBiomeDensity;
+  private final JButton btnViewErrors;
+  private final JTextArea textAreaErrors;
+  private final CardLayout clMainPanel;
+  private final JPanel mainPanel;
+  private final JCheckBox checkboxPaintMode;
+  private final JButton btnGenerateRivers;
+  private final JCheckBox checkboxPaintRivers;
+  private final JTextField textFieldRiverDepth;
+  private final JTextField textFieldRiverWidth;
+  private final JTextField textFieldRiverSlope;
+  private final JButton btnResetRivers;
+  private final JCheckBox checkboxAutoDropDirt;
+  private final JTextField textFieldNormalizeRatio;
+  private final JButton btnUndoRiver;
 
   //CHECKSTYLE:OFF
-  private static String[][] biomeOptionValue = {
+  private static final String[][] biomeOptionValue = {
       // Count,Size,MaxSlope,RateN,RateS,RateE,RateW,MinHeight,Maxheight,GrowtRandom,GrowMin,GrowMax,AroundWater,Density
       { "500", "5", "20", "70", "70", "70", "70", "20", "20", "true", "30", "70", "true", "1" }, // TILE_CLAY
       { "100", "3", "40", "70", "70", "70", "70", "50", "4000", "true", "30", "70", "true", "2" }, // TILE_DIRT
@@ -213,14 +213,14 @@ public class MainWindow extends JFrame {
       { "500", "1", "30", "70", "70", "70", "70", "0", "4000", "true", "30", "70", "true", "1" }, // TILE_BUSH
       { "10", "20", "50", "70", "70", "70", "70", "0", "4000", "true", "30", "70", "true", "1" } }; // TILE_SNOW
   //CHECKSTYLE:ON
-  private JButton btnLoadBiomes;
-  private JButton btnExportBiomes;
-  private JButton btnImportBiomes;
-  private JTextField textFieldFlowerPercent;
-  private JComboBox<String> comboBoxFlowerType;
-  private JButton btnViewBiomes;
-  private JTextField textFieldSandstone;
-  private JTextField textFieldRocksalt;
+  private final JButton btnLoadBiomes;
+  private final JButton btnExportBiomes;
+  private final JButton btnImportBiomes;
+  private final JTextField textFieldFlowerPercent;
+  private final JComboBox<String> comboBoxFlowerType;
+  private final JButton btnViewBiomes;
+  private final JTextField textFieldSandstone;
+  private final JTextField textFieldRocksalt;
 
   /** Entrypoint. */
   public static void main(String[] args) {
@@ -479,7 +479,7 @@ public class MainWindow extends JFrame {
     inputPanel.add(textFieldMapSeed);
     textFieldMapSeed.setColumns(10);
 
-    textFieldMapResolution = new JTextField("" + (int) Constants.RESOLUTION);
+    textFieldMapResolution = new JTextField("" + Constants.RESOLUTION);
     inputPanel.add(textFieldMapResolution);
     textFieldMapResolution.setColumns(10);
 
@@ -890,11 +890,7 @@ public class MainWindow extends JFrame {
     checkboxPaintMode.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         mapPanel.setPaintingMode(checkboxPaintMode.isSelected());
-        if (checkboxPaintMode.isSelected()) {
-          textFieldSeedCount.setEnabled(false);
-        } else {
-          textFieldSeedCount.setEnabled(true);
-        }
+        textFieldSeedCount.setEnabled(!checkboxPaintMode.isSelected());
       }
     });
     panel_17.add(checkboxPaintMode);
@@ -1742,7 +1738,6 @@ public class MainWindow extends JFrame {
           @Override
           public void run() {
             actionSaveBiomeValues();
-            ;
           }
         }.start();
       }
@@ -1756,7 +1751,6 @@ public class MainWindow extends JFrame {
           @Override
           public void run() {
             actionLoadBiomeValues();
-            ;
           }
         }.start();
       }
@@ -2922,9 +2916,7 @@ public class MainWindow extends JFrame {
 
       String extension = getExtension(f);
       if (extension != null) {
-        if (extension.equals("act")) {
-          return true;
-        }
+        return extension.equals("act");
       }
 
       return false;
@@ -2956,9 +2948,7 @@ public class MainWindow extends JFrame {
 
       String extension = getExtension(f);
       if (extension != null) {
-        if (extension.equals("txt")) {
-          return true;
-        }
+        return extension.equals("txt");
       }
 
       return false;
@@ -2990,9 +2980,7 @@ public class MainWindow extends JFrame {
 
       String extension = getExtension(f);
       if (extension != null) {
-        if (extension.equals("png")) {
-          return true;
-        }
+        return extension.equals("png");
       }
 
       return false;
@@ -3044,7 +3032,7 @@ public class MainWindow extends JFrame {
   private BufferedImage getBiomeImage() {
     int mapSize = heightMap.getMapSize();
     BufferedImage bufferedImage = new BufferedImage(mapSize, mapSize, BufferedImage.TYPE_INT_RGB);
-    WritableRaster wr = (WritableRaster) bufferedImage.getRaster();
+    WritableRaster wr = bufferedImage.getRaster();
 
     int[] array = new int[mapSize * mapSize * 3];
     for (int x = 0; x < mapSize; x++) {
