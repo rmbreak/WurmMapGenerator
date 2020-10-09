@@ -2586,7 +2586,8 @@ public class MainWindow extends JFrame {
       for (int i = 0; i < heightMap.getMapSize(); i++) {
         progress.update((int) ((float) i / heightMap.getMapSize() * 98f));
         for (int j = 0; j < heightMap.getMapSize(); j++) {
-          final var c = new Color((float) heightMap.getHeight(i, j), (float) heightMap.getHeight(i, j), (float) heightMap.getHeight(i, j));
+          final float intensity = (float) heightMap.getHeight(i, j);
+          final var c = new Color(intensity, intensity, intensity);
           image.setRGB(i, j, c.getRGB());
         }
       }
