@@ -255,7 +255,7 @@ public class MapPanel extends JPanel {
     if (mapImage != null) {
       mapImage.flush();
     }
-    mapImage = new BufferedImage(mapSize, mapSize, BufferedImage.TYPE_BYTE_GRAY);
+    mapImage = new BufferedImage(mapSize, mapSize, BufferedImage.TYPE_INT_RGB);
     updateScale();
     checkBounds();
     scale = minScale;

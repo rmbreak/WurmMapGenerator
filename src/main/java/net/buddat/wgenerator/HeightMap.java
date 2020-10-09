@@ -137,7 +137,6 @@ public class HeightMap {
     } catch (IOException e) {
       JOptionPane.showMessageDialog(null, "Unable to create heightmap file.", "Error",
           JOptionPane.ERROR_MESSAGE);
-      return;
     }
   }
 

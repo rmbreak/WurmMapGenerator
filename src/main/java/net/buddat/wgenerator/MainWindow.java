@@ -7,57 +7,27 @@ import com.wurmonline.mesh.GrassData.GrowthTreeStage;
 import com.wurmonline.mesh.Tiles.Tile;
 import com.wurmonline.wurmapi.api.MapData;
 import com.wurmonline.wurmapi.api.WurmAPI;
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Random;
-import javax.imageio.ImageIO;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.SwingConstants;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-import javax.swing.filechooser.FileFilter;
 import lombok.extern.slf4j.Slf4j;
 import net.buddat.wgenerator.util.Constants;
 import net.buddat.wgenerator.util.ProgressHandler;
 import net.buddat.wgenerator.util.StreamCapturer;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileFilter;
+import java.awt.*;
+import java.awt.color.ColorSpace;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Random;
 
 @Slf4j
 public class MainWindow extends JFrame {
@@ -2611,16 +2581,16 @@ public class MainWindow extends JFrame {
   private void updateMapView() {
     if (defaultView == Constants.ViewType.HEIGHT) {
       startLoading("Loading View");
-      Graphics g = mapPanel.getMapImage().getGraphics();
+      final BufferedImage image = mapPanel.getMapImage();
 
       for (int i = 0; i < heightMap.getMapSize(); i++) {
         progress.update((int) ((float) i / heightMap.getMapSize() * 98f));
         for (int j = 0; j < heightMap.getMapSize(); j++) {
-          g.setColor(new Color((float) heightMap.getHeight(i, j), (float) heightMap.getHeight(i, j),
-              (float) heightMap.getHeight(i, j)));
-          g.fillRect(i, j, 1, 1);
+          final var c = new Color((float) heightMap.getHeight(i, j), (float) heightMap.getHeight(i, j), (float) heightMap.getHeight(i, j));
+          image.setRGB(i, j, c.getRGB());
         }
       }
+      image.flush();
     } else {
       updateApiMap();
 
